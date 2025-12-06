@@ -23,6 +23,14 @@
             <x-input-error class="mt-2" :messages="$errors->get('name')" />
         </div>
 
+        <!-- Username -->
+        <div>
+            <x-input-label for="username" :value="__('Username')" />
+            <x-text-input id="username" name="username" type="text" class="mt-1 block w-full" :value="old('username', $user->username)" required autocomplete="username" placeholder="username_anda" />
+            <p class="text-xs text-gray-500 mt-1">Digunakan untuk login alternatif selain email.</p>
+            <x-input-error class="mt-2" :messages="$errors->get('username')" />
+        </div>
+
         <!-- Email -->
         <div>
             <x-input-label for="email" :value="__('Email')" />
