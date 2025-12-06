@@ -87,7 +87,7 @@
             </a>
             <span class="text-gray-300">|</span>
             <a href="{{ route('pembimbing.register') }}" class="text-sm font-bold text-purple-600 hover:underline">
-                Daftar Dosen
+                Daftar Dosen / Guru
             </a>
         </div>
     </div>
