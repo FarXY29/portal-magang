@@ -18,10 +18,16 @@ class ProfileUpdateRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
+            
+            // --- VALIDASI USERNAME ---
+            // 'nullable' agar jika user belum punya, tidak error saat load awal
+            // 'unique' mengecualikan user yang sedang login (agar bisa simpan tanpa ganti username)
+            'username' => ['nullable', 'string', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
+            // ------------------------
+
             'nik' => ['nullable', 'string', 'max:20'],
-            'phone' => ['nullable', 'string', 'max:15'],
-            'asal_instansi' => ['nullable', 'string', 'max:255']
+            'phone' => ['nullable', 'string', 'max:20'],
+            'asal_instansi' => ['nullable', 'string', 'max:255'],
         ];
     }
-    
 }
