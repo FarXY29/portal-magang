@@ -1,0 +1,181 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+use Illuminate\Http\Request; 
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\MagangController;
+use App\Http\Controllers\AdminKotaController;
+use App\Http\Controllers\AdminSkpdController;
+use App\Http\Controllers\LogbookController;
+use App\Http\Controllers\PembimbingController;
+use App\Http\Controllers\MentorController;
+use App\Http\Controllers\Auth\RegisterPembimbingController;
+use App\Models\InternshipPosition;
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
+// --- 1. HALAMAN PUBLIK (Landing Page dengan Pencarian) ---
+Route::get('/', function (Request $request) {
+    // Query dasar: ambil posisi yang statusnya 'buka'
+    $query = InternshipPosition::with('skpd')->where('status', 'buka');
+
+    // Logika Pencarian
+    if ($request->has('search') && $request->search != '') {
+        $search = $request->search;
+        $query->where(function($q) use ($search) {
+            $q->where('judul_posisi', 'like', '%' . $search . '%')
+              ->orWhereHas('skpd', function($qSkpd) use ($search) {
+                  $qSkpd->where('nama_dinas', 'like', '%' . $search . '%');
+              });
+        });
+    }
+
+    // Ambil data (terbaru & pagination)
+    // PERBAIKAN: Kita pisah menjadi 2 baris agar editor tidak error merah
+    $lowongans = $query->latest()->paginate(9);
+    $lowongans->appends($request->all()); // Menambahkan query string pencarian ke link pagination
+
+    // Hitung Statistik untuk Hero Section
+    $totalSkpd = \App\Models\Skpd::count();
+    $totalLowongan = InternshipPosition::where('status', 'buka')->count();
+    $totalAlumni = \App\Models\Application::where('status', 'selesai')->count();
+
+    return view('welcome', compact('lowongans', 'totalSkpd', 'totalLowongan', 'totalAlumni')); 
+})->name('home');
+
+// Halaman Detail Lowongan (Publik)
+Route::get('/lowongan', [MagangController::class, 'index'])->name('lowongan.index');
+Route::get('/lowongan/{id}', [MagangController::class, 'show'])->name('lowongan.show');
+
+
+// --- 2. ROUTE KHUSUS TAMU (GUEST) ---
+Route::middleware('guest')->group(function () {
+    // Pendaftaran Khusus Dosen/Guru Pembimbing
+    Route::get('register-pembimbing', [RegisterPembimbingController::class, 'create'])
+                ->name('pembimbing.register');
+    Route::post('register-pembimbing', [RegisterPembimbingController::class, 'store']);
+});
+
+
+// --- 3. LOGIKA REDIRECT DASHBOARD ---
+Route::get('/dashboard', function () {
+    $role = auth()->user()->role;
+    
+    // Arahkan user ke dashboard sesuai peran masing-masing
+    if ($role == 'admin_kota') return redirect()->route('admin.dashboard');
+    if ($role == 'admin_skpd') return redirect()->route('dinas.dashboard');
+    if ($role == 'mentor') return redirect()->route('mentor.dashboard');
+    if ($role == 'peserta') return redirect()->route('peserta.dashboard');
+    if ($role == 'pembimbing') return redirect()->route('pembimbing.dashboard');
+    
+    return view('dashboard'); // Fallback
+})->middleware(['auth', 'verified'])->name('dashboard');
+
+
+// --- 4. GROUP ROUTE YANG BUTUH LOGIN (AUTH) ---
+Route::middleware('auth')->group(function () {
+    
+    // A. AREA PESERTA (MAHASISWA/SISWA)
+    Route::middleware(['role:peserta'])->prefix('peserta')->name('peserta.')->group(function () {
+        Route::get('/dashboard', [MagangController::class, 'dashboard'])->name('dashboard');
+        
+        // Pendaftaran Magang
+        Route::get('/daftar/{id}', [MagangController::class, 'showApplyForm'])->name('daftar.form');
+        Route::post('/daftar/{id}', [MagangController::class, 'storeApplication'])->name('daftar');
+        
+        // Logbook & Laporan
+        Route::resource('logbook', LogbookController::class);
+        Route::get('/logbook-print', [LogbookController::class, 'print'])->name('logbook.print'); // Cetak Rekap Logbook
+        
+        // Sertifikat
+        Route::get('/sertifikat', [MagangController::class, 'downloadCertificate'])->name('sertifikat');
+    });
+
+    // B. AREA ADMIN SKPD (KEPALA DINAS/HRD)
+    Route::middleware(['role:admin_skpd'])->prefix('dinas')->name('dinas.')->group(function () {
+        Route::get('/dashboard', [AdminSkpdController::class, 'index'])->name('dashboard');
+        
+        // Manajemen Mentor (Pegawai Dinas)
+        Route::get('/mentors', [AdminSkpdController::class, 'indexMentors'])->name('mentors.index');
+        Route::post('/mentors', [AdminSkpdController::class, 'storeMentor'])->name('mentors.store');
+        Route::delete('/mentors/{id}', [AdminSkpdController::class, 'destroyMentor'])->name('mentors.destroy');
+
+        // Manajemen Pelamar
+        Route::get('/pelamar', [AdminSkpdController::class, 'applicants'])->name('pelamar');
+        Route::post('/pelamar/{id}/terima', [AdminSkpdController::class, 'acceptApplicant'])->name('pelamar.terima');
+        Route::post('/pelamar/{id}/tolak', [AdminSkpdController::class, 'rejectApplicant'])->name('pelamar.tolak');
+        
+        // Manajemen Lowongan
+        Route::get('/lowongan', [AdminSkpdController::class, 'indexLowongan'])->name('lowongan.index');
+        Route::get('/lowongan/create', [AdminSkpdController::class, 'createLowongan'])->name('lowongan.create');
+        Route::post('/lowongan', [AdminSkpdController::class, 'storeLowongan'])->name('lowongan.store');
+        Route::delete('/lowongan/{id}', [AdminSkpdController::class, 'destroyLowongan'])->name('lowongan.destroy');
+
+        // Monitoring & Kelulusan
+        Route::get('/peserta-aktif', [AdminSkpdController::class, 'activeInterns'])->name('peserta.index');
+        Route::post('/peserta/{id}/assign', [AdminSkpdController::class, 'assignMentor'])->name('peserta.assign');
+        Route::get('/peserta/{id}/logbook', [AdminSkpdController::class, 'showLogbooks'])->name('peserta.logbook');
+        Route::post('/peserta/{id}/selesai', [AdminSkpdController::class, 'finishIntern'])->name('peserta.selesai');
+        
+        // Validasi Logbook (Opsional bagi Admin Dinas)
+        Route::post('/logbook/validasi/{id}', [AdminSkpdController::class, 'validateLogbook'])->name('logbook.validasi');
+    });
+
+    // C. AREA MENTOR (PEMBIMBING LAPANGAN)
+    Route::middleware(['role:mentor'])->prefix('mentor')->name('mentor.')->group(function () {
+        Route::get('/dashboard', [MentorController::class, 'index'])->name('dashboard');
+        
+        // Logbook & Validasi
+        Route::get('/mahasiswa/{id}/logbook', [MentorController::class, 'showLogbook'])->name('logbook');
+        Route::post('/logbook/validasi/{id}', [MentorController::class, 'validateLogbook'])->name('logbook.validasi');
+        
+        // Penilaian Akhir (Grading)
+        Route::get('/mahasiswa/{id}/nilai', [MentorController::class, 'gradingForm'])->name('grading.form');
+        Route::post('/mahasiswa/{id}/nilai', [MentorController::class, 'storeGrade'])->name('grading.store');
+    });
+
+    // D. AREA PEMBIMBING AKADEMIK (DOSEN/GURU)
+    Route::middleware(['role:pembimbing'])->prefix('pembimbing')->name('pembimbing.')->group(function () {
+        Route::get('/dashboard', [PembimbingController::class, 'index'])->name('dashboard');
+        Route::get('/logbook/{id}', [PembimbingController::class, 'showLogbook'])->name('logbook');
+    });
+
+    // E. AREA ADMIN KOTA (SUPER ADMIN)
+    Route::middleware(['role:admin_kota'])->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/dashboard', [AdminKotaController::class, 'index'])->name('dashboard');
+        
+        // Master Data SKPD
+        Route::get('/skpd', [AdminKotaController::class, 'indexSkpd'])->name('skpd.index');
+        Route::get('/skpd/create', [AdminKotaController::class, 'create'])->name('skpd.create');
+        Route::post('/skpd', [AdminKotaController::class, 'store'])->name('skpd.store');
+        Route::delete('/skpd/{id}', [AdminKotaController::class, 'destroy'])->name('skpd.destroy');
+        
+        // Laporan & Export
+        Route::get('/laporan', [AdminKotaController::class, 'report'])->name('laporan');
+        Route::get('/laporan/excel', [AdminKotaController::class, 'exportExcel'])->name('laporan.excel');
+
+        // Manajemen User
+        Route::resource('users', \App\Http\Controllers\AdminUserController::class);
+
+        // --- MONITOR LOGBOOK ---
+        Route::get('/monitoring-logbook', [\App\Http\Controllers\AdminUserController::class, 'logbooks'])->name('users.logbooks');
+        Route::get('/monitoring-logbook/{id}', [\App\Http\Controllers\AdminUserController::class, 'showLogbook'])->name('users.logbooks.show');
+        // -------------------------------------
+
+        // --- PENGATURAN SISTEM ---
+        Route::get('/settings', [\App\Http\Controllers\AdminSettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [\App\Http\Controllers\AdminSettingController::class, 'update'])->name('settings.update');
+        // ----------------------------------------
+    });
+
+    // F. PROFILE USER (Semua Role)
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+require __DIR__.'/auth.php';
