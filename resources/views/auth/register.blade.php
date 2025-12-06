@@ -79,10 +79,10 @@
 
         <!-- Footer Register -->
     <div class="mt-6 text-center border-t border-gray-100 pt-4">
-        <p class="text-sm text-gray-600">Anda Guru / Dosen Pembimbing?</p>
+        <p class="text-sm text-gray-600">Anda Dosen / Guru Pembimbing?</p>
         <div class="flex justify-center gap-4 mt-2">
             <a href="{{ route('pembimbing.register') }}" class="text-sm font-bold text-purple-600 hover:underline">
-                Daftar Guru / Dosen
+                Daftar Dosen / Guru
             </a>
         </div>
     </div>
