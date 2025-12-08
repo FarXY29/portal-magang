@@ -12,15 +12,10 @@ class KepalaDinasController extends Controller
     public function index()
     {
         $user = Auth::user();
-        
-        // Pastikan user memiliki SKPD (menghindari error jika null)
-        if (!$user->skpd_id) {
-            return view('dashboard'); // Fallback ke dashboard default jika tidak punya SKPD
-        }
+        if (!$user->skpd_id) return view('dashboard');
 
         $skpdId = $user->skpd_id;
 
-        // 1. Hitung Statistik Ringkas
         $totalLowongan = InternshipPosition::where('skpd_id', $skpdId)->count();
         
         $totalPesertaAktif = Application::whereHas('position', function($q) use ($skpdId) {
@@ -31,23 +26,15 @@ class KepalaDinasController extends Controller
             $q->where('skpd_id', $skpdId);
         })->where('status', 'selesai')->count();
 
-        // 2. Ambil 5 Posisi Paling Diminati (Ini yang sebelumnya Error/Hilang)
         $popularPositions = InternshipPosition::where('skpd_id', $skpdId)
-            ->withCount('applications') // Menghitung jumlah pelamar per posisi
+            ->withCount('applications')
             ->orderBy('applications_count', 'desc')
             ->take(5)
             ->get();
 
-        // 3. Kirim semua variabel ke View
-        return view('kepala_dinas.dashboard', compact(
-            'totalLowongan', 
-            'totalPesertaAktif', 
-            'totalAlumni', 
-            'popularPositions' // <-- Pastikan variabel ini ada di sini
-        ));
+        return view('kepala_dinas.dashboard', compact('totalLowongan', 'totalPesertaAktif', 'totalAlumni', 'popularPositions'));
     }
 
-    // Laporan Lowongan (Read Only)
     public function laporanLowongan()
     {
         $skpdId = Auth::user()->skpd_id;
@@ -55,15 +42,23 @@ class KepalaDinasController extends Controller
         return view('kepala_dinas.laporan_lowongan', compact('lowongans'));
     }
 
-    // Laporan Peserta (Read Only)
+    // --- FOKUS UTAMA: LAPORAN DATA GABUNGAN ---
     public function laporanPeserta()
     {
         $skpdId = Auth::user()->skpd_id;
+        
+        // Mengambil Data Gabungan dari Tabel: Applications + Users + Positions + Mentors
         $interns = Application::whereHas('position', function($q) use ($skpdId) {
             $q->where('skpd_id', $skpdId);
         })
         ->whereIn('status', ['diterima', 'selesai'])
-        ->with(['user', 'position'])
+        // Eager Loading (Menggabungkan Data)
+        ->with([
+            'user',             // Data Mahasiswa (Nama, NIK, Instansi)
+            'position',         // Data Posisi Magang
+            'mentor',           // Data Pembimbing Lapangan
+            'position.skpd'     // Data Dinas (Optional, jika ingin ditampilkan)
+        ])
         ->orderBy('created_at', 'desc')
         ->get();
 
