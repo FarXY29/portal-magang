@@ -34,6 +34,7 @@
                             <option value="mentor">Mentor Lapangan (Pegawai)</option>
                             <option value="admin_skpd">Admin Dinas (Kepala)</option>
                             <option value="admin_kota">Super Admin</option>
+                            <option value="kepala_dinas">Kepala Dinas (Eksekutif)</option>
                         </select>
                     </div>
 
@@ -73,7 +74,8 @@
             const skpdField = document.getElementById('skpdField');
             const instansiField = document.getElementById('instansiField');
 
-            if (role === 'admin_skpd' || role === 'mentor') {
+            if (role === 'admin_skpd' || role === 'mentor' || role === 'kepala_dinas') { 
+                // Tampilkan dropdown SKPD karena Kepala Dinas terikat dengan 1 dinas
                 skpdField.classList.remove('hidden');
                 instansiField.classList.add('hidden');
             } else if (role === 'pembimbing' || role === 'peserta') {
