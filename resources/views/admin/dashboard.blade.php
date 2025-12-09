@@ -125,6 +125,17 @@
                                 <i class="fas fa-chevron-right ml-auto text-gray-300 group-hover:text-blue-400 text-xs"></i>
                             </a>
 
+                            <a href="{{ route('admin.laporan.peserta_global') }}" class="flex items-center p-3 rounded-xl bg-gray-50 hover:bg-blue-50 border border-transparent hover:border-blue-200 transition group">
+                                <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-blue-600 group-hover:bg-blue-600 group-hover:text-white transition">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <div class="ml-3">
+                                    <p class="text-sm font-bold text-gray-800 group-hover:text-blue-700">Data Peseta Global</p>
+                                    <p class="text-xs text-gray-500">Cetak PDF / Excel</p>
+                                </div>
+                                <i class="fas fa-chevron-right ml-auto text-gray-300 group-hover:text-blue-400 text-xs"></i>
+                            </a>
+                        
                             <!-- MENU BARU: MONITORING LOGBOOK -->
                         <a href="{{ route('admin.users.logbooks') }}" class="flex items-center p-3 rounded-xl bg-gray-50 hover:bg-orange-50 border border-transparent hover:border-orange-200 transition group">
                             <div class="w-10 h-10 rounded-lg bg-white shadow-sm flex items-center justify-center text-orange-600 group-hover:bg-orange-600 group-hover:text-white transition">
