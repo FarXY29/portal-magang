@@ -5,7 +5,9 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
+            <div class="flex justify-between mb-6 print:hidden">
+                    <a href="{{ route('admin.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+                </div>
             <!-- Tombol Aksi -->
             <div class="flex justify-end mb-6 gap-3 print:hidden">
                 <!-- Tombol Excel Baru -->

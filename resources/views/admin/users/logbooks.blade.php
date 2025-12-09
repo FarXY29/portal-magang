@@ -5,7 +5,9 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
+            <div class="flex justify-between mb-6 print:hidden">
+                <a href="{{ route('admin.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+            </div>
             <!-- Pencarian -->
             <div class="flex justify-between items-center mb-6">
                 <form method="GET" action="{{ route('admin.users.logbooks') }}" class="flex w-full md:w-auto">
