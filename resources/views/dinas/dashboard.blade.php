@@ -41,6 +41,12 @@
                     <h4 class="font-bold text-xl text-purple-800">Data Mentor</h4>
                     <p class="text-gray-600 text-sm">Kelola akun pegawai pembimbing lapangan.</p>
                     </a>
+
+                    <!-- Menu 5: Laporan & Data -->
+                     <a href="{{ route('dinas.laporan.rekap') }}" class="block p-6 border rounded-lg bg-white hover:bg-gray-50 border-gray-200 transition">
+                        <h4 class="font-bold text-xl text-gray-800">Laporan Rekap</h4>
+                        <p class="text-gray-600 text-sm">Cetak daftar peserta magang di dinas ini.</p>
+                    </a>
                 </div>
         </div>
     </div>
