@@ -21,7 +21,7 @@ use App\Models\InternshipPosition;
 |--------------------------------------------------------------------------
 */
 
-// --- 1. HALAMAN PUBLIK (Landing Page dengan Pencarian & Statistik) ---
+// --- 1. HALAMAN PUBLIK (Landing Page dengan Pencarian) ---
 Route::get('/', function (Request $request) {
     // A. Query Dasar & Pencarian
     $query = InternshipPosition::with('skpd')->where('status', 'buka');
@@ -115,6 +115,9 @@ Route::middleware('auth')->group(function () {
         Route::get('/peserta/{id}/logbook', [AdminSkpdController::class, 'showLogbooks'])->name('peserta.logbook');
         Route::post('/peserta/{id}/selesai', [AdminSkpdController::class, 'finishIntern'])->name('peserta.selesai');
         Route::post('/logbook/validasi/{id}', [AdminSkpdController::class, 'validateLogbook'])->name('logbook.validasi');
+        
+        // Laporan Rekap Dinas
+        Route::get('/laporan/rekap', [AdminSkpdController::class, 'laporanRekap'])->name('laporan.rekap');
     });
 
     // C. AREA MENTOR
@@ -135,8 +138,13 @@ Route::middleware('auth')->group(function () {
     // E. AREA KEPALA DINAS (BARU)
     Route::middleware(['role:kepala_dinas'])->prefix('kepala-dinas')->name('kepala_dinas.')->group(function () {
         Route::get('/dashboard', [KepalaDinasController::class, 'index'])->name('dashboard');
+        // Report Routes
         Route::get('/laporan-lowongan', [KepalaDinasController::class, 'laporanLowongan'])->name('laporan.lowongan');
         Route::get('/laporan-peserta', [KepalaDinasController::class, 'laporanPeserta'])->name('laporan.peserta');
+        Route::get('/laporan-demografi', [KepalaDinasController::class, 'laporanDemografi'])->name('laporan.demografi');
+        Route::get('/laporan-nilai', [KepalaDinasController::class, 'laporanNilai'])->name('laporan.nilai');
+        Route::get('/laporan-absensi', [KepalaDinasController::class, 'laporanAbsensi'])->name('laporan.absensi');
+        Route::get('/laporan-statistik', [KepalaDinasController::class, 'laporanStatistik'])->name('laporan.statistik');
     });
 
     // F. AREA ADMIN KOTA (SUPER ADMIN)
@@ -149,14 +157,16 @@ Route::middleware('auth')->group(function () {
         Route::post('/skpd', [AdminKotaController::class, 'store'])->name('skpd.store');
         Route::delete('/skpd/{id}', [AdminKotaController::class, 'destroy'])->name('skpd.destroy');
         
-        // Laporan & Monitoring
+        // Laporan Global & Monitoring
         Route::get('/laporan', [AdminKotaController::class, 'report'])->name('laporan');
         Route::get('/laporan/excel', [AdminKotaController::class, 'exportExcel'])->name('laporan.excel');
+        Route::get('/laporan/peserta-global', [AdminKotaController::class, 'laporanPesertaGlobal'])->name('laporan.peserta_global');
+        
+        // User Management & Settings
         Route::resource('users', AdminUserController::class);
         Route::get('/monitoring-logbook', [AdminUserController::class, 'logbooks'])->name('users.logbooks');
         Route::get('/monitoring-logbook/{id}', [AdminUserController::class, 'showLogbook'])->name('users.logbooks.show');
         
-        // Pengaturan Sistem
         Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
     });
