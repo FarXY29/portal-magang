@@ -201,6 +201,21 @@ class AdminSkpdController extends Controller
         return back()->with('success', 'Status logbook diperbarui.');
     }
 
+    // --- FITUR BARU: LAPORAN REKAPITULASI (ADMIN DINAS) ---
+    public function laporanRekap()
+    {
+        $skpdId = Auth::user()->skpd_id;
+        
+        // Ambil data peserta (Gabungan Diterima & Selesai)
+        $rekap = Application::whereHas('position', function($q) use ($skpdId) {
+            $q->where('skpd_id', $skpdId);
+        })
+        ->whereIn('status', ['diterima', 'selesai'])
+        ->with(['user', 'position', 'mentor'])
+        ->orderBy('created_at', 'desc')
+        ->get();
 
+        return view('dinas.laporan.rekap', compact('rekap'));
+    }
     
 }
