@@ -12,13 +12,12 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}">
-                        <!-- Logo Laravel Default (Bisa diganti logo Pemkot) -->
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        <img src="{{ asset('images/Banjarmasin_Logo.svg.png') }}" alt="Logo SiMagang" {{ $attributes->merge(['class' => 'h-12 w-auto']) }}>
                     </a>
                 </div>
 
                 <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ml-10 sm:flex">
+                <div class="hidden space-x-8 sm:-my-px sm:ml-24 sm:flex">
                     <!-- Menu Dashboard (Bawaan) -->
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
