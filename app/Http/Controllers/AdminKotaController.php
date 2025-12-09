@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\LaporanExport;
+use App\Models\Application;
 
 class AdminKotaController extends Controller
 {
@@ -116,4 +117,17 @@ class AdminKotaController extends Controller
     {
         return Excel::download(new LaporanExport, 'Laporan-Rekap-Magang-'.date('d-m-Y').'.xlsx');
     }
+
+    // --- FITUR BARU: LAPORAN GLOBAL SEMUA PESERTA (SUPER ADMIN) ---
+    public function laporanPesertaGlobal()
+    {
+        // Ambil semua aplikasi yang diterima/selesai dari SELURUH dinas
+        $allInterns = Application::with(['user', 'position.skpd'])
+            ->whereIn('status', ['diterima', 'selesai'])
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('admin.laporan.peserta_global', compact('allInterns'));
+    }
+
 }
