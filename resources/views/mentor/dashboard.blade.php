@@ -24,6 +24,7 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Peserta</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Posisi</th>
+                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Kehadiran (Valid)</th> <!-- Kolom Baru -->
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nilai Akhir</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
                             </tr>
@@ -44,6 +45,16 @@
                                 </td>
                                 <td class="px-6 py-4 text-sm text-gray-700">{{ $mhs->position->judul_posisi }}</td>
                                 
+                                <!-- KOLOM KEHADIRAN (BARU) -->
+                                <td class="px-6 py-4 text-center">
+                                    @php
+                                        // Menghitung logbook yang sudah divalidasi (disetujui)
+                                        $validLogs = $mhs->logs->where('status_validasi', 'disetujui')->count();
+                                    @endphp
+                                    <div class="text-lg font-bold text-green-600">{{ $validLogs }} Hari</div>
+                                    <div class="text-[10px] text-gray-400">Total Validasi</div>
+                                </td>
+
                                 <td class="px-6 py-4">
                                     @if($mhs->nilai_angka)
                                         <div class="text-lg font-bold text-indigo-700">{{ $mhs->nilai_angka }}</div>
@@ -69,7 +80,7 @@
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="4" class="text-center py-8 text-gray-500">
+                                <td colspan="5" class="text-center py-8 text-gray-500">
                                     <div class="flex flex-col items-center">
                                         <i class="far fa-folder-open text-2xl mb-2 text-gray-400"></i>
                                         <span>Belum ada mahasiswa yang ditugaskan ke Anda.</span>
