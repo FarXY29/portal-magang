@@ -98,6 +98,8 @@ Route::middleware('auth')->group(function () {
         // Manajemen Mentor
         Route::get('/mentors', [AdminSkpdController::class, 'indexMentors'])->name('mentors.index');
         Route::post('/mentors', [AdminSkpdController::class, 'storeMentor'])->name('mentors.store');
+        Route::get('/mentors/{id}/edit', [AdminSkpdController::class, 'editMentor'])->name('mentors.edit');
+        Route::put('/mentors/{id}', [AdminSkpdController::class, 'updateMentor'])->name('mentors.update');
         Route::delete('/mentors/{id}', [AdminSkpdController::class, 'destroyMentor'])->name('mentors.destroy');
 
         // Manajemen Pelamar & Lowongan
