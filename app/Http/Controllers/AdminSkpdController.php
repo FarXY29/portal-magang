@@ -49,6 +49,48 @@ class AdminSkpdController extends Controller
         return back()->with('success', 'Akun Pembimbing Lapangan berhasil dibuat.');
     }
 
+    // --- FITUR EDIT MENTOR ---
+    public function editMentor($id)
+    {
+        // Pastikan hanya bisa edit mentor milik dinas sendiri
+        $mentor = User::where('id', $id)
+                    ->where('skpd_id', \Illuminate\Support\Facades\Auth::user()->skpd_id)
+                    ->where('role', 'mentor')
+                    ->firstOrFail();
+
+        return view('dinas.mentors.edit', compact('mentor'));
+    }
+
+    public function updateMentor(Request $request, $id)
+    {
+        $mentor = User::where('id', $id)
+                    ->where('skpd_id', \Illuminate\Support\Facades\Auth::user()->skpd_id)
+                    ->firstOrFail();
+
+        $request->validate([
+            'name' => 'required|string|max:255',
+            // Validasi unique email, tapi kecualikan user ini sendiri (ignore)
+            'email' => 'required|email|unique:users,email,'.$mentor->id, 
+            'nip' => 'nullable|string|max:20',
+            'password' => 'nullable|min:6' // Password opsional
+        ]);
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'nik' => $request->nip // NIP disimpan di kolom nik
+        ];
+
+        // Hanya update password jika diisi
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+        }
+
+        $mentor->update($data);
+
+        return redirect()->route('dinas.mentors.index')->with('success', 'Data mentor berhasil diperbarui.');
+    }
+
     public function destroyMentor($id)
     {
         $user = User::where('id', $id)->where('skpd_id', Auth::user()->skpd_id)->firstOrFail();
