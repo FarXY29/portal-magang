@@ -6,7 +6,9 @@
     <div class="py-12">
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                
+                <div class="flex justify-between mb-6 print:hidden">
+                    <a href="{{ route('dinas.lowongan.index') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+                </div>
                 <form action="{{ route('dinas.lowongan.store') }}" method="POST">
                     @csrf
                     

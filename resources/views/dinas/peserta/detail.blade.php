@@ -5,7 +5,9 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
+            <div class="flex justify-between mb-6 print:hidden">
+                    <a href="{{ route('dinas.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+                </div>
             <!-- Info Peserta -->
             <div class="bg-white p-6 rounded-lg shadow-sm mb-6 flex justify-between items-center">
                 <div>

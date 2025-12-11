@@ -5,7 +5,9 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
+            <div class="flex justify-between mb-6 print:hidden">
+                    <a href="{{ route('peserta.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+                </div>
             <!-- Pesan Error/Sukses (Misal: Jarak terlalu jauh) -->
             @if(session('error'))
                 <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">

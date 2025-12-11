@@ -7,10 +7,9 @@
 
     <div class="py-8">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            
-            <a href="{{ route('pembimbing.dashboard') }}" class="mb-4 inline-flex items-center text-gray-600 hover:text-gray-900 font-medium text-sm transition">
-                <i class="fas fa-arrow-left mr-2"></i> Kembali ke Dashboard
-            </a>
+            <div class="flex justify-between mb-6 print:hidden">
+                    <a href="{{ route('pembimbing.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+                </div>
 
             <div class="space-y-4">
                 @forelse($logs as $log)

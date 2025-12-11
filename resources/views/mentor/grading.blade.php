@@ -8,7 +8,9 @@
     <div class="py-12">
         <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                
+                <div class="flex justify-between mb-6 print:hidden">
+                    <a href="{{ route('mentor.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+                </div>
                 <div class="mb-6 border-b pb-4">
                     <h3 class="text-lg font-bold text-gray-900">{{ $app->user->name }}</h3>
                     <p class="text-sm text-gray-600">Posisi: {{ $app->position->judul_posisi }}</p>

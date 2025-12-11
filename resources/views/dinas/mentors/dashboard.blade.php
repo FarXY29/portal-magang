@@ -7,7 +7,9 @@
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            
+            <div class="flex justify-between mb-6 print:hidden">
+                    <a href="{{ route('dinas.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+                </div>
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-indigo-500">
                 <h3 class="text-lg font-bold mb-1">Daftar Mahasiswa Bimbingan</h3>
                 <p class="text-sm text-gray-500 mb-4">Berikut adalah peserta magang yang ditugaskan kepada Anda.</p>
