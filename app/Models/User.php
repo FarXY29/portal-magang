@@ -26,7 +26,8 @@ class User extends Authenticatable
         'skpd_id',
         'nik',
         'phone',
-        'asal_instansi',
+        'asal_instansi', 
+        'major', // Kolom Jurusan Mahasiswa
     ];
 
     /**
