@@ -28,6 +28,7 @@ class ProfileUpdateRequest extends FormRequest
             'nik' => ['nullable', 'string', 'max:20'],
             'phone' => ['nullable', 'string', 'max:20'],
             'asal_instansi' => ['nullable', 'string', 'max:255'],
+            'major' => ['nullable', 'string', 'max:255'],
         ];
     }
 }
