@@ -8,11 +8,10 @@
             <div class="flex justify-between mb-6 print:hidden">
                     <a href="{{ route('dinas.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
                 </div>
-            <!-- Tombol Tambah & Notifikasi -->
             <div class="flex justify-between items-center mb-6">
                 <div>
                     @if(session('success'))
-                        <div class="text-green-600 font-bold bg-green-100 px-4 py-2 rounded">
+                        <div class="text-green-600 font-bold bg-green-100 px-4 py-2 rounded shadow-sm text-sm">
                             <i class="fas fa-check-circle mr-1"></i> {{ session('success') }}
                         </div>
                     @endif
@@ -22,7 +21,6 @@
                 </a>
             </div>
 
-            <!-- Tabel Data -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
@@ -39,6 +37,7 @@
                             <td class="px-6 py-4">
                                 <div class="text-sm font-bold text-gray-900">{{ $loker->judul_posisi }}</div>
                                 <div class="text-xs text-gray-500 truncate w-48" title="{{ $loker->deskripsi }}">{{ Str::limit($loker->deskripsi, 50) }}</div>
+                                <div class="text-xs text-teal-600 mt-1 font-medium">Syarat: {{ $loker->required_major }}</div>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm text-gray-900 font-semibold">{{ $loker->kuota }} Orang</div>
@@ -51,13 +50,21 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <form action="{{ route('dinas.lowongan.destroy', $loker->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus lowongan ini?')" class="inline-block">
-                                    @csrf 
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded hover:bg-red-100 transition">
-                                        <i class="fas fa-trash-alt"></i> Hapus
-                                    </button>
-                                </form>
+                                <div class="flex items-center gap-2">
+                                    <!-- TOMBOL EDIT -->
+                                    <a href="{{ route('dinas.lowongan.edit', $loker->id) }}" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded hover:bg-indigo-100 transition">
+                                        Edit
+                                    </a>
+
+                                    <!-- TOMBOL HAPUS -->
+                                    <form action="{{ route('dinas.lowongan.destroy', $loker->id) }}" method="POST" onsubmit="return confirm('Hapus lowongan ini?')" class="inline-block">
+                                        @csrf 
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded hover:bg-red-100 transition">
+                                            Hapus
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                         @empty
