@@ -9,21 +9,23 @@ use App\Models\InternshipPosition;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\ApplicationAccepted;     
-use App\Mail\ApplicationRejected;
 
 class AdminSkpdController extends Controller
 {
+    /**
+     * Dashboard Utama Admin Dinas
+     */
     public function index()
     {
         return view('dinas.dashboard');
     }
 
-    // --- MANAJEMEN MENTOR ---
+    // --- MANAJEMEN MENTOR (PEGAWAI DINAS) ---
+    
     public function indexMentors()
     {
         $skpdId = Auth::user()->skpd_id;
+        // Ambil user dengan role 'mentor' di SKPD ini
         $mentors = User::where('skpd_id', $skpdId)->where('role', 'mentor')->get();
         return view('dinas.mentors.index', compact('mentors'));
     }
@@ -34,27 +36,26 @@ class AdminSkpdController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'password' => 'required|min:6',
-            'nip' => 'nullable'
+            'nip' => 'nullable' 
         ]);
 
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'mentor',
+            'role' => 'mentor', // Role khusus pembimbing lapangan
             'skpd_id' => Auth::user()->skpd_id,
-            'nik' => $request->nip
+            'nik' => $request->nip // Kita simpan NIP di kolom NIK saja
         ]);
 
         return back()->with('success', 'Akun Pembimbing Lapangan berhasil dibuat.');
     }
 
-    // --- FITUR EDIT MENTOR ---
     public function editMentor($id)
     {
         // Pastikan hanya bisa edit mentor milik dinas sendiri
         $mentor = User::where('id', $id)
-                    ->where('skpd_id', \Illuminate\Support\Facades\Auth::user()->skpd_id)
+                    ->where('skpd_id', Auth::user()->skpd_id)
                     ->where('role', 'mentor')
                     ->firstOrFail();
 
@@ -64,24 +65,22 @@ class AdminSkpdController extends Controller
     public function updateMentor(Request $request, $id)
     {
         $mentor = User::where('id', $id)
-                    ->where('skpd_id', \Illuminate\Support\Facades\Auth::user()->skpd_id)
+                    ->where('skpd_id', Auth::user()->skpd_id)
                     ->firstOrFail();
 
         $request->validate([
             'name' => 'required|string|max:255',
-            // Validasi unique email, tapi kecualikan user ini sendiri (ignore)
             'email' => 'required|email|unique:users,email,'.$mentor->id, 
             'nip' => 'nullable|string|max:20',
-            'password' => 'nullable|min:6' // Password opsional
+            'password' => 'nullable|min:6'
         ]);
 
         $data = [
             'name' => $request->name,
             'email' => $request->email,
-            'nik' => $request->nip // NIP disimpan di kolom nik
+            'nik' => $request->nip
         ];
 
-        // Hanya update password jika diisi
         if ($request->filled('password')) {
             $data['password'] = Hash::make($request->password);
         }
@@ -98,7 +97,7 @@ class AdminSkpdController extends Controller
         return back()->with('success', 'Akun mentor dihapus.');
     }
 
-    // --- MANAJEMEN PELAMAR (UPDATE KUOTA DISINI) ---
+    // --- MANAJEMEN PELAMAR ---
 
     public function applicants()
     {
@@ -112,49 +111,37 @@ class AdminSkpdController extends Controller
 
     public function acceptApplicant($id)
     {
-        $app = Application::with(['position', 'user'])->findOrFail($id); // Load user untuk email
+        // 1. Cari data lamaran beserta data posisinya
+        $app = Application::with('position')->findOrFail($id);
         
+        // 2. Cek Kuota Posisi
         if ($app->position->kuota <= 0) {
-            return back()->with('error', 'Gagal menerima! Kuota habis.');
+            return back()->with('error', 'Gagal menerima! Kuota untuk posisi ini sudah habis (0).');
         }
 
+        // 3. Kurangi Kuota
         $app->position->decrement('kuota');
 
+        // 4. Update Status Peserta & Kirim Email (Opsional jika setup email aktif)
         $app->update([
             'status' => 'diterima', 
             'tanggal_mulai' => now(),
-            'mentor_id' => null 
+            'mentor_id' => null // Mentor harus di-assign manual nanti
         ]);
 
-        // --- KIRIM EMAIL NOTIFIKASI ---
-        try {
-            Mail::to($app->user->email)->send(new ApplicationAccepted($app));
-        } catch (\Exception $e) {
-            // Biarkan error email tidak menghentikan proses aplikasi
-            // log error jika perlu: \Log::error($e->getMessage());
-        }
-        // ------------------------------
-
-        return back()->with('success', 'Peserta diterima & notifikasi email dikirim!');
+        return back()->with('success', 'Peserta diterima! Kuota posisi berkurang menjadi ' . $app->position->kuota);
     }
 
     public function rejectApplicant($id)
     {
-        $app = Application::with('user')->findOrFail($id);
+        $app = Application::findOrFail($id);
         $app->update(['status' => 'ditolak']);
-
-        // --- KIRIM EMAIL NOTIFIKASI ---
-        try {
-            Mail::to($app->user->email)->send(new ApplicationRejected($app));
-        } catch (\Exception $e) {
-            // Silent fail
-        }
-        // ------------------------------
-
-        return back()->with('success', 'Peserta ditolak & notifikasi email dikirim.');
+        
+        return back()->with('success', 'Peserta ditolak.');
     }
 
     // --- MANAJEMEN LOWONGAN ---
+
     public function indexLowongan()
     {
         $skpdId = Auth::user()->skpd_id;
@@ -167,14 +154,62 @@ class AdminSkpdController extends Controller
     public function storeLowongan(Request $request)
     {
         $request->validate([
-            'judul_posisi' => 'required', 'deskripsi' => 'required', 'kuota' => 'required|numeric', 'batas_daftar' => 'required|date',
+            'judul_posisi' => 'required',
+            'required_major' => 'required',
+            'deskripsi' => 'required',
+            'kuota' => 'required|numeric',
+            'batas_daftar' => 'required|date',
         ]);
+
         InternshipPosition::create([
             'skpd_id' => Auth::user()->skpd_id,
-            'judul_posisi' => $request->judul_posisi, 'deskripsi' => $request->deskripsi,
-            'kuota' => $request->kuota, 'batas_daftar' => $request->batas_daftar, 'status' => 'buka'
+            'judul_posisi' => $request->judul_posisi,
+            'required_major' => $request->required_major,
+            'deskripsi' => $request->deskripsi,
+            'kuota' => $request->kuota,
+            'batas_daftar' => $request->batas_daftar,
+            'status' => 'buka'
         ]);
+
         return redirect()->route('dinas.lowongan.index')->with('success', 'Lowongan berhasil dibuat!');
+    }
+
+    // --- FITUR EDIT LOWONGAN (BARU) ---
+    public function editLowongan($id)
+    {
+        // Pastikan hanya bisa edit lowongan milik dinas sendiri
+        $loker = InternshipPosition::where('id', $id)
+                    ->where('skpd_id', Auth::user()->skpd_id)
+                    ->firstOrFail();
+
+        return view('dinas.lowongan.edit', compact('loker'));
+    }
+
+    public function updateLowongan(Request $request, $id)
+    {
+        $loker = InternshipPosition::where('id', $id)
+                    ->where('skpd_id', Auth::user()->skpd_id)
+                    ->firstOrFail();
+
+        $request->validate([
+            'judul_posisi' => 'required',
+            'required_major' => 'required',
+            'deskripsi' => 'required',
+            'kuota' => 'required|numeric',
+            'batas_daftar' => 'required|date',
+            'status' => 'required|in:buka,tutup'
+        ]);
+
+        $loker->update([
+            'judul_posisi' => $request->judul_posisi,
+            'required_major' => $request->required_major,
+            'deskripsi' => $request->deskripsi,
+            'kuota' => $request->kuota,
+            'batas_daftar' => $request->batas_daftar,
+            'status' => $request->status
+        ]);
+
+        return redirect()->route('dinas.lowongan.index')->with('success', 'Lowongan berhasil diperbarui!');
     }
 
     public function destroyLowongan($id)
@@ -184,7 +219,7 @@ class AdminSkpdController extends Controller
         return back()->with('success', 'Lowongan dihapus.');
     }
 
-    // --- MONITORING PESERTA ---
+    // --- MONITORING PESERTA & VALIDASI ---
 
     public function activeInterns()
     {
@@ -196,6 +231,7 @@ class AdminSkpdController extends Controller
         })
         ->whereIn('status', ['diterima', 'selesai'])
         ->with(['user', 'position', 'mentor'])
+        ->orderBy('status', 'asc') // Aktif dulu baru Selesai
         ->get();
 
         return view('dinas.peserta.index', compact('interns', 'mentors'));
@@ -215,14 +251,14 @@ class AdminSkpdController extends Controller
         $app = Application::findOrFail($id);
         if($app->position->skpd_id != Auth::user()->skpd_id) abort(403);
         
-        // Note: Saat lulus, kuota biasanya TIDAK kembali (karena sudah terpakai di periode tersebut).
-        // Kecuali kebijakannya beda.
+        $app->update([
+            'status' => 'selesai',
+            'tanggal_selesai' => now()
+        ]);
         
-        $app->update(['status' => 'selesai', 'tanggal_selesai' => now()]);
-        return back()->with('success', 'Peserta berhasil diluluskan!');
+        return back()->with('success', 'Peserta berhasil diluluskan! Sertifikat kini tersedia.');
     }
     
-    // Tambahan fungsi showLogbooks untuk Admin Dinas (Read Only)
     public function showLogbooks($applicationId)
     {
         $app = Application::with(['user', 'position'])->findOrFail($applicationId);
@@ -232,7 +268,6 @@ class AdminSkpdController extends Controller
         return view('dinas.peserta.detail', compact('app', 'logs'));
     }
     
-    // Tambahan fungsi validateLogbook (Admin Dinas juga bisa validasi jika perlu)
     public function validateLogbook(Request $request, $id)
     {
         $log = DailyLog::findOrFail($id);
@@ -243,12 +278,10 @@ class AdminSkpdController extends Controller
         return back()->with('success', 'Status logbook diperbarui.');
     }
 
-    // --- FITUR BARU: LAPORAN REKAPITULASI (ADMIN DINAS) ---
+    // --- LAPORAN REKAPITULASI ---
     public function laporanRekap()
     {
         $skpdId = Auth::user()->skpd_id;
-        
-        // Ambil data peserta (Gabungan Diterima & Selesai)
         $rekap = Application::whereHas('position', function($q) use ($skpdId) {
             $q->where('skpd_id', $skpdId);
         })
@@ -259,5 +292,4 @@ class AdminSkpdController extends Controller
 
         return view('dinas.laporan.rekap', compact('rekap'));
     }
-    
 }
