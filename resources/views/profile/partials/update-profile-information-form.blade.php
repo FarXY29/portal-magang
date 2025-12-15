@@ -4,7 +4,7 @@
             {{ __('Informasi Profil') }}
         </h2>
         <p class="mt-1 text-sm text-gray-600">
-            {{ __("Perbarui informasi profil dan data akademik Anda.") }}
+            {{ __("Perbarui informasi profil, username, dan data akademik Anda.") }}
         </p>
     </header>
 
@@ -49,19 +49,28 @@
             @endif
         </div>
 
-        <!-- NIK -->
+        <!-- NIM / NPM -->
         <div>
-            <x-input-label for="nik" :value="__('NIK (Nomor Induk Kependudukan)')" />
-            <x-text-input id="nik" name="nik" type="text" class="mt-1 block w-full" :value="old('nik', $user->nik)" placeholder="Diperlukan untuk sertifikat" />
+            <x-input-label for="nik" :value="__('NIM / NPM')" />
+            <x-text-input id="nik" name="nik" type="text" class="mt-1 block w-full" :value="old('nik', $user->nik)" placeholder="Nomor Induk Mahasiswa" />
+            <p class="text-xs text-gray-500 mt-1">Nomor ini akan tercetak di sertifikat magang.</p>
             <x-input-error class="mt-2" :messages="$errors->get('nik')" />
         </div>
 
-        <!-- Asal Instansi (PENTING) -->
+        <!-- Asal Instansi -->
         <div>
             <x-input-label for="asal_instansi" :value="__('Asal Sekolah / Universitas')" />
-            <x-text-input id="asal_instansi" name="asal_instansi" type="text" class="mt-1 block w-full" :value="old('asal_instansi', $user->asal_instansi)" placeholder="Contoh: Universitas Lambung Mangkurat / SMKN 1 Banjarmasin" required />
+            <x-text-input id="asal_instansi" name="asal_instansi" type="text" class="mt-1 block w-full" :value="old('asal_instansi', $user->asal_instansi)" placeholder="Contoh: Universitas Lambung Mangkurat" required />
             <p class="text-xs text-gray-500 mt-1">Tulis nama lengkap instansi agar Pembimbing/Dosen dapat menemukan data Anda.</p>
             <x-input-error class="mt-2" :messages="$errors->get('asal_instansi')" />
+        </div>
+
+        <!-- Jurusan (TAMBAHAN BARU) -->
+        <div>
+            <x-input-label for="major" :value="__('Jurusan / Program Studi')" />
+            <x-text-input id="major" name="major" type="text" class="mt-1 block w-full" :value="old('major', $user->major)" placeholder="Contoh: Teknik Informatika" required />
+            <p class="text-xs text-gray-500 mt-1">Penting! Jurusan menentukan posisi magang yang bisa Anda lamar.</p>
+            <x-input-error class="mt-2" :messages="$errors->get('major')" />
         </div>
 
         <!-- No HP -->
