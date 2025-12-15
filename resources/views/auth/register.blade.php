@@ -40,6 +40,15 @@
             <x-input-error :messages="$errors->get('username')" class="mt-1" />
         </div>
 
+        <!-- Jurusan / Program Studi -->
+        <div>
+            <label for="major" class="block text-sm font-semibold text-gray-700 mb-2">Jurusan / Program Studi</label>
+            <input id="major" name="major" type="text" required
+                   class="block w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm"
+                   placeholder="Contoh: Teknik Informatika" :value="old('major')">
+            <x-input-error :messages="$errors->get('major')" class="mt-1" />
+        </div>
+
         <!-- Email -->
         <div>
             <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">Email</label>
