@@ -109,6 +109,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/lowongan', [AdminSkpdController::class, 'indexLowongan'])->name('lowongan.index');
         Route::get('/lowongan/create', [AdminSkpdController::class, 'createLowongan'])->name('lowongan.create');
         Route::post('/lowongan', [AdminSkpdController::class, 'storeLowongan'])->name('lowongan.store');
+        Route::get('/lowongan/{id}/edit', [AdminSkpdController::class, 'editLowongan'])->name('lowongan.edit');
+        Route::put('/lowongan/{id}', [AdminSkpdController::class, 'updateLowongan'])->name('lowongan.update');
         Route::delete('/lowongan/{id}', [AdminSkpdController::class, 'destroyLowongan'])->name('lowongan.destroy');
 
         // Monitoring
