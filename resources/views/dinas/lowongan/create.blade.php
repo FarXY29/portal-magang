@@ -18,6 +18,13 @@
                         <input type="text" name="judul_posisi" class="w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200" placeholder="Contoh: Programmer Web, Staff Administrasi" required>
                     </div>
 
+                    <!-- Syarat Jurusan -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Syarat Jurusan</label>
+                        <input type="text" name="required_major" class="w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200" placeholder="Contoh: Teknik Informatika, Sistem Informasi, TKJ" required>
+                        <p class="text-xs text-gray-500 mt-1">Pisahkan dengan koma jika lebih dari satu jurusan. Tulis "Semua Jurusan" jika bebas.</p>
+                    </div>
+
                     <!-- Deskripsi -->
                     <div class="mb-4">
                         <label class="block text-gray-700 text-sm font-bold mb-2">Deskripsi Pekerjaan & Syarat</label>
