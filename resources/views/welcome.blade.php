@@ -141,7 +141,12 @@
                         {{ $loker->status }}
                     </span>
                 </div>
-
+                <div class="mt-3 mb-2">
+                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Syarat Jurusan:</span>
+                        <p class="text-sm text-gray-800 font-medium bg-gray-100 p-2 rounded mt-1 border border-gray-200">
+                            <i class="fas fa-graduation-cap text-teal-600 mr-1"></i> {{ $loker->required_major }}
+                        </p>
+                    </div>
                 <div class="p-5 flex-grow flex flex-col">
                     <p class="text-gray-600 text-sm mb-4 line-clamp-2 flex-grow" title="{{ $loker->deskripsi }}">
                         {{ $loker->deskripsi }}
