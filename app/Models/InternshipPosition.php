@@ -12,6 +12,7 @@ class InternshipPosition extends Model
     protected $fillable = [
         'skpd_id',
         'judul_posisi',
+        'required_major', // Syarat Jurusan
         'deskripsi',
         'kuota',
         'batas_daftar',
