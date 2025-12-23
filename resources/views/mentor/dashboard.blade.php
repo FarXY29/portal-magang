@@ -23,7 +23,7 @@
                         <thead class="bg-gray-50">
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Peserta</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Posisi</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal Magang</th>
                                 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Kehadiran (Valid)</th> <!-- Kolom Baru -->
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nilai Akhir</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
@@ -43,7 +43,26 @@
                                         @endif
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-sm text-gray-700">{{ $mhs->position->judul_posisi }}</td>
+
+                                
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @if($mhs->tanggal_mulai)
+                                        <div class="text-sm text-gray-900 font-medium">
+                                            <i class="far fa-calendar-alt text-indigo-400 mr-1"></i>
+                                            {{ \Carbon\Carbon::parse($mhs->tanggal_mulai)->format('d M') }} - {{ \Carbon\Carbon::parse($mhs->tanggal_selesai)->format('d M Y') }}
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1 pl-5">
+                                            Status: 
+                                            @if($mhs->status == 'diterima') 
+                                                <span class="text-green-600 font-bold">Aktif</span>
+                                            @else 
+                                                <span class="text-blue-600 font-bold">Lulus</span>
+                                            @endif
+                                        </div>
+                                    @else
+                                        <span class="text-xs text-gray-400">Belum diset</span>
+                                    @endif
+                                </td>
                                 
                                 <!-- KOLOM KEHADIRAN (BARU) -->
                                 <td class="px-6 py-4 text-center">
