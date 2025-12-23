@@ -68,7 +68,7 @@
         <div class="max-w-7xl mx-auto px-4 text-center relative z-10">
             <h1 class="text-4xl md:text-5xl font-bold mb-4 drop-shadow-md">Bangun Karir Bersama Kota Banjarmasin</h1>
             <p class="text-lg text-teal-100 mb-8 max-w-2xl mx-auto">
-                Temukan tempat magang terbaik di berbagai Dinas Pemerintah Kota Banjarmasin.
+                Temukan tempat magang terbaik di berbagai Instansi Pemerintah Kota Banjarmasin.
             </p>
             
             <div class="max-w-3xl mx-auto">
@@ -144,7 +144,7 @@
                     
 
                     <div>
-                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Pilih Dinas</label>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Pilih Instansi</label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                 <i class="fas fa-building"></i>
@@ -189,7 +189,6 @@
                     <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition duration-300 border border-gray-100 overflow-hidden flex flex-col group">
                         <div class="bg-teal-50 p-4 border-b border-teal-100 flex justify-between items-start group-hover:bg-teal-100 transition">
                             <div>
-                                <h3 class="font-bold text-lg text-gray-900 leading-tight">{{ $loker->judul_posisi }}</h3>
                                 <p class="text-sm text-teal-700 font-semibold mt-1">
                                     <i class="far fa-building mr-1"></i> {{ $loker->skpd->nama_dinas }}
                                 </p>
@@ -213,10 +212,6 @@
                                 </div>
                             </p>
                             <div class="text-sm text-gray-500 space-y-2 mb-6 bg-gray-50 p-3 rounded-lg">
-                                <div class="flex items-center justify-between">
-                                    <span class="flex items-center"><i class="far fa-calendar-alt w-5 text-center text-teal-500 mr-2"></i> Batas:</span>
-                                    <span class="font-bold text-gray-700">{{ \Carbon\Carbon::parse($loker->batas_daftar)->format('d M Y') }}</span>
-                                </div>
                                 <div class="flex items-center justify-between">
                                     <span class="flex items-center"><i class="fas fa-users w-5 text-center text-teal-500 mr-2"></i> Kuota:</span>
                                     <span class="font-bold text-gray-700">{{ $loker->kuota }} Orang</span>
