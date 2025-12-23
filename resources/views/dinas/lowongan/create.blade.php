@@ -12,11 +12,6 @@
                 <form action="{{ route('dinas.lowongan.store') }}" method="POST">
                     @csrf
                     
-                    <!-- Judul Posisi -->
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Judul Posisi Magang</label>
-                        <input type="text" name="judul_posisi" class="w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200" placeholder="Contoh: Programmer Web, Staff Administrasi" required>
-                    </div>
 
                     <!-- Syarat Jurusan -->
                     <div class="mb-4">
@@ -41,12 +36,6 @@
                         <div>
                             <label class="block text-gray-700 text-sm font-bold mb-2">Kuota Penerimaan</label>
                             <input type="number" name="kuota" class="w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200" min="1" required>
-                        </div>
-                        
-                        <!-- Batas Daftar -->
-                        <div>
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Batas Pendaftaran</label>
-                            <input type="date" name="batas_daftar" class="w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200" required>
                         </div>
                     </div>
 
