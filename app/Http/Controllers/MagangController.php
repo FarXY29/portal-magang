@@ -221,4 +221,48 @@ class MagangController extends Controller
         $pdf->setPaper('a4', 'landscape');
         return $pdf->download('Sertifikat-Magang-'.$user->name.'.pdf');
     }
+
+    /**
+     * AJAX CHECK AVAILABILITY
+     * Dipanggil oleh JavaScript di form apply untuk cek kuota real-time.
+     */
+    public function checkAvailability(Request $request, $id)
+    {
+        $request->validate([
+            'start' => 'required|date',
+            'end' => 'required|date|after_or_equal:start',
+        ]);
+
+        $reqStart = $request->start;
+        $reqEnd = $request->end;
+
+        $position = InternshipPosition::findOrFail($id);
+        $kapasitasMaksimal = $position->kuota;
+
+        // Hitung Bentrok (Logika sama persis dengan storeApplication)
+        $bentrokCount = Application::where('internship_position_id', $id)
+            ->whereIn('status', ['diterima', 'pending'])
+            ->where(function($q) use ($reqStart, $reqEnd) {
+                $q->where('tanggal_mulai', '<=', $reqEnd)
+                  ->where('tanggal_selesai', '>=', $reqStart);
+            })
+            ->count();
+
+        $isAvailable = $bentrokCount < $kapasitasMaksimal;
+        $sisaKursi = $kapasitasMaksimal - $bentrokCount;
+
+        if ($isAvailable) {
+            return response()->json([
+                'status' => 'available',
+                'message' => "Kuota Tersedia! (Terisi: {$bentrokCount} dari {$kapasitasMaksimal} kursi)",
+                'class' => 'text-green-600 bg-green-50 border-green-200'
+            ]);
+        } else {
+            return response()->json([
+                'status' => 'full',
+                'message' => "Kuota Penuh untuk rentang tanggal ini. Sudah ada {$bentrokCount} peserta terjadwal.",
+                'class' => 'text-red-600 bg-red-50 border-red-200'
+            ]);
+        }
+    }
 }
