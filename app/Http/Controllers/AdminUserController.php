@@ -9,11 +9,10 @@ use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminUserController extends Controller
 {
-    // ... (Fungsi index, create, store, edit, update, destroy SAMA SEPERTI SEBELUMNYA) ...
-    // Saya salin ulang agar lengkap dan tidak error
 
     public function index(Request $request)
     {
@@ -149,4 +148,24 @@ class AdminUserController extends Controller
 
         return view('admin.users.logbook_detail', compact('user', 'app', 'logs'));
     }
+
+    // Cetak Laporan Data Master Peserta (PDF)
+    public function printParticipants()
+    {
+        // Ambil hanya user dengan role 'peserta'
+        // Urutkan berdasarkan nama agar rapi
+        $participants = User::where('role', 'peserta')
+                            ->orderBy('name', 'asc')
+                            ->get();
+
+        // Load View PDF
+        $pdf = Pdf::loadView('admin.pdf.peserta', compact('participants'));
+
+        // Setup Kertas A4 Landscape
+        $pdf->setPaper('a4', 'landscape');
+
+        // Stream (Tampilkan di browser)
+        return $pdf->stream('Laporan-Master-Peserta.pdf');
+    }
+
 }

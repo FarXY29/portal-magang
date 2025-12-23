@@ -33,8 +33,9 @@
                         <option value="">Semua Role</option>
                         <option value="admin_kota" {{ request('role') == 'admin_kota' ? 'selected' : '' }}>Super Admin</option>
                         <option value="admin_skpd" {{ request('role') == 'admin_skpd' ? 'selected' : '' }}>Admin Dinas</option>
-                        <option value="mentor" {{ request('role') == 'mentor' ? 'selected' : '' }}>Mentor</option>
-                        <option value="pembimbing" {{ request('role') == 'pembimbing' ? 'selected' : '' }}>Dosen/Guru</option>
+                        <option value="kepala_dinas" {{ request('role') == 'kepala_dinas' ? 'selected' : '' }}>Kepala Dinas</option>
+                        <option value="mentor" {{ request('role') == 'mentor' ? 'selected' : '' }}>Pembimbing</option>
+                        <option value="pembimbing" {{ request('role') == 'dosen/guru' ? 'selected' : '' }}>Dosen/Guru</option>
                         <option value="peserta" {{ request('role') == 'peserta' ? 'selected' : '' }}>Peserta</option>
                     </select>
 
@@ -58,7 +59,6 @@
                         <button class="bg-teal-600 text-white px-4 rounded-r-md hover:bg-teal-700 text-sm ml-2">Cari</button>
                     </noscript>
                 </form>
-
                 <a href="{{ route('admin.users.create') }}" class="bg-blue-800 text-white px-4 py-2 rounded-md shadow hover:bg-blue-900 transition text-sm font-bold w-full md:w-auto text-center">
                     <i class="fas fa-user-plus mr-2"></i> Tambah User Baru
                 </a>

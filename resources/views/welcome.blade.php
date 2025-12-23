@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+    <style>
+        /* Mengembalikan style list yang di-reset oleh Tailwind */
+        .ck-content ul { list-style-type: disc; padding-left: 20px; }
+        .ck-content ol { list-style-type: decimal; padding-left: 20px; }
+        .ck-content h2 { font-size: 1.5em; font-weight: bold; margin-top: 10px; }
+        .ck-content h3 { font-size: 1.25em; font-weight: bold; margin-top: 10px; }
+        .ck-content p { margin-bottom: 0.5em; }
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SiMagang - Pemkot Banjarmasin</title>
@@ -70,7 +78,7 @@
                             <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
                             <input type="text" name="search" value="{{ request('search') }}" 
                                 class="w-full py-3 pl-12 pr-4 text-gray-700 bg-white rounded-l-full focus:outline-none focus:border-transparent border-0" 
-                                placeholder="Cari posisi (e.g. Programmer) atau dinas (e.g. Kominfo)...">
+                                placeholder="Cari instansi (e.g. Kominfo)...">
                         </div>
                         <button type="submit" class="bg-yellow-500 hover:bg-yellow-400 text-teal-900 font-bold py-3 px-8 rounded-full transition duration-300">
                             Cari
@@ -112,86 +120,143 @@
 
     <!-- Daftar Lowongan -->
     <div id="lowongan" class="max-w-7xl mx-auto px-4 py-10 flex-grow">
-        <div class="flex justify-between items-center mb-8 border-l-4 border-teal-600 pl-4">
-            <h2 class="text-3xl font-bold text-gray-800">
-                @if(request('search'))
-                    Hasil Pencarian: "{{ request('search') }}"
-                @else
-                    Lowongan Terbaru
-                @endif
-            </h2>
-            @if(request('search'))
-                <a href="/" class="text-red-500 hover:text-red-700 text-sm font-semibold">
-                    <i class="fas fa-times mr-1"></i> Reset Pencarian
+    
+        <div class="flex flex-col md:flex-row justify-between items-end mb-6 border-b border-gray-200 pb-4 gap-4">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-800">Lowongan Terbaru</h2>
+                <p class="text-gray-500 mt-1">Temukan posisi yang sesuai dengan kualifikasi Anda.</p>
+            </div>
+            
+            @if(request()->anyFilled(['posisi', 'skpd_id', 'jurusan', 'search']))
+                <a href="/" class="text-red-500 hover:text-red-700 text-sm font-semibold flex items-center bg-red-50 px-3 py-1.5 rounded-full transition">
+                    <i class="fas fa-times-circle mr-1"></i> Reset Filter
                 </a>
             @endif
         </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            @forelse($lowongans as $loker)
-            <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition duration-300 border border-gray-100 overflow-hidden flex flex-col group">
-                <div class="bg-teal-50 p-4 border-b border-teal-100 flex justify-between items-start group-hover:bg-teal-100 transition">
-                    <div>
-                        <h3 class="font-bold text-lg text-gray-900 leading-tight">{{ $loker->judul_posisi }}</h3>
-                        <p class="text-sm text-teal-700 font-semibold mt-1">
-                            <i class="far fa-building mr-1"></i> {{ $loker->skpd->nama_dinas }}
-                        </p>
-                    </div>
-                    <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-bold uppercase tracking-wide">
-                        {{ $loker->status }}
-                    </span>
-                </div>
-                <div class="mt-3 mb-2">
-                        <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Syarat Jurusan:</span>
-                        <p class="text-sm text-gray-800 font-medium bg-gray-100 p-2 rounded mt-1 border border-gray-200">
-                            <i class="fas fa-graduation-cap text-teal-600 mr-1"></i> {{ $loker->required_major }}
-                        </p>
-                    </div>
-                <div class="p-5 flex-grow flex flex-col">
-                    <p class="text-gray-600 text-sm mb-4 line-clamp-2 flex-grow" title="{{ $loker->deskripsi }}">
-                        {{ $loker->deskripsi }}
-                    </p>
+
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-8">
+            <form action="{{ route('home') }}" method="GET">
+                @if(request('search'))
+                    <input type="hidden" name="search" value="{{ request('search') }}">
+                @endif
+
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     
-                    <div class="text-sm text-gray-500 space-y-2 mb-6 bg-gray-50 p-3 rounded-lg">
-                        <div class="flex items-center justify-between">
-                            <span class="flex items-center"><i class="far fa-calendar-alt w-5 text-center text-teal-500 mr-2"></i> Batas:</span>
-                            <span class="font-bold text-gray-700">{{ \Carbon\Carbon::parse($loker->batas_daftar)->format('d M Y') }}</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span class="flex items-center"><i class="fas fa-users w-5 text-center text-teal-500 mr-2"></i> Kuota:</span>
-                            <span class="font-bold text-gray-700">{{ $loker->kuota }} Orang</span>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Pilih Dinas</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                <i class="fas fa-building"></i>
+                            </span>
+                            <select name="skpd_id" class="w-full pl-10 pr-8 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm appearance-none cursor-pointer bg-white">
+                                <option value="">Semua Instansi</option>
+                                @foreach($skpds as $skpd)
+                                    <option value="{{ $skpd->id }}" {{ request('skpd_id') == $skpd->id ? 'selected' : '' }}>
+                                        {{ Str::limit($skpd->nama_dinas, 25) }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <span class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-gray-400">
+                                <i class="fas fa-chevron-down text-xs"></i>
+                            </span>
                         </div>
                     </div>
 
-                    @auth
-                        @if(auth()->user()->role == 'peserta')
-                            <a href="{{ route('peserta.daftar.form', $loker->id) }}" 
-                               class="w-full block text-center bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition font-semibold shadow-md hover:shadow-lg transform active:scale-95">
-                                Lamar Sekarang
-                            </a>
-                        @elseif(auth()->user()->role == 'admin_kota' || auth()->user()->role == 'admin_skpd')
-                            <button disabled class="w-full block text-center bg-gray-200 text-gray-500 py-2 rounded-lg cursor-not-allowed text-sm font-medium">
-                                Mode Admin (View Only)
-                            </button>
-                        @endif
-                    @else
-                        <a href="{{ route('login') }}" class="w-full block text-center bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-700 transition font-semibold shadow-md group-hover:bg-gray-900">
-                            Login untuk Melamar
-                        </a>
-                    @endauth
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 uppercase mb-1 ml-1">Jurusan Anda</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                                <i class="fas fa-graduation-cap"></i>
+                            </span>
+                            <input type="text" name="jurusan" value="{{ request('jurusan') }}" placeholder="Contoh: Informatika..." 
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm transition">
+                        </div>
+                    </div>
+
+                    <div>
+                        <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-2 px-4 rounded-lg shadow transition transform active:scale-95 flex items-center justify-center">
+                            <i class="fas fa-filter mr-2"></i> Terapkan
+                        </button>
+                    </div>
+
                 </div>
-            </div>
-            @empty
-            <div class="col-span-full text-center py-12 bg-white rounded-lg border border-dashed border-gray-300">
-                <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4 text-gray-400">
-                    <i class="fas fa-search fa-2x"></i>
-                </div>
-                <h3 class="text-lg font-medium text-gray-900">Tidak ada lowongan ditemukan</h3>
-                <p class="text-gray-500 mt-1">Coba cari dengan kata kunci lain atau hubungi dinas terkait.</p>
-                @if(request('search'))
-                    <a href="/" class="inline-block mt-4 text-teal-600 font-bold hover:underline">Lihat Semua Lowongan</a>
+            </form>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @forelse($lowongans as $loker)
+                @if($loker->kuota > 0)
+                    <div class="bg-white rounded-xl shadow-sm hover:shadow-xl transition duration-300 border border-gray-100 overflow-hidden flex flex-col group">
+                        <div class="bg-teal-50 p-4 border-b border-teal-100 flex justify-between items-start group-hover:bg-teal-100 transition">
+                            <div>
+                                <h3 class="font-bold text-lg text-gray-900 leading-tight">{{ $loker->judul_posisi }}</h3>
+                                <p class="text-sm text-teal-700 font-semibold mt-1">
+                                    <i class="far fa-building mr-1"></i> {{ $loker->skpd->nama_dinas }}
+                                </p>
+                            </div>
+                            <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-bold uppercase tracking-wide">
+                                {{ $loker->status }}
+                            </span>
+                        </div>
+                        
+                        <div class="mt-3 mb-2 px-5">
+                            <span class="text-xs font-bold text-gray-500 uppercase tracking-wide">Syarat Jurusan:</span>
+                            <p class="text-sm text-gray-800 font-medium bg-gray-100 p-2 rounded mt-1 border border-gray-200">
+                                <i class="fas fa-graduation-cap text-teal-600 mr-1"></i> {{ $loker->required_major }}
+                            </p>
+                        </div>
+
+                        <div class="p-5 flex-grow flex flex-col">
+                            <p class="text-gray-600 text-sm mb-4 line-clamp-2 flex-grow" title="{{ $loker->deskripsi }}">
+                                <div class="prose prose-sm max-w-none text-gray-600 mb-4 line-clamp-3">
+                                    {!! Str::limit(strip_tags($loker->deskripsi), 150) !!}
+                                </div>
+                            </p>
+                            <div class="text-sm text-gray-500 space-y-2 mb-6 bg-gray-50 p-3 rounded-lg">
+                                <div class="flex items-center justify-between">
+                                    <span class="flex items-center"><i class="far fa-calendar-alt w-5 text-center text-teal-500 mr-2"></i> Batas:</span>
+                                    <span class="font-bold text-gray-700">{{ \Carbon\Carbon::parse($loker->batas_daftar)->format('d M Y') }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="flex items-center"><i class="fas fa-users w-5 text-center text-teal-500 mr-2"></i> Kuota:</span>
+                                    <span class="font-bold text-gray-700">{{ $loker->kuota }} Orang</span>
+                                </div>
+                            </div>
+                            
+                            @auth
+                                @if(auth()->user()->role == 'peserta')
+                                    @php
+                                        $userMajor = strtolower(trim(auth()->user()->major ?? ''));
+                                        $reqMajor  = strtolower(trim($loker->required_major ?? ''));
+                                        $isMatch = str_contains($reqMajor, 'semua jurusan') || 
+                                                str_contains($reqMajor, $userMajor) ||
+                                                $reqMajor == '' || 
+                                                $reqMajor == '-';
+                                    @endphp
+
+                                    @if($isMatch)
+                                        <a href="{{ route('peserta.daftar.form', $loker->id) }}" class="w-full block text-center bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition font-semibold shadow-md hover:shadow-lg transform active:scale-95">Lamar Sekarang</a>
+                                    @else
+                                        <button disabled class="w-full block text-center bg-gray-100 text-gray-400 py-2 rounded-lg cursor-not-allowed font-medium border border-gray-200"><i class="fas fa-ban mr-1"></i> Jurusan Tidak Sesuai</button>
+                                    @endif
+                                @elseif(auth()->user()->role == 'admin_kota' || auth()->user()->role == 'admin_skpd')
+                                    <button disabled class="w-full block text-center bg-gray-200 text-gray-500 py-2 rounded-lg cursor-not-allowed text-sm font-medium">Mode Admin (View Only)</button>
+                                @endif
+                            @else
+                                <a href="{{ route('login') }}" class="w-full block text-center bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-700 transition font-semibold shadow-md group-hover:bg-gray-900">Login untuk Melamar</a>
+                            @endauth
+                        </div>
+                    </div>
                 @endif
-            </div>
+            @empty
+                <div class="col-span-full text-center py-12 bg-white rounded-lg border border-dashed border-gray-300">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gray-100 mb-4 text-gray-400">
+                        <i class="fas fa-search fa-2x"></i>
+                    </div>
+                    <h3 class="text-lg font-medium text-gray-900">Tidak ada lowongan ditemukan</h3>
+                    <p class="text-gray-500 mt-1">Coba sesuaikan filter pencarian Anda.</p>
+                    <a href="/" class="inline-block mt-4 text-teal-600 font-bold hover:underline">Reset Filter</a>
+                </div>
             @endforelse
         </div>
 

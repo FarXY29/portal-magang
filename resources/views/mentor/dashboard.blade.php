@@ -69,6 +69,10 @@
                                     <a href="{{ route('mentor.logbook', $mhs->id) }}" class="inline-flex items-center justify-center bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded text-xs font-bold hover:bg-gray-50 shadow-sm transition">
                                         <i class="fas fa-book mr-1"></i> Logbook
                                     </a>
+                                    <!-- Validasi Kehadiran -->
+                                    <a href="{{ route('mentor.attendance.index', $mhs->id) }}" class="inline-flex items-center justify-center bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded text-xs font-bold hover:bg-gray-50 shadow-sm transition">
+                                        <i class="fas fa-book mr-1"></i> Kehadiran
+                                    </a>
 
                                     <!-- Input Nilai (Hanya jika belum selesai/lulus) -->
                                     @if($mhs->status != 'selesai')

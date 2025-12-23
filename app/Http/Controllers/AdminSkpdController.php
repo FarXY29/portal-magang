@@ -292,4 +292,28 @@ class AdminSkpdController extends Controller
 
         return view('dinas.laporan.rekap', compact('rekap'));
     }
+
+    public function settings()
+    {
+        $skpd = Auth::user()->skpd;
+        return view('dinas.settings', compact('skpd'));
+    }
+
+    public function updateSettings(Request $request)
+    {
+        $request->validate([
+            'jam_mulai_masuk' => 'required',
+            'jam_mulai_pulang' => 'required',
+        ]);
+
+        $skpd = Auth::user()->skpd;
+        
+        $skpd->update([
+            'jam_mulai_masuk' => $request->jam_mulai_masuk,
+            'jam_mulai_pulang' => $request->jam_mulai_pulang,
+        ]);
+
+        return back()->with('success', 'Pengaturan jam kerja berhasil diperbarui.');
+    }
+
 }

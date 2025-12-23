@@ -26,7 +26,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Peserta</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posisi Dilamar</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pengajuan Tanggal</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
@@ -47,8 +47,20 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4">
-                                <div class="text-sm text-gray-900 font-semibold">{{ $app->position->judul_posisi }}</div>
-                                <div class="text-xs text-gray-500 mb-1">Tgl Lamar: {{ $app->created_at->format('d M Y') }}</div>
+                                @if($app->tanggal_mulai)
+                                            <div class="text-sm font-bold text-gray-800">
+                                                {{ \Carbon\Carbon::parse($app->tanggal_mulai)->format('d M Y') }}
+                                            </div>
+                                            <div class="text-xs text-gray-500">sampai</div>
+                                            <div class="text-sm font-bold text-gray-800">
+                                                {{ \Carbon\Carbon::parse($app->tanggal_selesai)->format('d M Y') }}
+                                            </div>
+                                            <div class="text-xs text-indigo-500 mt-1">
+                                                ({{ \Carbon\Carbon::parse($app->tanggal_mulai)->diffInDays(\Carbon\Carbon::parse($app->tanggal_selesai)) }} Hari)
+                                            </div>
+                                        @else
+                                            <span class="text-xs text-gray-400">Tidak ada tanggal</span>
+                                        @endif
                                 
                                 <!-- INFO KUOTA -->
                                 @if($app->position->kuota > 0)

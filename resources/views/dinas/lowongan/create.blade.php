@@ -27,8 +27,13 @@
 
                     <!-- Deskripsi -->
                     <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Deskripsi Pekerjaan & Syarat</label>
-                        <textarea name="deskripsi" rows="4" class="w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200" placeholder="Jelaskan detail pekerjaan dan kualifikasi yang dibutuhkan..." required></textarea>
+                        <label class="block font-bold text-gray-700 mb-2">Deskripsi Pekerjaan & Syarat</label>
+                        
+                        <textarea name="deskripsi" class="wysiwyg-editor w-full border-gray-300 rounded-md shadow-sm">{{ old('deskripsi') }}</textarea>
+                        
+                        @error('deskripsi')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 mb-4">

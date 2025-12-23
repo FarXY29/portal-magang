@@ -6,8 +6,8 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="flex justify-between mb-6 print:hidden">
-                    <a href="{{ route('dinas.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
-                </div>
+                <a href="{{ route('dinas.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+            </div>
             <!-- Notifikasi Sukses -->
             @if(session('success'))
                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 shadow-sm">
@@ -21,8 +21,8 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama Peserta</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posisi</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pembimbing Lapangan</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durasi & Tanggal</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
@@ -38,9 +38,6 @@
                                 @endif
                             </td>
 
-                            <!-- Kolom Posisi -->
-                            <td class="px-6 py-4 text-sm text-gray-700">{{ $intern->position->judul_posisi }}</td>
-                            
                             <!-- KOLOM ASSIGN MENTOR (YANG KITA PERBAIKI) -->
                             <td class="px-6 py-4">
                                 @if($intern->status == 'diterima')
@@ -81,6 +78,34 @@
                                     </span>
                                 @endif
                             </td>
+
+                            <!-- Kolom Durasi & Tanggal -->
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                        @if($intern->tanggal_mulai)
+                                            <div class="flex flex-col">
+                                                <span class="text-sm font-bold text-gray-700">
+                                                    {{ \Carbon\Carbon::parse($intern->tanggal_mulai)->format('d M y') }} - {{ \Carbon\Carbon::parse($intern->tanggal_selesai)->format('d M y') }}
+                                                </span>
+                                                
+                                                @php
+                                                    $selesai = \Carbon\Carbon::parse($intern->tanggal_selesai);
+                                                    $sisa = now()->diffInDays($selesai, false);
+                                                @endphp
+
+                                                @if($sisa > 0)
+                                                    <span class="text-xs text-green-600 font-medium mt-1">
+                                                        <i class="fas fa-clock mr-1"></i> Sisa {{ ceil($sisa) }} hari
+                                                    </span>
+                                                @else
+                                                    <span class="text-xs text-red-500 font-bold mt-1">
+                                                        <i class="fas fa-flag-checkered mr-1"></i> Berakhir
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        @else
+                                            <span class="text-xs text-gray-400 italic">Tanggal belum set</span>
+                                        @endif
+                                    </td>
 
                             <!-- Kolom Aksi -->
                             <td class="px-6 py-4 flex gap-2">

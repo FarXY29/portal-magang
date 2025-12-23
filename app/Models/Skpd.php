@@ -14,6 +14,8 @@ class Skpd extends Model
         'nama_dinas',
         'kode_unit_kerja',
         'alamat',
+        'jam_mulai_masuk', 
+        'jam_mulai_pulang', 
         'latitude',
         'longitude',
     ];

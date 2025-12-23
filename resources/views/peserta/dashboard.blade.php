@@ -40,6 +40,116 @@
                 </div>
             @endif
 
+            @if($activeApp)
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6 border-l-4 border-indigo-500">
+                    <div class="p-6 bg-white border-b border-gray-200">
+                        <div class="flex flex-col md:flex-row justify-between items-center">
+                            <div>
+                                <h3 class="text-lg font-bold text-gray-800">Absensi Harian</h3>
+                                <p class="text-sm text-gray-500">{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</p>
+                                
+                                <div class="mt-2 text-xs text-gray-500 bg-gray-100 p-2 rounded inline-block">
+                                    <span>
+                                        <i class="fas fa-clock text-green-600"></i> 
+                                        Masuk: <strong>{{ \Carbon\Carbon::parse($jamKerja->jam_mulai_masuk)->format('H:i') }}</strong>
+                                    </span>
+                                    <span>
+                                        <i class="fas fa-clock text-red-600"></i> 
+                                        Pulang: <strong>{{ \Carbon\Carbon::parse($jamKerja->jam_mulai_pulang)->format('H:i') }}</strong>
+                                    </span>
+                                </div>
+                                <div class="mt-2 text-sm text-gray-600">
+                                    <span class="font-bold"><i class="far fa-calendar-alt"></i> Jadwal:</span> 
+                                    {{ \Carbon\Carbon::parse($activeApp->tanggal_mulai)->format('d M Y') }} 
+                                    s/d 
+                                    {{ \Carbon\Carbon::parse($activeApp->tanggal_selesai)->format('d M Y') }}
+                                </div>
+                            </div>
+
+                            <div class="mt-4 md:mt-0 flex gap-3">
+                                @if(!$attendanceToday)
+                                    <form action="{{ route('peserta.absen.masuk') }}" method="POST">
+                                        @csrf
+                                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition transform hover:scale-105">
+                                            <i class="fas fa-fingerprint mr-2"></i> Absen Datang
+                                        </button>
+                                    </form>
+                                    
+                                    <button x-data="" x-on:click.prevent="$dispatch('open-modal', 'modal-izin')" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition">
+                                        <i class="fas fa-file-medical mr-2"></i> Izin / Sakit
+                                    </button>
+
+                                @elseif($attendanceToday->status == 'hadir' && $attendanceToday->clock_out == null)
+                                    <div class="flex items-center gap-4">
+                                        <span class="text-green-600 font-bold bg-green-100 px-3 py-1 rounded">
+                                            <i class="fas fa-check-circle mr-1"></i> Masuk: {{ $attendanceToday->clock_in }}
+                                        </span>
+                                        <form action="{{ route('peserta.absen.pulang') }}" method="POST">
+                                            @csrf
+                                            <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-6 rounded-full shadow-lg transition">
+                                                <i class="fas fa-sign-out-alt mr-2"></i> Absen Pulang
+                                            </button>
+                                        </form>
+                                    </div>
+
+                                @else
+                                    <div class="text-center">
+                                        @if($attendanceToday->status == 'hadir')
+                                            <div class="text-green-600 font-bold bg-green-50 px-4 py-2 rounded border border-green-200">
+                                                <i class="fas fa-check-double mr-1"></i> Hadir Lengkap
+                                                <div class="text-xs font-normal text-gray-500 mt-1">
+                                                    {{ $attendanceToday->clock_in }} - {{ $attendanceToday->clock_out }}
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="text-yellow-600 font-bold bg-yellow-50 px-4 py-2 rounded border border-yellow-200 uppercase">
+                                                <i class="fas fa-info-circle mr-1"></i> Status: {{ $attendanceToday->status }}
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <x-modal name="modal-izin" focusable>
+                    <div class="p-6">
+                        <h2 class="text-lg font-medium text-gray-900 mb-4">Form Pengajuan Izin / Sakit</h2>
+                        <form action="{{ route('peserta.absen.izin') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+                            
+                            <div class="mb-4">
+                                <x-input-label for="status" value="Jenis Izin" />
+                                <select name="status" id="status" class="w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500 mt-1" required>
+                                    <option value="sakit">Sakit (Wajib Surat Dokter)</option>
+                                    <option value="izin">Izin (Keperluan Mendesak)</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-4">
+                                <x-input-label for="description" value="Alasan / Keterangan" />
+                                <textarea name="description" id="description" rows="3" class="w-full border-gray-300 rounded-md shadow-sm mt-1" required placeholder="Jelaskan alasan Anda tidak bisa hadir..."></textarea>
+                            </div>
+
+                            <div class="mb-4">
+                                <x-input-label for="proof_file" value="Bukti Foto / Surat (JPG/PNG)" />
+                                <input type="file" name="proof_file" id="proof_file" class="w-full border border-gray-300 rounded p-2 mt-1" required>
+                            </div>
+
+                            <div class="flex justify-end mt-6">
+                                <x-secondary-button x-on:click="$dispatch('close')" class="mr-3">
+                                    Batal
+                                </x-secondary-button>
+                                <x-primary-button class="bg-yellow-500 hover:bg-yellow-600">
+                                    Kirim Pengajuan
+                                </x-primary-button>
+                            </div>
+                        </form>
+                    </div>
+                </x-modal>
+                @endif
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border border-gray-200">
                 <h3 class="text-lg font-bold mb-4 text-gray-800 border-b pb-2">Status Lamaran Saya</h3>
                 

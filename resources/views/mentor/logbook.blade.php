@@ -10,8 +10,8 @@
             
             <!-- Navigasi & Alert -->
             <div class="flex justify-between mb-6 print:hidden">
-                    <a href="{{ route('mentor.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
-                </div>
+                <a href="{{ route('mentor.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+            </div>
 
             @if(session('success'))
                 <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 shadow-sm text-sm">

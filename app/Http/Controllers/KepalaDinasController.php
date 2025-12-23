@@ -8,48 +8,138 @@ use App\Models\InternshipPosition;
 use App\Models\User;
 use App\Models\DailyLog;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 use Illuminate\Support\Facades\DB;
 
 class KepalaDinasController extends Controller
 {
     /**
      * Dashboard Utama Kepala Dinas
+     * (Versi Baru dengan Grafik & Statistik)
      */
     public function index()
     {
         $user = Auth::user();
         
-        // Validasi: Pastikan user memiliki SKPD (menghindari error jika null)
+        // Validasi: Pastikan user memiliki SKPD
         if (!$user->skpd_id) {
             return view('dashboard'); 
         }
 
         $skpdId = $user->skpd_id;
 
-        // 1. Hitung Statistik Ringkas
-        $totalLowongan = InternshipPosition::where('skpd_id', $skpdId)->count();
-        
-        $totalPesertaAktif = Application::whereHas('position', function($q) use ($skpdId) {
-            $q->where('skpd_id', $skpdId);
-        })->where('status', 'diterima')->count();
-        
-        $totalAlumni = Application::whereHas('position', function($q) use ($skpdId) {
-            $q->where('skpd_id', $skpdId);
-        })->where('status', 'selesai')->count();
+        // --- 1. KARTU STATISTIK UTAMA ---
+        $totalPeserta = Application::whereHas('position', fn($q) => $q->where('skpd_id', $skpdId))
+                        ->whereIn('status', ['diterima', 'selesai'])->count();
 
-        // 2. Ambil 5 Posisi Paling Diminati
-        $popularPositions = InternshipPosition::where('skpd_id', $skpdId)
-            ->withCount('applications')
-            ->orderBy('applications_count', 'desc')
-            ->take(5)
-            ->get();
+        $totalLowongan = InternshipPosition::where('skpd_id', $skpdId)->where('status', 'buka')->count();
+        
+        $rataRataNilai = Application::whereHas('position', fn($q) => $q->where('skpd_id', $skpdId))
+                        ->whereNotNull('nilai_angka')
+                        ->avg('nilai_angka'); // Rata-rata kompetensi peserta
+
+        // --- 2. DATA UNTUK GRAFIK PIE: ASAL INSTANSI (TOP 5) ---
+        $topInstansi = Application::whereHas('position', fn($q) => $q->where('skpd_id', $skpdId))
+                        ->join('users', 'applications.user_id', '=', 'users.id')
+                        ->select('users.asal_instansi', DB::raw('count(*) as total'))
+                        ->whereIn('applications.status', ['diterima', 'selesai'])
+                        ->groupBy('users.asal_instansi')
+                        ->orderByDesc('total')
+                        ->take(5)
+                        ->get();
+
+        // Data Lainnya digabung agar grafik rapi
+        $totalTop5 = $topInstansi->sum('total');
+        $totalAll  = $totalPeserta;
+        $lainnya   = $totalAll - $totalTop5;
+
+        // Format untuk ChartJS
+        $chartInstansiLabels = $topInstansi->pluck('asal_instansi')->toArray();
+        $chartInstansiData   = $topInstansi->pluck('total')->toArray();
+        if($lainnya > 0) {
+            $chartInstansiLabels[] = 'Instansi Lainnya';
+            $chartInstansiData[]   = $lainnya;
+        }
+
+        // --- 3. DATA UNTUK GRAFIK BAR: TREN PELAMAR BULANAN (Tahun Ini) ---
+        $monthlyStats = Application::whereHas('position', fn($q) => $q->where('skpd_id', $skpdId))
+                        ->select(
+                            DB::raw('MONTH(created_at) as bulan'), 
+                            DB::raw('count(*) as total_pelamar'),
+                            DB::raw('SUM(CASE WHEN status = "diterima" OR status = "selesai" THEN 1 ELSE 0 END) as diterima')
+                        )
+                        ->whereYear('created_at', date('Y'))
+                        ->groupBy('bulan')
+                        ->orderBy('bulan')
+                        ->get();
+        
+        // Siapkan array kosong untuk 12 bulan
+        $months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+        $dataPelamar = array_fill(0, 12, 0);
+        $dataDiterima = array_fill(0, 12, 0);
+
+        foreach ($monthlyStats as $stat) {
+            $index = $stat->bulan - 1; // Array index mulai dari 0
+            $dataPelamar[$index] = $stat->total_pelamar;
+            $dataDiterima[$index] = (int) $stat->diterima;
+        }
 
         return view('kepala_dinas.dashboard', compact(
-            'totalLowongan', 
-            'totalPesertaAktif', 
-            'totalAlumni', 
-            'popularPositions'
+            'totalPeserta', 'totalLowongan', 'rataRataNilai',
+            'chartInstansiLabels', 'chartInstansiData',
+            'months', 'dataPelamar', 'dataDiterima'
         ));
+    }
+
+    public function printPeserta()
+    {
+        $skpdId = Auth::user()->skpd_id;
+        
+        $interns = Application::whereHas('position', function($q) use ($skpdId) {
+            $q->where('skpd_id', $skpdId);
+        })
+        ->whereIn('status', ['diterima', 'selesai'])
+        ->with(['user', 'position', 'mentor', 'position.skpd'])
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+        $pdf = Pdf::loadView('kepala_dinas.pdf.peserta', compact('interns'));
+        $pdf->setPaper('a4', 'landscape'); // Landscape agar kolom nilai muat
+
+        return $pdf->stream('Laporan-Eksekutif-Peserta.pdf');
+    }
+
+    /**
+     * CETAK PDF: Laporan Statistik & Demografi
+     */
+    public function printStatistik()
+    {
+        $skpdId = Auth::user()->skpd_id;
+
+        // 1. Data Statistik
+        $stats = InternshipPosition::where('skpd_id', $skpdId)
+            ->withCount(['applications as total_pelamar', 'applications as diterima' => function($q) {
+                $q->where('status', 'diterima')->orWhere('status', 'selesai');
+            }])
+            ->orderBy('total_pelamar', 'desc')
+            ->get();
+
+        // 2. Data Demografi
+        $demografi = Application::whereHas('position', function($q) use ($skpdId) {
+                $q->where('skpd_id', $skpdId);
+            })
+            ->join('users', 'applications.user_id', '=', 'users.id')
+            ->select('users.asal_instansi', DB::raw('count(*) as total'))
+            ->whereIn('applications.status', ['diterima', 'selesai'])
+            ->groupBy('users.asal_instansi')
+            ->orderBy('total', 'desc')
+            ->get();
+
+        $pdf = Pdf::loadView('kepala_dinas.pdf.statistik', compact('stats', 'demografi'));
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('Laporan-Statistik-Demografi.pdf');
     }
 
     /**
@@ -92,7 +182,6 @@ class KepalaDinasController extends Controller
     {
         $skpdId = Auth::user()->skpd_id;
         
-        // Hitung jumlah peserta per asal instansi
         $demografi = Application::whereHas('position', function($q) use ($skpdId) {
                 $q->where('skpd_id', $skpdId);
             })
@@ -113,7 +202,6 @@ class KepalaDinasController extends Controller
     {
         $skpdId = Auth::user()->skpd_id;
         
-        // Ambil peserta yang sudah punya nilai
         $scores = Application::whereHas('position', function($q) use ($skpdId) {
             $q->where('skpd_id', $skpdId);
         })
@@ -132,7 +220,6 @@ class KepalaDinasController extends Controller
     {
         $skpdId = Auth::user()->skpd_id;
 
-        // Ambil semua peserta, hitung total logbook dan logbook valid
         $activity = Application::whereHas('position', function($q) use ($skpdId) {
             $q->where('skpd_id', $skpdId);
         })
@@ -154,7 +241,7 @@ class KepalaDinasController extends Controller
     {
         $skpdId = Auth::user()->skpd_id;
 
-        // Statistik perbandingan Kuota vs Pelamar vs Diterima
+        // 1. DATA STATISTIK PEMINAT (Per Lowongan)
         $stats = InternshipPosition::where('skpd_id', $skpdId)
             ->withCount(['applications as total_pelamar', 'applications as diterima' => function($q) {
                 $q->where('status', 'diterima')->orWhere('status', 'selesai');
@@ -162,6 +249,18 @@ class KepalaDinasController extends Controller
             ->orderBy('total_pelamar', 'desc')
             ->get();
 
-        return view('kepala_dinas.laporan_statistik', compact('stats'));
+        // 2. DATA DEMOGRAFI (Per Asal Instansi)
+        // Menghitung jumlah peserta diterima/lulus berdasarkan asal kampusnya
+        $demografi = Application::whereHas('position', function($q) use ($skpdId) {
+                $q->where('skpd_id', $skpdId);
+            })
+            ->join('users', 'applications.user_id', '=', 'users.id')
+            ->select('users.asal_instansi', DB::raw('count(*) as total'))
+            ->whereIn('applications.status', ['diterima', 'selesai'])
+            ->groupBy('users.asal_instansi')
+            ->orderBy('total', 'desc')
+            ->get();
+
+        return view('kepala_dinas.laporan_statistik', compact('stats', 'demografi'));
     }
 }

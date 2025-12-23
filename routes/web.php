@@ -13,6 +13,7 @@ use App\Http\Controllers\KepalaDinasController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\AdminSettingController;
 use App\Http\Controllers\Auth\RegisterPembimbingController;
+use App\Http\Controllers\GoogleAuthController;
 use App\Models\InternshipPosition;
 
 /*
@@ -22,31 +23,7 @@ use App\Models\InternshipPosition;
 */
 
 // --- 1. HALAMAN PUBLIK (Landing Page dengan Pencarian) ---
-Route::get('/', function (Request $request) {
-    // A. Query Dasar & Pencarian
-    $query = InternshipPosition::with('skpd')->where('status', 'buka');
-
-    if ($request->has('search') && $request->search != '') {
-        $search = $request->search;
-        $query->where(function($q) use ($search) {
-            $q->where('judul_posisi', 'like', '%' . $search . '%')
-              ->orWhereHas('skpd', function($qSkpd) use ($search) {
-                  $qSkpd->where('nama_dinas', 'like', '%' . $search . '%');
-              });
-        });
-    }
-
-    // Ambil Data (Pagination)
-    $lowongans = $query->latest()->paginate(9);
-    $lowongans->appends($request->all());
-
-    // B. Statistik untuk Hero Section
-    $totalSkpd = \App\Models\Skpd::count();
-    $totalLowongan = InternshipPosition::where('status', 'buka')->count();
-    $totalAlumni = \App\Models\Application::where('status', 'selesai')->count();
-
-    return view('welcome', compact('lowongans', 'totalSkpd', 'totalLowongan', 'totalAlumni')); 
-})->name('home');
+Route::get('/', [MagangController::class, 'index'])->name('home');
 
 // Halaman Detail Lowongan (Publik)
 Route::get('/lowongan', [MagangController::class, 'index'])->name('lowongan.index');
@@ -61,6 +38,8 @@ Route::middleware('guest')->group(function () {
     Route::post('register-pembimbing', [RegisterPembimbingController::class, 'store']);
 });
 
+Route::get('auth/google', [GoogleAuthController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 
 // --- 3. LOGIKA REDIRECT DASHBOARD ---
 Route::get('/dashboard', function () {
@@ -89,6 +68,11 @@ Route::middleware('auth')->group(function () {
         Route::resource('logbook', LogbookController::class);
         Route::get('/logbook-print', [LogbookController::class, 'print'])->name('logbook.print');
         Route::get('/sertifikat', [MagangController::class, 'downloadCertificate'])->name('sertifikat');
+
+        // ROUTE ABSENSI 
+        Route::post('/absen/masuk', [App\Http\Controllers\AttendanceController::class, 'store'])->name('absen.masuk');
+        Route::post('/absen/pulang', [App\Http\Controllers\AttendanceController::class, 'clockOut'])->name('absen.pulang');
+        Route::post('/absen/izin', [App\Http\Controllers\AttendanceController::class, 'permission'])->name('absen.izin');
     });
 
     // B. AREA ADMIN SKPD
@@ -122,6 +106,10 @@ Route::middleware('auth')->group(function () {
         
         // Laporan Rekap Dinas
         Route::get('/laporan/rekap', [AdminSkpdController::class, 'laporanRekap'])->name('laporan.rekap');
+
+        // ROUTE PENGATURAN JAM (BARU)
+        Route::get('/pengaturan', [AdminSkpdController::class, 'settings'])->name('settings');
+        Route::put('/pengaturan', [AdminSkpdController::class, 'updateSettings'])->name('settings.update');
     });
 
     // C. AREA MENTOR
@@ -131,6 +119,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/logbook/validasi/{id}', [MentorController::class, 'validateLogbook'])->name('logbook.validasi');
         Route::get('/mahasiswa/{id}/nilai', [MentorController::class, 'gradingForm'])->name('grading.form');
         Route::post('/mahasiswa/{id}/nilai', [MentorController::class, 'storeGrade'])->name('grading.store');
+        // ROUTE ABSENSI MENTOR
+        Route::get('/absensi', [MentorController::class, 'attendance'])->name('attendance.index');
+        Route::post('/absensi/{id}/validasi', [MentorController::class, 'validateAttendance'])->name('attendance.validate');
     });
 
     // D. AREA PEMBIMBING AKADEMIK
@@ -149,6 +140,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/laporan-nilai', [KepalaDinasController::class, 'laporanNilai'])->name('laporan.nilai');
         Route::get('/laporan-absensi', [KepalaDinasController::class, 'laporanAbsensi'])->name('laporan.absensi');
         Route::get('/laporan-statistik', [KepalaDinasController::class, 'laporanStatistik'])->name('laporan.statistik');
+
+        // --- TAMBAHKAN ROUTE CETAK PDF INI ---
+        Route::get('/laporan-peserta/print', [KepalaDinasController::class, 'printPeserta'])->name('laporan.peserta.print');
+        Route::get('/laporan-statistik/print', [KepalaDinasController::class, 'printStatistik'])->name('laporan.statistik.print');
+        // -------------------------------------
     });
 
     // F. AREA ADMIN KOTA (SUPER ADMIN)
@@ -159,13 +155,19 @@ Route::middleware('auth')->group(function () {
         Route::get('/skpd', [AdminKotaController::class, 'indexSkpd'])->name('skpd.index');
         Route::get('/skpd/create', [AdminKotaController::class, 'create'])->name('skpd.create');
         Route::post('/skpd', [AdminKotaController::class, 'store'])->name('skpd.store');
+        Route::get('/skpd/{id}/edit', [AdminKotaController::class, 'edit'])->name('skpd.edit');
+        Route::put('/skpd/{id}', [AdminKotaController::class, 'update'])->name('skpd.update');
         Route::delete('/skpd/{id}', [AdminKotaController::class, 'destroy'])->name('skpd.destroy');
         
         // Laporan Global & Monitoring
         Route::get('/laporan', [AdminKotaController::class, 'report'])->name('laporan');
         Route::get('/laporan/excel', [AdminKotaController::class, 'exportExcel'])->name('laporan.excel');
         Route::get('/laporan/peserta-global', [AdminKotaController::class, 'laporanPesertaGlobal'])->name('laporan.peserta_global');
-        
+        Route::get('/laporan-skpd', [AdminKotaController::class, 'laporanSkpd'])->name('laporan.skpd');
+        // Laporan SKPD PDF
+        Route::get('/skpd/cetak-pdf', [AdminKotaController::class, 'printSkpd'])->name('skpd.print_pdf');
+        Route::get('/laporan/peserta-global/print', [AdminKotaController::class, 'printPesertaGlobal'])
+        ->name('laporan.peserta_global.print');
         // User Management & Settings
         Route::resource('users', AdminUserController::class);
         Route::get('/monitoring-logbook', [AdminUserController::class, 'logbooks'])->name('users.logbooks');

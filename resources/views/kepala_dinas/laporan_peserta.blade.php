@@ -9,7 +9,9 @@
             <!-- Tombol Kembali -->
                 <div class="flex justify-between mb-6 print:hidden">
                     <a href="{{ route('kepala_dinas.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
-                    <button onclick="window.print()" class="bg-gray-800 text-white px-4 py-2 rounded text-sm">Cetak</button>
+                    <a href="{{ route('kepala_dinas.laporan.peserta.print') }}" target="_blank" class="bg-gray-800 text-white px-4 py-2 rounded text-sm hover:bg-gray-700 transition flex items-center">
+                        <i class="fas fa-file-pdf mr-2"></i> Download PDF
+                    </a>
                 </div>
 
                 <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">

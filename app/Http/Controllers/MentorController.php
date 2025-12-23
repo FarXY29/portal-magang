@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Application;
 use App\Models\DailyLog;
+use App\Models\Attendance;
 use Illuminate\Support\Facades\Auth;
 
 class MentorController extends Controller
@@ -12,12 +13,25 @@ class MentorController extends Controller
     public function index()
     {
         $mentorId = Auth::id();
+
+        // 1. Ambil Data Mahasiswa Bimbingan
         $interns = Application::where('mentor_id', $mentorId)
                     ->whereIn('status', ['diterima', 'selesai'])
-                    ->with(['user', 'position'])
+                    ->with(['user', 'position.skpd'])
                     ->get();
 
-        return view('mentor.dashboard', compact('interns'));
+        // 2. HITUNG LOGBOOK PENDING (Untuk Badge Logbook - Opsional jika sudah ada)
+        $pendingLogbooks = DailyLog::whereHas('application', function($q) use ($mentorId) {
+            $q->where('mentor_id', $mentorId);
+        })->where('status_validasi', 'pending')->count();
+
+        // 3. HITUNG ABSENSI PENDING (Untuk Badge Absensi - BARU)
+        // Menghitung berapa izin/sakit yang belum disetujui
+        $pendingAttendance = Attendance::whereHas('application', function($q) use ($mentorId) {
+            $q->where('mentor_id', $mentorId);
+        })->where('validation_status', 'pending')->count();
+
+        return view('mentor.dashboard', compact('interns', 'pendingLogbooks', 'pendingAttendance'));
     }
 
     public function showLogbook($applicationId)
@@ -77,5 +91,59 @@ class MentorController extends Controller
         ]);
 
         return redirect()->route('mentor.dashboard')->with('success', 'Nilai berhasil disimpan.');
+    }
+
+    public function attendance(Request $request)
+    {
+        $mentorId = Auth::user()->id;
+        
+        // 1. Tentukan Tanggal yang Dipilih (Default Hari Ini)
+        $selectedDate = $request->input('date', date('Y-m-d'));
+
+        // 2. Buat List 7 Hari Terakhir untuk Sidebar
+        // Kita gunakan Collection untuk mempermudah loop di View
+        $dateList = collect([]);
+        for ($i = 0; $i < 7; $i++) {
+            $dateList->push(\Carbon\Carbon::now()->subDays($i));
+        }
+
+        // 3. Ambil ID Mahasiswa Bimbingan
+        $applicationIds = Application::where('mentor_id', $mentorId)
+                            ->whereIn('status', ['diterima', 'selesai'])
+                            ->pluck('id');
+
+        // 4. Query Absensi Berdasarkan Tanggal yang Dipilih ($selectedDate)
+        $attendances = Attendance::whereIn('application_id', $applicationIds)
+                    ->where('date', $selectedDate)
+                    ->with(['application.user', 'application.position'])
+                    ->latest()
+                    ->get();
+
+        return view('mentor.attendance', compact('attendances', 'dateList', 'selectedDate'));
+    }
+
+    /**
+     * PROSES VALIDASI IZIN/SAKIT
+     */
+    public function validateAttendance(Request $request, $id)
+    {
+        $request->validate([
+            'status_validasi' => 'required|in:approved,rejected',
+            'mentor_note' => 'nullable|string'
+        ]);
+
+        $attendance = Attendance::findOrFail($id);
+        
+        // Pastikan yang memvalidasi adalah mentor yang berhak
+        if ($attendance->application->mentor_id != Auth::id()) {
+            abort(403, 'Akses Ditolak');
+        }
+
+        $attendance->update([
+            'validation_status' => $request->status_validasi,
+            'mentor_note' => $request->mentor_note
+        ]);
+
+        return back()->with('success', 'Status izin/sakit berhasil diperbarui.');
     }
 }

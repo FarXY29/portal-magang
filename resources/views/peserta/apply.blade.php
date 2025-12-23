@@ -27,6 +27,30 @@
                         @error('surat') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
 
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        <div>
+                            <x-input-label for="tanggal_mulai" :value="__('Rencana Tanggal Mulai')" />
+                            <input type="date" id="tanggal_mulai" name="tanggal_mulai" 
+                                class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" 
+                                min="{{ date('Y-m-d') }}" required>
+                            <x-input-error :messages="$errors->get('tanggal_mulai')" class="mt-2" />
+                        </div>
+
+                        <div>
+                            <x-input-label for="tanggal_selesai" :value="__('Rencana Tanggal Selesai')" />
+                            <input type="date" id="tanggal_selesai" name="tanggal_selesai" 
+                                class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" 
+                                min="{{ date('Y-m-d') }}" required>
+                            <x-input-error :messages="$errors->get('tanggal_selesai')" class="mt-2" />
+                        </div>
+                    </div>
+
+                    <script>
+                        document.getElementById('tanggal_mulai').addEventListener('change', function() {
+                            document.getElementById('tanggal_selesai').min = this.value;
+                        });
+                    </script>
+
                     <div class="flex justify-end space-x-2">
                         <a href="{{ route('home') }}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Batal</a>
                         <button type="submit" class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 font-bold shadow">

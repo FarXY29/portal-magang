@@ -69,7 +69,7 @@
                         <div class="flex justify-between items-center mb-6">
                             <div>
                                 <h3 class="text-lg font-bold text-gray-800">Tren Peminat</h3>
-                                <p class="text-sm text-gray-500">5 Dinas dengan pelamar terbanyak</p>
+                                <p class="text-sm text-gray-500">5 Instansi dengan pelamar terbanyak</p>
                             </div>
                             <button class="text-gray-400 hover:text-gray-600"><i class="fas fa-ellipsis-h"></i></button>
                         </div>
@@ -97,7 +97,7 @@
                                 </div>
                                 <div class="ml-3">
                                     <p class="text-sm font-bold text-gray-800 group-hover:text-teal-700">Master Data SKPD</p>
-                                    <p class="text-xs text-gray-500">Tambah/Edit Dinas</p>
+                                    <p class="text-xs text-gray-500">Tambah/Edit Dinas dan Cetak</p>
                                 </div>
                                 <i class="fas fa-chevron-right ml-auto text-gray-300 group-hover:text-teal-400 text-xs"></i>
                             </a>

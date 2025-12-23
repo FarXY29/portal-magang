@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
+
+        <style>
+            /* Mengembalikan style list yang di-reset oleh Tailwind */
+            .ck-content ul { list-style-type: disc; padding-left: 20px; }
+            .ck-content ol { list-style-type: decimal; padding-left: 20px; }
+            .ck-content h2 { font-size: 1.5em; font-weight: bold; margin-top: 10px; }
+            .ck-content h3 { font-size: 1.25em; font-weight: bold; margin-top: 10px; }
+            .ck-content p { margin-bottom: 0.5em; }
+        </style>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -32,5 +41,27 @@
                 {{ $slot }}
             </main>
         </div>
+        <script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+        <script>
+        // Cari semua elemen dengan class "wysiwyg-editor" dan ubah jadi CKEditor
+        const editors = document.querySelectorAll('.wysiwyg-editor');
+        editors.forEach(editor => {
+            ClassicEditor
+                .create(editor, {
+                    toolbar: [ 'undo', 'redo', '|',
+                            'heading', '|',
+                            'fontSize', 'fontFamily', 'fontColor', 'fontBackgroundColor', '|',
+                            'bold', 'italic', 'underline', 'strikethrough', 'removeFormat', '|',
+                            'alignment', '|',
+                            'bulletedList', 'numberedList', 'todoList', '|',
+                            'outdent', 'indent', '|',
+                            'link', 'insertTable', 'blockQuote', 'horizontalLine', '|',
+                            'findAndReplace', 'selectAll' ],
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        });
+    </script>
     </body>
 </html>
