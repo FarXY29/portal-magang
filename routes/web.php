@@ -68,11 +68,19 @@ Route::middleware('auth')->group(function () {
         Route::resource('logbook', LogbookController::class);
         Route::get('/logbook-print', [LogbookController::class, 'print'])->name('logbook.print');
         Route::get('/sertifikat', [MagangController::class, 'downloadCertificate'])->name('sertifikat');
+        
 
         // ROUTE ABSENSI 
         Route::post('/absen/masuk', [App\Http\Controllers\AttendanceController::class, 'store'])->name('absen.masuk');
         Route::post('/absen/pulang', [App\Http\Controllers\AttendanceController::class, 'clockOut'])->name('absen.pulang');
         Route::post('/absen/izin', [App\Http\Controllers\AttendanceController::class, 'permission'])->name('absen.izin');
+    });
+
+    // === TAMBAHKAN ROUTE INI (AJAX CEK KUOTA) ===
+    // Ditaruh di luar prefix 'peserta' agar URL-nya tetap /magang/check-availability/...
+    Route::middleware(['auth', 'role:peserta'])->group(function () {
+        Route::post('/magang/check-availability/{id}', [MagangController::class, 'checkAvailability'])
+            ->name('magang.check.availability');
     });
 
     // B. AREA ADMIN SKPD
