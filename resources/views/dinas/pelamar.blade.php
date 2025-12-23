@@ -87,7 +87,7 @@
                                     <div class="flex space-x-2 mb-3">
                                         <!-- Tombol Terima (Hanya muncul jika kuota > 0) -->
                                         @if($app->position->kuota > 0)
-                                            <form action="{{ route('dinas.pelamar.terima', $app->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menerima peserta ini? Kuota akan berkurang 1.')">
+                                            <form action="{{ route('dinas.pelamar.terima', $app->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menerima peserta ini?.')">
                                                 @csrf
                                                 <button type="submit" class="text-white bg-green-500 hover:bg-green-600 px-3 py-1 rounded shadow-sm text-xs transition font-bold">
                                                     <i class="fas fa-check mr-1"></i> Terima
