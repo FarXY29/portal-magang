@@ -25,7 +25,6 @@ class AdminSkpdController extends Controller
     public function indexMentors()
     {
         $skpdId = Auth::user()->skpd_id;
-        // Ambil user dengan role 'mentor' di SKPD ini
         $mentors = User::where('skpd_id', $skpdId)->where('role', 'mentor')->get();
         return view('dinas.mentors.index', compact('mentors'));
     }
@@ -43,9 +42,9 @@ class AdminSkpdController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 'mentor', // Role khusus pembimbing lapangan
+            'role' => 'mentor',
             'skpd_id' => Auth::user()->skpd_id,
-            'nik' => $request->nip // Kita simpan NIP di kolom NIK saja
+            'nik' => $request->nip
         ]);
 
         return back()->with('success', 'Akun Pembimbing Lapangan berhasil dibuat.');
@@ -53,7 +52,6 @@ class AdminSkpdController extends Controller
 
     public function editMentor($id)
     {
-        // Pastikan hanya bisa edit mentor milik dinas sendiri
         $mentor = User::where('id', $id)
                     ->where('skpd_id', Auth::user()->skpd_id)
                     ->where('role', 'mentor')
@@ -109,34 +107,30 @@ class AdminSkpdController extends Controller
         return view('dinas.pelamar', compact('applicants'));
     }
 
+    /**
+     * TERIMA PELAMAR (Logika Booking Hotel)
+     */
     public function acceptApplicant($id)
     {
-        // 1. Cari data lamaran beserta data posisinya
         $app = Application::with('position')->findOrFail($id);
         
-        // 2. Cek Kuota Posisi
+        // Cek kapasitas (opsional, bisa dihapus jika ingin bypass)
         if ($app->position->kuota <= 0) {
-            return back()->with('error', 'Gagal menerima! Kuota untuk posisi ini sudah habis (0).');
+            return back()->with('error', 'Peringatan: Posisi ini memiliki kapasitas 0 (Ditutup).');
         }
 
-        // 3. Kurangi Kuota
-        $app->position->decrement('kuota');
-
-        // 4. Update Status Peserta & Kirim Email (Opsional jika setup email aktif)
+        // Update Status (Tanpa mengurangi kuota, Tanpa overwrite tanggal)
         $app->update([
-            'status' => 'diterima', 
-            'tanggal_mulai' => now(),
-            'mentor_id' => null // Mentor harus di-assign manual nanti
+            'status' => 'diterima',
         ]);
 
-        return back()->with('success', 'Peserta diterima! Kuota posisi berkurang menjadi ' . $app->position->kuota);
+        return back()->with('success', 'Peserta diterima! Jadwal telah dikunci sesuai pengajuan.');
     }
 
     public function rejectApplicant($id)
     {
         $app = Application::findOrFail($id);
         $app->update(['status' => 'ditolak']);
-        
         return back()->with('success', 'Peserta ditolak.');
     }
 
@@ -153,31 +147,30 @@ class AdminSkpdController extends Controller
 
     public function storeLowongan(Request $request)
     {
+        // 1. Hapus Validasi 'judul_posisi' dan 'batas_daftar'
         $request->validate([
-            'judul_posisi' => 'required',
+            // 'judul_posisi' => 'required', // DIHAPUS
             'required_major' => 'required',
             'deskripsi' => 'required',
             'kuota' => 'required|numeric',
-            'batas_daftar' => 'required|date',
+            // 'batas_daftar' => 'required|date', // DIHAPUS
         ]);
 
         InternshipPosition::create([
             'skpd_id' => Auth::user()->skpd_id,
-            'judul_posisi' => $request->judul_posisi,
+            'judul_posisi' => 'Peserta Magang', // Default Value
             'required_major' => $request->required_major,
             'deskripsi' => $request->deskripsi,
             'kuota' => $request->kuota,
-            'batas_daftar' => $request->batas_daftar,
+            'batas_daftar' => null, // Default NULL
             'status' => 'buka'
         ]);
 
         return redirect()->route('dinas.lowongan.index')->with('success', 'Lowongan berhasil dibuat!');
     }
 
-    // --- FITUR EDIT LOWONGAN (BARU) ---
     public function editLowongan($id)
     {
-        // Pastikan hanya bisa edit lowongan milik dinas sendiri
         $loker = InternshipPosition::where('id', $id)
                     ->where('skpd_id', Auth::user()->skpd_id)
                     ->firstOrFail();
@@ -191,21 +184,22 @@ class AdminSkpdController extends Controller
                     ->where('skpd_id', Auth::user()->skpd_id)
                     ->firstOrFail();
 
+        // 1. Hapus Validasi 'judul_posisi' dan 'batas_daftar'
         $request->validate([
-            'judul_posisi' => 'required',
+            // 'judul_posisi' => 'required', // DIHAPUS
             'required_major' => 'required',
             'deskripsi' => 'required',
             'kuota' => 'required|numeric',
-            'batas_daftar' => 'required|date',
+            // 'batas_daftar' => 'required|date', // DIHAPUS
             'status' => 'required|in:buka,tutup'
         ]);
 
         $loker->update([
-            'judul_posisi' => $request->judul_posisi,
+            'judul_posisi' => 'Peserta Magang', // Default Value
             'required_major' => $request->required_major,
             'deskripsi' => $request->deskripsi,
             'kuota' => $request->kuota,
-            'batas_daftar' => $request->batas_daftar,
+            'batas_daftar' => null, // Default NULL
             'status' => $request->status
         ]);
 
@@ -231,7 +225,7 @@ class AdminSkpdController extends Controller
         })
         ->whereIn('status', ['diterima', 'selesai'])
         ->with(['user', 'position', 'mentor'])
-        ->orderBy('status', 'asc') // Aktif dulu baru Selesai
+        ->orderBy('status', 'asc')
         ->get();
 
         return view('dinas.peserta.index', compact('interns', 'mentors'));
@@ -253,7 +247,6 @@ class AdminSkpdController extends Controller
         
         $app->update([
             'status' => 'selesai',
-            'tanggal_selesai' => now()
         ]);
         
         return back()->with('success', 'Peserta berhasil diluluskan! Sertifikat kini tersedia.');
@@ -315,5 +308,4 @@ class AdminSkpdController extends Controller
 
         return back()->with('success', 'Pengaturan jam kerja berhasil diperbarui.');
     }
-
 }
