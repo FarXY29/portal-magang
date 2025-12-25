@@ -1,11 +1,15 @@
-<nav class="flex flex-col h-screen sticky top-0 bg-white border-r border-gray-200 text-gray-600 shadow-sm">
-    <div class="h-16 flex items-center px-6 bg-teal-600 border-b border-teal-700 flex-shrink-0">
+<nav class="flex flex-col h-full bg-white border-r border-gray-200 text-gray-600 shadow-sm">
+    <div class="h-16 flex items-center justify-between px-6 bg-teal-600 border-b border-teal-700 flex-shrink-0">
         <a href="{{ route('home') }}" class="flex items-center gap-3">
             <div class="bg-white p-1 rounded-lg shadow-sm">
                 <x-application-logo class="w-7 h-7 fill-current text-teal-600" />
             </div>
             <span class="text-white font-black text-sm tracking-tighter uppercase">Portal Magang</span>
         </a>
+        
+        <button @click="sidebarOpen = false" class="text-white/80 hover:text-white lg:hidden">
+            <i class="fas fa-times text-lg"></i>
+        </button>
     </div>
 
     <div class="flex-1 overflow-y-auto scrollbar-hide flex flex-col">
