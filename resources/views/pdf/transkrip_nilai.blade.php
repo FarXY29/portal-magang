@@ -1,71 +1,83 @@
+@php
+    // Atur bahasa tanggal ke Indonesia
+    \Carbon\Carbon::setLocale('id');
+@endphp
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Formulir Penilaian PKL</title>
     <style>
+        /* PENGATURAN HALAMAN AGAR MUAT 1 LEMBAR */
+        @page {
+            /* Margin: Atas 1.5cm, Kanan 2cm, Bawah 1.5cm, Kiri 2.5cm */
+            margin: 1.5cm 2cm 1cm 2.5cm; 
+            size: A4 portrait;
+        }
+
         body {
             font-family: "Times New Roman", Times, serif;
-            font-size: 12pt;
-            line-height: 1.5;
+            font-size: 11pt; /* Diubah dari 12pt agar lebih muat */
+            line-height: 1.2; /* Spasi baris dirapatkan sedikit */
             margin: 0;
             padding: 0;
         }
+        
         .text-center { text-align: center; }
         .text-bold { font-weight: bold; }
-        .uppercase { text-transform: uppercase; }
+        .text-justify { text-align: justify; }
         
-        /* Layout untuk Header Info */
+        /* Layout Tabel Informasi (Header) */
         .info-table {
             width: 100%;
-            margin-bottom: 20px;
             border-collapse: collapse;
+            margin-bottom: 5px;
         }
         .info-table td {
-            padding: 2px;
             vertical-align: top;
-            border: none;
+            padding: 1px 0; /* Padding vertikal diperkecil */
         }
         .label-col { width: 35%; }
-        .sep-col { width: 2%; }
+        .sep-col { width: 2%; text-align: center; }
         
         /* Layout Tabel Nilai */
         .grade-table {
             width: 100%;
             border-collapse: collapse;
-            margin: 20px 0;
+            margin-top: 10px;
+            margin-bottom: 15px; /* Jarak bawah diperkecil */
         }
         .grade-table th, .grade-table td {
             border: 1px solid black;
-            padding: 5px 10px;
+            padding: 4px 6px; /* Cell lebih rapat */
         }
         .grade-table th {
             text-align: center;
-            background-color: #f0f0f0; /* Opsional: abu-abu tipis di header */
+            background-color: #f2f2f2;
+            font-size: 11pt;
         }
-        .col-no { width: 8%; text-align: center; }
-        .col-act { width: 60%; }
-        .col-val { width: 32%; text-align: center; font-weight: bold; }
+        .col-no { width: 5%; text-align: center; }
+        .col-nilai { width: 25%; text-align: center; font-weight: bold; }
 
         /* Layout Tanda Tangan */
         .signature-table {
             width: 100%;
-            margin-top: 50px;
+            margin-top: 20px; /* Jarak ke atas diperkecil */
             border: none;
         }
         .signature-table td {
             text-align: center;
             vertical-align: top;
-            border: none;
         }
         .sign-space {
-            height: 80px; /* Ruang untuk tanda tangan basah/cap */
+            height: 60px; /* Ruang tanda tangan dikecilkan sedikit (dari 70-80px) */
         }
     </style>
 </head>
 <body>
 
-    <div class="text-center text-bold" style="margin-bottom: 30px;">
-        <span style="font-size: 14pt;">Formulir Penilaian Praktek Kerja Lapang (PKL)</span>
+    <div class="text-center text-bold" style="margin-bottom: 20px;">
+        <span style="font-size: 13pt; text-transform: uppercase;">Formulir Penilaian Praktek Kerja Lapang (PKL)</span>
     </div>
 
     <table class="info-table">
@@ -79,12 +91,12 @@
             <td class="sep-col">:</td>
             <td>
                 {{ $app->position->skpd->nama_dinas }}<br>
-                <span style="font-size: 10pt; font-style: italic;">{{ $app->position->skpd->alamat ?? 'Banjarmasin' }}</span>
+                Banjarmasin
             </td>
         </tr>
     </table>
 
-    <p>menyatakan bahwa peserta Praktek Kerja Lapangan berikut ini:</p>
+    <p style="margin: 8px 0;">menyatakan bahwa peserta Praktek Kerja Lapangan berikut ini:</p>
 
     <table class="info-table">
         <tr>
@@ -95,7 +107,7 @@
         <tr>
             <td class="label-col">Nomor Pokok Mahasiswa (NPM)</td>
             <td class="sep-col">:</td>
-            <td>{{ $app->user->nim ?? '.........................' }}</td> 
+            <td>{{ $app->user->nim ?? '2210010154' }}</td> 
         </tr>
         <tr>
             <td class="label-col">Waktu Pelaksanaan</td>
@@ -107,7 +119,7 @@
         </tr>
     </table>
 
-    <div style="text-align: justify; margin-bottom: 15px;">
+    <div class="text-justify" style="margin-top: 8px; margin-bottom: 8px;">
         Telah menyelesaikan Praktek Kerja Lapangan di Dinas kami. Dengan mempertimbangkan segala aspek, baik dari segi bobot pekerjaan maupun pelaksanaan Kerja Praktek, maka kami memutuskan bahwa yang bersangkutan telah menyelesaikan kewajibannya dengan hasil sebagai berikut:
     </div>
 
@@ -115,8 +127,8 @@
         <thead>
             <tr>
                 <th class="col-no">No.</th>
-                <th class="col-act">Aktivitas Yang Dinilai</th>
-                <th class="col-val">Nilai (Berbentuk Angka)</th>
+                <th>Aktivitas Yang Dinilai</th>
+                <th class="col-nilai">Nilai (Angka)</th>
             </tr>
         </thead>
         <tbody>
@@ -140,16 +152,15 @@
             <tr>
                 <td class="col-no">{{ $no++ }}</td>
                 <td>{{ $label }}</td>
-                <td class="col-val">{{ $nilai }}</td>
+                <td class="col-nilai">{{ $nilai }}</td>
             </tr>
             @endforeach
-            
-            <tr style="background-color: #fafafa;">
-                <td colspan="2" style="text-align: right; font-weight: bold; padding-right: 15px;">Rata - Rata Akhir</td>
-                <td class="col-val">{{ $app->nilai_rata_rata }}</td>
-            </tr>
         </tbody>
     </table>
+
+    <div style="text-align: right; margin-bottom: 5px;">
+        Banjarmasin, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}
+    </div>
 
     <table class="signature-table">
         <tr>
@@ -157,20 +168,18 @@
                 Mengetahui,<br>
                 <span style="font-weight: bold;">{{ $app->position->skpd->jabatan_pejabat ?? 'Kepala Dinas' }}</span><br>
                 {{ $app->position->skpd->nama_dinas }}
-                <div class="sign-space">
-                    </div>
-                <span class="text-bold text-underline">
+                
+                <div class="sign-space"></div> <span class="text-bold" style="text-decoration: underline;">
                     {{ $app->position->skpd->nama_pejabat ?? '........................................' }}
                 </span><br>
                 NIP. {{ $app->position->skpd->nip_pejabat ?? '....................' }}
             </td>
+
             <td width="50%">
-                Banjarmasin, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
-                Pembimbing Lapangan
-                <div class="sign-space">
-                    </div>
-                <span class="text-bold text-underline">{{ $app->mentor->name }}</span><br>
-                NIP. ......................... </td>
+                Pembimbing Lapangan<br>
+                <br> <div class="sign-space"></div> <span class="text-bold" style="text-decoration: underline;">{{ $app->mentor->name }}</span><br>
+                NIP. ...........................
+            </td>
         </tr>
     </table>
 
