@@ -3,66 +3,145 @@
 <head>
     <title>Sertifikat Magang</title>
     <style>
-        body { 
-            font-family: 'Times New Roman', serif; 
-            text-align: center; 
-            border: 10px double #0F766E; 
+        /* Mengatur Halaman Landscape */
+        @page {
+            size: A4 landscape;
+            margin: 10mm; /* Margin kertas */
+        }
+
+        body {
+            font-family: "Times New Roman", serif;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        /* Bingkai Sertifikat */
+        .container {
+            border: 5px double #1a202c; /* Bingkai ganda tebal */
             padding: 40px;
-            height: 90%;
+            height: 90%; /* Mengisi halaman */
+            position: relative;
+            text-align: center;
         }
-        .header { margin-bottom: 40px; }
-        h1 { font-size: 36px; color: #0F766E; margin: 0; text-transform: uppercase; }
-        h3 { font-size: 18px; margin-top: 5px; font-weight: normal; }
-        .content { margin-top: 40px; font-size: 16px; line-height: 1.6; }
-        .name { font-size: 28px; font-weight: bold; margin: 15px 0; text-decoration: underline; }
-        .grade-box { 
-            margin: 20px auto; 
-            border: 2px solid #0F766E; 
-            padding: 10px; 
-            width: 50%;
+
+        /* Elemen Dekorasi */
+        .header-text {
+            font-size: 18pt;
             font-weight: bold;
-            font-size: 18px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
         }
-        .footer { margin-top: 80px; width: 100%; }
-        .sign-box { float: right; width: 40%; text-align: center; }
+
+        .sub-header {
+            font-size: 14pt;
+            margin-bottom: 30px;
+        }
+
+        .title {
+            font-size: 36pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #2d3748; /* Abu tua */
+            margin: 20px 0;
+            font-family: "Helvetica", sans-serif; /* Font judul sedikit beda */
+            border-bottom: 2px solid #cbd5e0;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .content-text {
+            font-size: 14pt;
+            margin: 10px 0;
+        }
+
+        .candidate-name {
+            font-size: 28pt;
+            font-weight: bold;
+            margin: 20px 0;
+            color: #1a202c;
+            text-decoration: underline;
+        }
+
+        .duration-text {
+            font-size: 14pt;
+            font-style: italic;
+            margin-bottom: 40px;
+            color: #555;
+        }
+
+        /* Area Tanda Tangan */
+        .signature-section {
+            width: 100%;
+            margin-top: 50px;
+            display: table;
+        }
+        .sig-col {
+            display: table-cell;
+            width: 50%;
+            vertical-align: top;
+            padding: 0 20px;
+        }
+        .sign-space {
+            height: 80px;
+        }
+
+        /* Logo (Opsional: Jika ada file logo di public/img/logo.png) */
+        .logo {
+            width: 80px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Sertifikat Penyelesaian</h1>
-        <h3>Nomor: {{ $app->id }}/MGG/BJM/{{ date('Y') }}</h3>
-    </div>
-    
-    <div class="content">
-        <p>Diberikan kepada:</p>
-        <div class="name">{{ $app->user->name }}</div>
-        <p>
-            NIK: {{ $app->user->nik ?? '-' }} <br>
-            Instansi: {{ $app->user->asal_instansi ?? 'Umum' }}
+
+    <div class="container">
+        
+        <div class="header-text">PEMERINTAH KOTA BANJARMASIN</div>
+        <div class="header-text">{{ $app->position->skpd->nama_dinas }}</div>
+        
+        <br>
+
+        <div class="title">SERTIFIKAT MAGANG</div>
+
+        <p class="content-text">Diberikan apresiasi setinggi-tingginya kepada:</p>
+
+        <div class="candidate-name">{{ $app->user->name }}</div>
+        
+        <p class="content-text">
+            Telah menyelesaikan program Praktek Kerja Lapangan (PKL) dengan predikat 
+            <strong>{{ $app->nilai_rata_rata >= 85 ? 'SANGAT BAIK' : ($app->nilai_rata_rata >= 70 ? 'BAIK' : 'CUKUP') }}
         </p>
-        
-        <p>Telah menyelesaikan program <strong>Magang / Praktik Kerja Lapangan</strong><br>
-        di lingkungan Pemerintah Kota Banjarmasin pada unit kerja:</p>
-        
-        <h2 style="margin: 10px 0;">{{ $app->position->skpd->nama_dinas }}</h2>
-        
-        Periode: {{ \Carbon\Carbon::parse($app->tanggal_mulai)->format('d F Y') }} s.d. {{ \Carbon\Carbon::parse($app->tanggal_selesai)->format('d F Y') }}</p>
-        
-        <!-- BAGIAN NILAI DINAMIS -->
-        <div class="grade-box">
-            Predikat: {{ $app->predikat ?? 'BAIK' }}
+
+        <p class="duration-text">
+            Dilaksanakan mulai tanggal {{ \Carbon\Carbon::parse($app->start_date)->translatedFormat('d F Y') }} 
+            sampai dengan {{ \Carbon\Carbon::parse($app->end_date)->translatedFormat('d F Y') }}.
+        </p>
+
+        <div class="signature-section">
+            <div class="sig-col">
+                Mengetahui,<br>
+                <span style="font-weight: bold;">{{ $app->position->skpd->jabatan_pejabat ?? 'Kepala Dinas' }}</span>
+                <br><br>
+                <div class="sign-space"></div>
+                <span style="font-weight: bold; text-decoration: underline;">
+                    {{ $app->position->skpd->nama_pejabat ?? '................................' }}
+                </span><br>
+                NIP. {{ $app->position->skpd->nip_pejabat ?? '....................' }}
+            </div>
+
+            <div class="sig-col">
+                Banjarmasin, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
+                Pembimbing Lapangan
+                <br><br>
+                <div class="sign-space"></div>
+                <span style="font-weight: bold; text-decoration: underline;">{{ $app->mentor->name }}</span><br>
+                NIP. ...........................
+            </div>
         </div>
-        <!-- -------------------- -->
+
     </div>
 
-    <div class="footer">
-        <div class="sign-box">
-            <p>Banjarmasin, {{ date('d F Y') }}</p>
-            <p>Kepala Dinas,</p>
-            <br><br><br><br>
-            <p><strong>_______________________</strong></p>
-            <p>NIP. ...................................</p>
-        </div>
-    </div>
 </body>
 </html>
