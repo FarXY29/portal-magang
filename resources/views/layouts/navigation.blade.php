@@ -57,9 +57,6 @@
                     <span>Manajemen Dinas</span>
                     <i class="fas text-[8px]" :class="open ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
                 </button>
-                <x-nav-link :href="route('dinas.pejabat.edit')" :active="request()->routeIs('dinas.pejabat.edit')">
-                    <i class="fas fa-signature mr-2"></i> {{ __('Tanda Tangan') }}
-                </x-nav-link>
                 <div x-show="open" x-transition.origin.top class="mt-2 flex flex-col space-y-1 border-l-2 border-gray-100 ml-3">
                     <a href="{{ route('dinas.lowongan.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('dinas.lowongan.*') ? 'text-teal-700 font-bold' : '' }}">
                         Kelola Lowongan
