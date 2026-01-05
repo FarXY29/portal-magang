@@ -46,7 +46,6 @@
         
         <h2 style="margin: 10px 0;">{{ $app->position->skpd->nama_dinas }}</h2>
         
-        <p>Posisi: <strong>{{ $app->position->judul_posisi }}</strong><br>
         Periode: {{ \Carbon\Carbon::parse($app->tanggal_mulai)->format('d F Y') }} s.d. {{ \Carbon\Carbon::parse($app->tanggal_selesai)->format('d F Y') }}</p>
         
         <!-- BAGIAN NILAI DINAMIS -->

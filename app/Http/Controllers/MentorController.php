@@ -146,4 +146,54 @@ class MentorController extends Controller
 
         return back()->with('success', 'Status izin/sakit berhasil diperbarui.');
     }
+
+    public function simpanNilai(Request $request, $id)
+    {
+        // 1. Validasi 10 Input
+        $validated = $request->validate([
+            'nilai_sikap' => 'required|numeric|min:0|max:100',
+            'nilai_disiplin' => 'required|numeric|min:0|max:100',
+            'nilai_kesungguhan' => 'required|numeric|min:0|max:100',
+            'nilai_mandiri' => 'required|numeric|min:0|max:100',
+            'nilai_kerjasama' => 'required|numeric|min:0|max:100',
+            'nilai_ketelitian' => 'required|numeric|min:0|max:100',
+            'nilai_pendapat' => 'required|numeric|min:0|max:100',
+            'nilai_serap_hal_baru' => 'required|numeric|min:0|max:100',
+            'nilai_inisiatif' => 'required|numeric|min:0|max:100',
+            'nilai_kepuasan' => 'required|numeric|min:0|max:100',
+            'catatan_mentor' => 'nullable|string',
+        ]);
+
+        $app = Application::findOrFail($id);
+
+        // 2. Hitung Rata-rata
+        $total = $request->nilai_sikap + $request->nilai_disiplin + $request->nilai_kesungguhan + 
+                $request->nilai_mandiri + $request->nilai_kerjasama + $request->nilai_ketelitian + 
+                $request->nilai_pendapat + $request->nilai_serap_hal_baru + $request->nilai_inisiatif + 
+                $request->nilai_kepuasan;
+        
+        $rataRata = $total / 10;
+
+        // 3. Simpan ke Database
+        $app->update(array_merge($validated, [
+            'nilai_rata_rata' => $rataRata,
+            'status' => 'selesai' // Status berubah jadi selesai agar peserta bisa download sertifikat
+        ]));
+
+        return redirect()->route('mentor.dashboard')->with('success', 'Penilaian berhasil disimpan!');
+    }
+
+    public function formPenilaian($id)
+    {
+        // Ambil data aplikasi berdasarkan ID
+        // Pastikan aplikasi ini memang dibimbing oleh mentor yang sedang login (Opsional tapi disarankan untuk keamanan)
+        $application = Application::findOrFail($id);
+
+        // Cek apakah mentor berhak menilai (misal cek mentor_id)
+        if ($application->mentor_id != Auth::id()) {
+            abort(403, 'Anda bukan pembimbing peserta ini.');
+        }
+
+        return view('mentor.penilaian', compact('application'));
+    }
 }

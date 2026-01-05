@@ -1,14 +1,11 @@
-<nav class="flex flex-col h-full bg-white border-r border-gray-200 text-gray-600 shadow-sm">
+<nav class="flex flex-col h-full bg-white text-gray-600 border-r border-gray-200 shadow-sm">
     <div class="h-16 flex items-center justify-between px-6 bg-teal-600 border-b border-teal-700 flex-shrink-0">
         <a href="{{ route('home') }}" class="flex items-center gap-3">
-            <div class="bg-white p-1 rounded-lg shadow-sm">
-                <x-application-logo class="w-7 h-7 fill-current text-teal-600" />
-            </div>
-            <span class="text-white font-black text-sm tracking-tighter uppercase">Portal Magang</span>
+            <x-application-logo class="w-8 h-8 fill-current text-white" />
+            <span class="text-white font-black text-sm uppercase tracking-tighter">Portal Magang</span>
         </a>
-        
         <button @click="sidebarOpen = false" class="text-white/80 hover:text-white lg:hidden">
-            <i class="fas fa-times text-lg"></i>
+            <i class="fas fa-times text-xl"></i>
         </button>
     </div>
 
@@ -16,6 +13,11 @@
         
         <div class="px-4 py-8 space-y-4">
             
+            <a href="{{ route('dashboard') }}" 
+            class="flex items-center px-3 py-2 text-sm font-bold rounded-xl transition-colors {{ request()->routeIs('dashboard') ? 'bg-teal-50 text-teal-700' : 'text-gray-600 hover:bg-gray-50 hover:text-teal-600' }}">
+                <i class="fas fa-th-large w-5 mr-3 text-center {{ request()->routeIs('dashboard') ? 'text-teal-600' : 'text-gray-400' }}"></i>
+                <span>Dashboard</span>
+            </a>
 
             @if(Auth::user()->role == 'admin_kota')
             <div x-data="{ open: {{ request()->routeIs('admin.*') ? 'true' : 'false' }} }">
@@ -25,13 +27,19 @@
                 </button>
                 <div x-show="open" x-transition.origin.top class="mt-2 flex flex-col space-y-1 border-l-2 border-gray-100 ml-3">
                     <a href="{{ route('admin.skpd.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('admin.skpd.*') ? 'text-teal-700 font-bold' : '' }}">
-                        Data Master SKPD
+                        Kelola Data SKPD
                     </a>
                     <a href="{{ route('admin.users.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('admin.users.index') ? 'text-teal-700 font-bold' : '' }}">
                         Manajemen Pengguna
                     </a>
                     <a href="{{ route('admin.laporan') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('admin.laporan') ? 'text-teal-700 font-bold' : '' }}">
                         Laporan SKPD
+                    </a>
+                    <a href="{{ route('admin.laporan.peserta_global') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('admin.laporan.peserta_global') ? 'text-teal-700 font-bold' : '' }}">
+                        Data Peserta Global
+                    </a>
+                    <a href="{{ route('admin.laporan.grading') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('admin.laporan.grading') ? 'text-teal-700 font-bold' : '' }}">
+                        Analisis Kompetensi Peserta
                     </a>
                     <a href="{{ route('admin.users.logbooks') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('admin.users.logbooks') ? 'text-teal-700 font-bold' : '' }}">
                         Monitoring Logbook
@@ -49,6 +57,9 @@
                     <span>Manajemen Dinas</span>
                     <i class="fas text-[8px]" :class="open ? 'fa-chevron-down' : 'fa-chevron-right'"></i>
                 </button>
+                <x-nav-link :href="route('dinas.pejabat.edit')" :active="request()->routeIs('dinas.pejabat.edit')">
+                    <i class="fas fa-signature mr-2"></i> {{ __('Tanda Tangan') }}
+                </x-nav-link>
                 <div x-show="open" x-transition.origin.top class="mt-2 flex flex-col space-y-1 border-l-2 border-gray-100 ml-3">
                     <a href="{{ route('dinas.lowongan.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('dinas.lowongan.*') ? 'text-teal-700 font-bold' : '' }}">
                         Kelola Lowongan
@@ -62,10 +73,13 @@
                     <a href="{{ route('dinas.mentors.index') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('dinas.mentors.*') ? 'text-teal-700 font-bold' : '' }}">
                         Data Mentor
                     </a>
-                    <a href="{{ route('dinas.laporan.rekap') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('dinas.laporan.rekap') ? 'text-teal-700 font-bold' : '' }}">
-                        Laporan Rekap
+                    <a href="{{ route('dinas.laporan.grading') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('dinas.laporan.peserta_global') ? 'text-teal-700 font-bold' : '' }}">
+                        Analisis Kompetensi Peserta
                     </a>
-                    <a href="{{ route('dinas.settings') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('dinas.laporan.rekap') ? 'text-teal-700 font-bold' : '' }}">
+                    <a href="{{ route('dinas.laporan.rekap') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('dinas.laporan.rekap') ? 'text-teal-700 font-bold' : '' }}">
+                        Laporan Peserta Magang
+                    </a>
+                    <a href="{{ route('dinas.settings') }}" class="flex items-center px-4 py-2 text-sm font-medium rounded-r-xl hover:bg-gray-50 hover:text-teal-600 {{ request()->routeIs('dinas.settings') ? 'text-teal-700 font-bold' : '' }}">
                         Pengaturan
                     </a>
                 </div>

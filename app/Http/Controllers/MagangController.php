@@ -265,4 +265,21 @@ class MagangController extends Controller
             ]);
         }
     }
+
+    public function downloadTranskrip($id)
+    {
+        // Ambil data aplikasi milik peserta yang sedang login
+        $app = Application::where('id', $id)
+                    ->where('user_id', Auth::id()) // Keamanan: Pastikan data milik user sendiri
+                    ->firstOrFail();
+
+        // Validasi: Cek apakah sudah dinilai dan status selesai
+        if ($app->status !== 'selesai' || !$app->nilai_rata_rata) {
+            return back()->with('error', 'Transkrip belum tersedia. Tunggu penilaian dari mentor.');
+        }
+
+        // Generate PDF
+        $pdf = Pdf::loadView('pdf.transkrip_nilai', compact('app'));
+        return $pdf->download('Transkrip-Magang-'.$app->user->name.'.pdf');
+    }
 }

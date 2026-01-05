@@ -68,7 +68,8 @@ Route::middleware('auth')->group(function () {
         Route::resource('logbook', LogbookController::class);
         Route::get('/logbook-print', [LogbookController::class, 'print'])->name('logbook.print');
         Route::get('/sertifikat', [MagangController::class, 'downloadCertificate'])->name('sertifikat');
-        
+        Route::get('/download-nilai/{id}', [MagangController::class, 'downloadTranskrip'])->name('download.nilai');
+
 
         // ROUTE ABSENSI 
         Route::post('/absen/masuk', [App\Http\Controllers\AttendanceController::class, 'store'])->name('absen.masuk');
@@ -112,8 +113,13 @@ Route::middleware('auth')->group(function () {
         Route::post('/peserta/{id}/selesai', [AdminSkpdController::class, 'finishIntern'])->name('peserta.selesai');
         Route::post('/logbook/validasi/{id}', [AdminSkpdController::class, 'validateLogbook'])->name('logbook.validasi');
         
-        // Laporan Rekap Dinas
+        // Laporan Dinas
         Route::get('/laporan/rekap', [AdminSkpdController::class, 'laporanRekap'])->name('laporan.rekap');
+        Route::get('/laporan/grading', [AdminSkpdController::class, 'laporanGradingDinas'])->name('laporan.grading');
+
+        // RUTE PENGATURAN PEJABAT
+        Route::get('/pengaturan-pejabat', [AdminSkpdController::class, 'editPejabat'])->name('pejabat.edit');
+        Route::put('/pengaturan-pejabat', [AdminSkpdController::class, 'updatePejabat'])->name('pejabat.update');
 
         // ROUTE PENGATURAN JAM (BARU)
         Route::get('/pengaturan', [AdminSkpdController::class, 'settings'])->name('settings');
@@ -127,6 +133,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/logbook/validasi/{id}', [MentorController::class, 'validateLogbook'])->name('logbook.validasi');
         Route::get('/mahasiswa/{id}/nilai', [MentorController::class, 'gradingForm'])->name('grading.form');
         Route::post('/mahasiswa/{id}/nilai', [MentorController::class, 'storeGrade'])->name('grading.store');
+        // 1. Rute MENAMPILKAN Form (Method GET)
+        Route::get('/penilaian/{id}', [MentorController::class, 'formPenilaian'])->name('penilaian');
+
+        // 2. Rute MENYIMPAN Data (Method POST) 
+        Route::post('/penilaian/{id}', [MentorController::class, 'simpanNilai'])->name('simpan_nilai');  
         // ROUTE ABSENSI MENTOR
         Route::get('/absensi', [MentorController::class, 'attendance'])->name('attendance.index');
         Route::post('/absensi/{id}/validasi', [MentorController::class, 'validateAttendance'])->name('attendance.validate');
@@ -138,24 +149,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/logbook/{id}', [PembimbingController::class, 'showLogbook'])->name('logbook');
     });
 
-    // E. AREA KEPALA DINAS (BARU)
-    Route::middleware(['role:kepala_dinas'])->prefix('kepala-dinas')->name('kepala_dinas.')->group(function () {
-        Route::get('/dashboard', [KepalaDinasController::class, 'index'])->name('dashboard');
-        // Report Routes
-        Route::get('/laporan-lowongan', [KepalaDinasController::class, 'laporanLowongan'])->name('laporan.lowongan');
-        Route::get('/laporan-peserta', [KepalaDinasController::class, 'laporanPeserta'])->name('laporan.peserta');
-        Route::get('/laporan-demografi', [KepalaDinasController::class, 'laporanDemografi'])->name('laporan.demografi');
-        Route::get('/laporan-nilai', [KepalaDinasController::class, 'laporanNilai'])->name('laporan.nilai');
-        Route::get('/laporan-absensi', [KepalaDinasController::class, 'laporanAbsensi'])->name('laporan.absensi');
-        Route::get('/laporan-statistik', [KepalaDinasController::class, 'laporanStatistik'])->name('laporan.statistik');
 
-        // --- TAMBAHKAN ROUTE CETAK PDF INI ---
-        Route::get('/laporan-peserta/print', [KepalaDinasController::class, 'printPeserta'])->name('laporan.peserta.print');
-        Route::get('/laporan-statistik/print', [KepalaDinasController::class, 'printStatistik'])->name('laporan.statistik.print');
-        // -------------------------------------
-    });
-
-    // F. AREA ADMIN KOTA (SUPER ADMIN)
+    // E. AREA ADMIN KOTA (SUPER ADMIN)
     Route::middleware(['role:admin_kota'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', [AdminKotaController::class, 'index'])->name('dashboard');
         
@@ -176,6 +171,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/skpd/cetak-pdf', [AdminKotaController::class, 'printSkpd'])->name('skpd.print_pdf');
         Route::get('/laporan/peserta-global/print', [AdminKotaController::class, 'printPesertaGlobal'])
         ->name('laporan.peserta_global.print');
+        // Laporan Grading
+        Route::get('/laporan-grading', [AdminKotaController::class, 'laporanGrading'])->name('laporan.grading');
         // User Management & Settings
         Route::resource('users', AdminUserController::class);
         Route::get('/monitoring-logbook', [AdminUserController::class, 'logbooks'])->name('users.logbooks');

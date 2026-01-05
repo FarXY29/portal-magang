@@ -159,10 +159,7 @@
                         
                         <!-- Info Utama -->
                         <div class="mb-4 md:mb-0">
-                            <h4 class="font-bold text-lg text-gray-900">{{ $app->position->judul_posisi }}</h4>
-                            <p class="text-sm text-gray-600 font-medium">
-                                <i class="far fa-building mr-1"></i> {{ $app->position->skpd->nama_dinas }}
-                            </p>
+                            <h4 class="font-bold text-lg text-gray-900">{{ $app->position->skpd->nama_dinas }}</h4>
                             <p class="text-xs text-gray-500 mt-1">
                                 <i class="far fa-clock mr-1"></i> Status: 
                                 <span class="font-bold uppercase text-gray-700">{{ $app->status }}</span>
@@ -199,6 +196,9 @@
                                     <!-- Tombol Download Sertifikat -->
                                     <a href="{{ route('peserta.sertifikat') }}" class="inline-flex items-center bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-700 transition shadow-sm">
                                         <i class="fas fa-certificate mr-2"></i> Download Sertifikat
+                                    </a>
+                                    <a href="{{ route('peserta.download.nilai', $app->id) }}" class="flex-shrink-0 inline-flex items-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl shadow-lg shadow-green-200 transition transform hover:-translate-y-1">
+                                        <i class="fas fa-file-pdf mr-2"></i> Download Transkrip
                                     </a>
                                     <!-- Tombol Cetak Rekap -->
                                     <a href="{{ route('peserta.logbook.print') }}" target="_blank" class="inline-flex items-center bg-gray-800 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-900 transition shadow-sm">

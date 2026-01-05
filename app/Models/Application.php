@@ -18,10 +18,20 @@ class Application extends Model
         'tanggal_mulai',
         'tanggal_selesai',
         'mentor_id',
-        // --- TAMBAHAN BARU ---
         'nilai_angka',
         'predikat',
-        'catatan_mentor'
+        'nilai_sikap',
+        'nilai_disiplin',
+        'nilai_kesungguhan',
+        'nilai_mandiri',
+        'nilai_kerjasama',
+        'nilai_ketelitian',
+        'nilai_pendapat',
+        'nilai_serap_hal_baru',
+        'nilai_inisiatif',
+        'nilai_kepuasan',
+        'nilai_rata_rata',
+        'catatan_mentor',
     ];
 
     public function user() { return $this->belongsTo(User::class); }

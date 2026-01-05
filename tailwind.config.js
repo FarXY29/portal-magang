@@ -3,11 +3,7 @@ import forms from '@tailwindcss/forms';
 
 /** @type {import('tailwindcss').Config} */
 export default {
-    // --- TRIK MEMATIKAN DARK MODE ---
-    // Kita ubah strateginya menjadi 'selector' dan arahkan ke class palsu
-    // Dengan begini, utility 'dark:...' tidak akan pernah aktif
-    darkMode: ['selector', '.class-yang-tidak-akan-pernah-ada'], 
-    // --------------------------------
+    darkMode: ['selector', '.class-yang-tidak-akan-pernah-ada'],
 
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',

@@ -13,33 +13,38 @@
                 </div>
                 <div class="mb-6 border-b pb-4">
                     <h3 class="text-lg font-bold text-gray-900">{{ $app->user->name }}</h3>
-                    <p class="text-sm text-gray-600">Posisi: {{ $app->position->judul_posisi }}</p>
                 </div>
 
-                <form action="{{ route('mentor.grading.store', $app->id) }}" method="POST">
+                <form action="{{ route('mentor.grading.store', $app->id) }}" method="POST" class="space-y-6">
                     @csrf
-                    
-                    <!-- Input Nilai Angka -->
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Nilai Akhir (0-100)</label>
-                        <input type="number" name="nilai_angka" value="{{ old('nilai_angka', $app->nilai_angka) }}" 
-                               class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 font-bold text-lg" 
-                               min="0" max="100" required placeholder="Contoh: 85">
-                        <p class="text-xs text-gray-500 mt-1">Predikat (A/B/C) akan dihitung otomatis oleh sistem.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-700">Nilai Teknis (0-100)</label>
+                            <input type="number" name="nilai_teknis" min="0" max="100" required 
+                                class="w-full rounded-xl border-gray-200 focus:ring-teal-500" placeholder="Keahlian bidang">
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-700">Nilai Disiplin (0-100)</label>
+                            <input type="number" name="nilai_disiplin" min="0" max="100" required 
+                                class="w-full rounded-xl border-gray-200 focus:ring-teal-500" placeholder="Kehadiran & aturan">
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="text-sm font-bold text-gray-700">Nilai Perilaku (0-100)</label>
+                            <input type="number" name="nilai_perilaku" min="0" max="100" required 
+                                class="w-full rounded-xl border-gray-200 focus:ring-teal-500" placeholder="Etika & kerjasama">
+                        </div>
                     </div>
 
-                    <!-- Input Catatan -->
-                    <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Catatan Evaluasi / Kesan Pesan</label>
-                        <textarea name="catatan" rows="4" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" required placeholder="Tuliskan evaluasi kinerja, kedisiplinan, dan saran untuk mahasiswa...">{{ old('catatan', $app->catatan_mentor) }}</textarea>
+                    <div class="space-y-2">
+                        <label class="text-sm font-bold text-gray-700">Catatan Pembimbing</label>
+                        <textarea name="catatan_mentor" rows="3" class="w-full rounded-xl border-gray-200"></textarea>
                     </div>
 
-                    <div class="flex justify-end space-x-3">
-                        <a href="{{ route('mentor.dashboard') }}" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition">Batal</a>
-                        <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-md font-bold hover:bg-indigo-700 shadow-md transition">
-                            <i class="fas fa-save mr-1"></i> Simpan Nilai
-                        </button>
-                    </div>
+                    <button type="submit" class="w-full bg-teal-600 text-white font-bold py-3 rounded-xl hover:bg-teal-700 transition">
+                        Simpan Penilaian Akhir
+                    </button>
                 </form>
 
             </div>

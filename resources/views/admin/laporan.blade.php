@@ -29,33 +29,29 @@
                     <p class="text-sm text-gray-600">Dicetak pada: {{ date('d F Y') }}</p>
                 </div>
 
-                <table class="min-w-full divide-y divide-gray-200 border border-gray-300">
-                    <thead class="bg-gray-100">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase border">Nama Dinas (SKPD)</th>
-                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase border">Lowongan Buka</th>
-                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase border">Jumlah Pelamar</th>
-                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-700 uppercase border bg-green-50">Peserta Diterima</th>
+                            <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase">Nama Instansi</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase">Total Pelamar</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase">Tingkat Seleksi (Proses)</th>
+                            <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase">Rasio Peminat (Proses)</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200">
+                    <tbody class="bg-white divide-y divide-gray-200 text-sm">
                         @foreach($laporan as $data)
                         <tr>
-                            <td class="px-6 py-4 text-sm font-medium text-gray-900 border">{{ $data['nama_dinas'] }}</td>
-                            <td class="px-6 py-4 text-sm text-center text-gray-900 border">{{ $data['lowongan_aktif'] }}</td>
-                            <td class="px-6 py-4 text-sm text-center text-gray-900 border">{{ $data['total_pelamar'] }}</td>
-                            <td class="px-6 py-4 text-sm text-center font-bold text-green-700 bg-green-50 border">{{ $data['total_magang'] }}</td>
+                            <td class="px-6 py-4 font-medium">{{ $data['nama_dinas'] }}</td>
+                            <td class="px-6 py-4 text-center">{{ $data['total_pelamar'] }}</td>
+                            <td class="px-6 py-4 text-center">
+                                <span class="px-2 py-1 rounded-full bg-blue-50 text-blue-700 font-bold">
+                                    {{ $data['seleksi_rate'] }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-center text-gray-500">{{ $data['avg_peminat'] }}</td>
                         </tr>
                         @endforeach
                     </tbody>
-                    <tfoot class="bg-gray-50 font-bold">
-                        <tr>
-                            <td class="px-6 py-3 border text-right">TOTAL KESELURUHAN</td>
-                            <td class="px-6 py-3 border text-center">{{ $laporan->sum('lowongan_aktif') }}</td>
-                            <td class="px-6 py-3 border text-center">{{ $laporan->sum('total_pelamar') }}</td>
-                            <td class="px-6 py-3 border text-center bg-green-100">{{ $laporan->sum('total_magang') }}</td>
-                        </tr>
-                    </tfoot>
                 </table>
 
                 <!-- Tanda Tangan (Hanya muncul saat Print) -->

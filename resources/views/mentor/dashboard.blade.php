@@ -94,11 +94,21 @@
                                     </a>
 
                                     <!-- Input Nilai (Hanya jika belum selesai/lulus) -->
-                                    @if($mhs->status != 'selesai')
-                                        <a href="{{ route('mentor.grading.form', $mhs->id) }}" class="inline-flex items-center justify-center bg-indigo-600 text-white px-3 py-1.5 rounded text-xs font-bold hover:bg-indigo-700 shadow-sm transition">
-                                            <i class="fas fa-star mr-1"></i> {{ $mhs->nilai_angka ? 'Edit Nilai' : 'Input Nilai' }}
-                                        </a>
-                                    @endif
+                                    <div class="flex items-center gap-3">
+
+                                        @if($mhs->status == 'diterima' || $mhs->status == 'selesai')
+                                            <a href="{{ route('mentor.penilaian', $mhs->id) }}" 
+                                            class="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md font-semibold text-xs text-white tracking-widest transition ease-in-out duration-150 {{ $mhs->nilai_rata_rata ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-teal-600 hover:bg-teal-700' }}">
+                                                <i class="fas fa-edit mr-1.5"></i>
+                                                {{ $mhs->nilai_rata_rata ? 'Edit Nilai' : 'Input Nilai' }}
+                                            </a>
+                                        @elseif($mhs->status == 'pending')
+                                            <span class="text-gray-400 text-xs italic">Menunggu Persetujuan</span>
+                                        @else
+                                            <span class="text-red-400 text-xs italic">Ditolak</span>
+                                        @endif
+                                        
+                                    </div>
                                 </td>
                             </tr>
                             @empty

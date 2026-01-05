@@ -25,7 +25,7 @@
 <body>
 
     <div class="header">
-        <h1>Laporan Kegiatan Harian (Logbook)</h1>
+        <h1>Daftar Hadir dan Agenda Kegiatan</h1>
         <h2>{{ $app->position->skpd->nama_dinas }}</h2>
         <p>Pemerintah Kota Banjarmasin</p>
     </div>
@@ -55,8 +55,7 @@
                 <th width="5%">No</th>
                 <th width="15%">Tanggal</th>
                 <th width="50%">Uraian Kegiatan</th>
-                <th width="15%">Validasi</th>
-                <th width="15%">Paraf Mentor</th>
+                <th width="15%">Paraf Pembimbing Lapangan</th>
             </tr>
         </thead>
         <tbody>
@@ -68,15 +67,6 @@
                     {{ $log->kegiatan }}
                     @if($log->komentar_mentor)
                         <br><i style="font-size: 10px; color: gray;">Catatan: {{ $log->komentar_mentor }}</i>
-                    @endif
-                </td>
-                <td style="text-align: center;">
-                    @if($log->status_validasi == 'disetujui')
-                        <span class="status-ok">Disetujui</span>
-                    @elseif($log->status_validasi == 'revisi')
-                        <span class="status-rev">Revisi</span>
-                    @else
-                        Pending
                     @endif
                 </td>
                 <td></td> <!-- Kolom kosong untuk paraf manual jika diprint -->

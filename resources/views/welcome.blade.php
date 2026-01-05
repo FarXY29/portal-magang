@@ -21,44 +21,80 @@
             background-color: #0F766E;
             background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23115e59' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
         }
+        html {
+            scroll-behavior: smooth;
+        }
     </style>
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 flex flex-col min-h-screen">
 
     <!-- Navbar -->
-    <nav class="bg-white shadow-md fixed w-full z-50">
+    <nav x-data="{ mobileMenuOpen: false }" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16">
-                <div class="flex items-center text-teal-700 font-bold text-xl">
-                    <a href="/" class="flex items-center">
-                        <i class="fas fa-building-columns mr-2"></i> 
-                        SiMagang <span class="text-yellow-500 ml-1">Banjarmasin</span>
-                    </a>
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex items-center gap-3">
+                    <div class="">
+                        <x-application-logo class="w-14 h-14 fill-current text-white" />
+                    </div>
+                    <span class="text-xl font-black text-gray-900 tracking-tighter uppercase">Portal Magang</span>
                 </div>
-                <div class="flex items-center space-x-4">
-                     @if (Route::has('login'))
+
+                <div class="hidden md:flex items-center gap-8">
+                    <a href="#lowongan" class="text-sm font-bold text-gray-600 hover:text-teal-600 transition">Cari Lowongan</a>
+                    
+                    @if (Route::has('login'))
                         @auth
-                            <a href="{{ url('/dashboard') }}" class="bg-teal-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-teal-700 shadow-lg transition">
-                                <i class="fas fa-tachometer-alt mr-1"></i> Dashboard
-                            </a>
+                            <a href="{{ url('/dashboard') }}" class="bg-teal-600 hover:bg-teal-700 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-teal-100 transition-all text-sm">Dashboard</a>
                         @else
-                            <div class="hidden md:flex items-center space-x-2">
-                                <a href="{{ route('pembimbing.register') }}" class="text-gray-500 hover:text-purple-700 px-3 py-2 text-xs font-bold uppercase tracking-wide transition">
-                                    Untuk Dosen/Guru
-                                </a>
-                                <span class="text-gray-300">|</span>
+                            <div class="flex items-center gap-4">
+                                <a href="{{ route('login') }}" class="text-sm font-bold text-gray-600 hover:text-teal-600 transition">Masuk</a>
+                                @if (Route::has('register'))
+                                    <a href="{{ route('register') }}" class="bg-gray-900 hover:bg-gray-800 text-white px-6 py-2.5 rounded-xl font-bold shadow-lg shadow-gray-200 transition-all text-sm">Daftar</a>
+                                @endif
                             </div>
-                            <a href="{{ route('login') }}" class="text-gray-600 hover:text-teal-700 px-3 py-2 rounded-md text-sm font-medium transition">
-                                Masuk
-                            </a>
-                            @if (Route::has('register'))
-                                <a href="{{ route('register') }}" class="bg-teal-600 text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-teal-700 shadow-lg transition">
-                                    Daftar Mahasiswa
-                                </a>
-                            @endif
                         @endauth
                     @endif
                 </div>
+
+                <div class="md:hidden flex items-center">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="p-2.5 rounded-xl bg-gray-50 text-gray-600 hover:text-teal-600 transition-all focus:outline-none">
+                        <i class="fas" :class="mobileMenuOpen ? 'fa-times text-xl' : 'fa-bars text-xl'"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="mobileMenuOpen" 
+            x-cloak
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 -translate-y-4"
+            x-transition:enter-end="opacity-100 translate-y-0"
+            class="md:hidden bg-white border-t border-gray-50 shadow-xl overflow-hidden">
+            <div class="px-4 pt-4 pb-6 space-y-3">
+                <a href="#lowongan" @click="mobileMenuOpen = false" class="block px-4 py-3 text-base font-bold text-gray-700 hover:bg-teal-50 hover:text-teal-600 rounded-xl transition">
+                    <i class="fas fa-search mr-3"></i> Cari Lowongan
+                </a>
+
+                <hr class="border-gray-50">
+
+                @if (Route::has('login'))
+                    @auth
+                        <a href="{{ url('/dashboard') }}" class="flex items-center justify-center w-full px-4 py-4 bg-teal-600 text-white rounded-2xl font-black shadow-lg shadow-teal-100 transition">
+                            <i class="fas fa-th-large mr-2"></i> Ke Dashboard
+                        </a>
+                    @else
+                        <div class="grid grid-cols-2 gap-3">
+                            <a href="{{ route('login') }}" class="flex items-center justify-center px-4 py-3.5 text-sm font-bold text-gray-700 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
+                                Masuk
+                            </a>
+                            @if (Route::has('register'))
+                                <a href="{{ route('register') }}" class="flex items-center justify-center px-4 py-3.5 text-sm font-bold text-white bg-gray-900 rounded-xl hover:bg-gray-800 transition">
+                                    Daftar
+                                </a>
+                            @endif
+                        </div>
+                    @endauth
+                @endif
             </div>
         </div>
     </nav>
@@ -72,13 +108,13 @@
             </p>
             
             <div class="max-w-3xl mx-auto">
-                <form action="{{ route('home') }}" method="GET" class="relative">
+                <form action="{{ route('home') }}#lowongan"  method="GET" class="relative group">
                     <div class="flex shadow-2xl rounded-full overflow-hidden p-1 bg-white/20 backdrop-blur-sm border border-white/30">
                         <div class="flex-grow relative">
                             <i class="fas fa-search absolute left-4 top-3.5 text-gray-400"></i>
                             <input type="text" name="search" value="{{ request('search') }}" 
                                 class="w-full py-3 pl-12 pr-4 text-gray-700 bg-white rounded-l-full focus:outline-none focus:border-transparent border-0" 
-                                placeholder="Cari instansi (e.g. Kominfo)...">
+                                placeholder="Cari instansi (cth. Kominfo)...">
                         </div>
                         <button type="submit" class="bg-yellow-500 hover:bg-yellow-400 text-teal-900 font-bold py-3 px-8 rounded-full transition duration-300">
                             Cari
@@ -102,7 +138,7 @@
                 <!-- Data SKPD -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
                     <div class="text-3xl font-bold text-teal-600">{{ $totalSkpd }}</div>
-                    <div class="text-gray-500 uppercase text-xs font-bold tracking-wider mt-1">SKPD Terdaftar</div>
+                    <div class="text-gray-500 uppercase text-xs font-bold tracking-wider mt-1">Instansi Terdaftar</div>
                 </div>
                 <!-- Data Lowongan Buka -->
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -119,7 +155,7 @@
     </div>
 
     <!-- Daftar Lowongan -->
-    <div id="lowongan" class="max-w-7xl mx-auto px-4 py-10 flex-grow">
+    <div id="lowongan" class="max-w-7xl mx-auto px-4 py-10 flex-grow scroll-mt-24">
     
         <div class="flex flex-col md:flex-row justify-between items-end mb-6 border-b border-gray-200 pb-4 gap-4">
             <div>

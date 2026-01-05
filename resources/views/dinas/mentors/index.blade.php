@@ -4,10 +4,11 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex flex-col md:flex-row gap-6">
-            <div class="flex justify-between mb-6 print:hidden">
+        <div class="flex justify-between mb-6 print:hidden">
                     <a href="{{ route('dinas.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
                 </div>
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 flex flex-col md:flex-row gap-6">
+            
             <!-- Form Tambah Mentor -->
             <div class="w-full md:w-1/3">
                 <div class="bg-white p-6 shadow-sm rounded-lg border border-gray-200">

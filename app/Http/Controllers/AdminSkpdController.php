@@ -145,6 +145,35 @@ class AdminSkpdController extends Controller
 
     public function createLowongan() { return view('dinas.lowongan.create'); }
 
+    public function editPejabat()
+    {
+        // Mengambil data SKPD milik user yang sedang login
+        $skpd = Auth::user()->skpd;
+        
+        return view('dinas.profil.edit_pejabat', compact('skpd'));
+    }
+
+    /**
+     * Memproses Update Data ke Database
+     */
+    public function updatePejabat(Request $request)
+    {
+        $request->validate([
+            'nama_pejabat' => 'required|string|max:255',
+            'nip_pejabat' => 'required|string|max:50',
+            'jabatan_pejabat' => 'required|string|max:100',
+        ]);
+
+        $skpd = Auth::user()->skpd;
+
+        $skpd->update([
+            'nama_pejabat' => $request->nama_pejabat,
+            'nip_pejabat' => $request->nip_pejabat,
+            'jabatan_pejabat' => $request->jabatan_pejabat,
+        ]);
+
+        return back()->with('success', 'Data pejabat penandatangan berhasil diperbarui!');
+    }
     public function storeLowongan(Request $request)
     {
         // 1. Hapus Validasi 'judul_posisi' dan 'batas_daftar'
@@ -286,6 +315,52 @@ class AdminSkpdController extends Controller
         return view('dinas.laporan.rekap', compact('rekap'));
     }
 
+    public function laporanGradingDinas()
+    {
+        $skpdId = Auth::user()->skpd_id;
+
+        $query = Application::with(['user', 'position'])
+                    ->whereHas('position', fn($q) => $q->where('skpd_id', $skpdId))
+                    ->whereNotNull('nilai_teknis')
+                    ->get();
+
+        $gradedData = $query->map(function($app) {
+            $t = (float) $app->nilai_teknis;
+            $d = (float) $app->nilai_disiplin;
+            $p = (float) $app->nilai_perilaku;
+            $avg = ($t + $d + $p) / 3;
+
+            return [
+                'nama' => $app->user->name,
+                'posisi' => $app->position->judul_posisi,
+                'teknis' => $t,
+                'disiplin' => $d,
+                'perilaku' => $p,
+                'rata_rata' => round($avg, 2),
+                'predikat' => $avg >= 86 ? 'Sangat Baik' : ($avg >= 71 ? 'Baik' : 'Cukup')
+            ];
+        });
+
+        $ranking = $gradedData->sortByDesc('rata_rata')->values();
+        
+        $distribusi = [
+            'Sangat Baik' => $gradedData->where('predikat', 'Sangat Baik')->count(),
+            'Baik' => $gradedData->where('predikat', 'Baik')->count(),
+            'Cukup' => $gradedData->where('predikat', 'Cukup')->count(),
+        ];
+
+        // PERBAIKAN: Menghitung statistik global khusus dinas ini
+        $statsGlobal = [
+            'avg_teknis' => $gradedData->count() > 0 ? round($gradedData->avg('teknis'), 1) : 0,
+            'avg_disiplin' => $gradedData->count() > 0 ? round($gradedData->avg('disiplin'), 1) : 0,
+            'avg_perilaku' => $gradedData->count() > 0 ? round($gradedData->avg('perilaku'), 1) : 0,
+        ];
+
+        // PERBAIKAN: Sertakan statsGlobal dalam compact()
+        return view('dinas.laporan.grading', compact('ranking', 'distribusi', 'statsGlobal'));
+    }
+
+    // Pengaturan
     public function settings()
     {
         $skpd = Auth::user()->skpd;

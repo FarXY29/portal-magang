@@ -13,29 +13,30 @@ use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminKotaController extends Controller
 {
-    // Halaman Dashboard Utama Super Admin
     public function index()
     {
         $totalSkpd = Skpd::count();
         $totalUser = User::count();
         $recentSkpds = Skpd::latest()->take(5)->get();
 
-        // --- LOGIKA UNTUK CHART/GRAFIK ---
-        // 1. Ambil semua SKPD & hitung pelamarnya
         $skpdStats = Skpd::with(['positions.applications'])->get()->map(function($dinas) {
+            $name = $dinas->nama_dinas;
+            $words = explode(' ', $name);
+            $limit = ceil(count($words) / 2);
+            
+            $formattedName = count($words) > 2 
+                ? [implode(' ', array_slice($words, 0, $limit)), implode(' ', array_slice($words, $limit))]
+                : $name;
+
             return [
-                'name' => $dinas->nama_dinas,
-                // Hitung jumlah pelamar di semua posisi milik dinas ini
+                'name' => $formattedName,
                 'count' => $dinas->positions->flatMap->applications->count()
             ];
         });
 
-        // 2. Urutkan dari yang terbanyak, ambil 5 besar
-        $topSkpds = $skpdStats->sortByDesc('count')->take(5);
-
-        // 3. Pisahkan Label (Nama) dan Data (Angka) untuk Chart.js
-        $chartLabels = $topSkpds->pluck('name')->values()->toArray();
-        $chartData = $topSkpds->pluck('count')->values()->toArray();
+        $allSkpds = $skpdStats->sortBy('name'); 
+        $chartLabels = $allSkpds->pluck('name')->values()->toArray();
+        $chartData = $allSkpds->pluck('count')->values()->toArray();
         
         return view('admin.dashboard', compact('totalSkpd', 'totalUser', 'recentSkpds', 'chartLabels', 'chartData'));
     }
@@ -75,7 +76,7 @@ class AdminKotaController extends Controller
 
         User::create([
             'name' => 'Admin ' . $request->nama_dinas,
-            'email' => $request->email,
+            'email' => $request->email_admin,
             'password' => Hash::make($request->password_admin),
             'role' => 'admin_skpd',
             'skpd_id' => $skpd->id,
@@ -125,24 +126,35 @@ class AdminKotaController extends Controller
     // --- LAPORAN & EXCEL ---
     
     public function report()
-    {
-        $laporan = Skpd::with(['positions.applications'])->get()->map(function($dinas) {
-            $totalPelamar = $dinas->positions->flatMap->applications->count();
-            $totalDiterima = $dinas->positions->flatMap->applications
-                            ->whereIn('status', ['diterima', 'selesai'])->count();
+{
+    $laporan = Skpd::with(['positions.applications'])->get()->map(function($dinas) {
+        $positions = $dinas->positions;
+        $applications = $positions->flatMap->applications;
+        
+        $totalPelamar = $applications->count();
+        $totalDiterima = $applications->whereIn('status', ['diterima', 'selesai'])->count();
+        $totalPosisi = $positions->count();
+        
+        // --- PROSES DATA (LOGIKA TAMBAHAN) ---
+        // Menghitung berapa persen pelamar yang berhasil diterima (Efektivitas Seleksi)
+        $seleksiRate = $totalPelamar > 0 ? round(($totalDiterima / $totalPelamar) * 100, 1) : 0;
+        
+        // Menghitung rata-rata pelamar per posisi untuk melihat instansi terpopuler
+        $avgPelamar = $totalPosisi > 0 ? round($totalPelamar / $totalPosisi, 1) : 0;
 
-            return [
-                'nama_dinas' => $dinas->nama_dinas,
-                'lowongan_aktif' => $dinas->positions->where('status', 'buka')->count(),
-                'total_pelamar' => $totalPelamar,
-                'total_magang' => $totalDiterima,
-            ];
-        });
+        return [
+            'nama_dinas' => $dinas->nama_dinas,
+            'lowongan_aktif' => $positions->where('status', 'buka')->count(),
+            'total_pelamar' => $totalPelamar,
+            'total_magang' => $totalDiterima,
+            'seleksi_rate' => $seleksiRate . '%', // Hasil Proses
+            'avg_peminat' => $avgPelamar . ' orang/posisi', // Hasil Proses
+        ];
+    });
 
-        $laporan = $laporan->sortByDesc('total_magang');
-
-        return view('admin.laporan', compact('laporan'));
-    }
+    $laporan = $laporan->sortByDesc('total_pelamar');
+    return view('admin.laporan', compact('laporan'));
+}
 
     public function exportExcel()
     {
@@ -262,5 +274,54 @@ class AdminKotaController extends Controller
         $pdf->setPaper('a4', 'landscape'); 
 
         return $pdf->stream('Laporan-Global-Peserta.pdf');
+    }
+
+    public function laporanGrading()
+    {
+        // 1. Ambil data aplikasi yang sudah memiliki nilai (status selesai/diterima)
+        $query = Application::with(['user', 'position.skpd'])
+                    ->whereNotNull('nilai_teknis') // Pastikan kolom nilai tidak kosong
+                    ->get();
+
+        // 2. PROSES DATA: Menghitung Rata-rata Kategori & Total
+        $gradedData = $query->map(function($app) {
+            $avg = ($app->nilai_teknis + $app->nilai_disiplin + $app->nilai_perilaku) / 3;
+            
+            // Penentuan Predikat
+            if ($avg >= 86) $predikat = 'Sangat Baik';
+            elseif ($avg >= 71) $predikat = 'Baik';
+            elseif ($avg >= 56) $predikat = 'Cukup';
+            else $predikat = 'Kurang';
+
+            return [
+                'nama' => $app->user->name,
+                'instansi' => $app->position->skpd->nama_dinas,
+                'teknis' => $app->nilai_teknis,
+                'disiplin' => $app->nilai_disiplin,
+                'perilaku' => $app->nilai_perilaku,
+                'rata_rata' => round($avg, 2),
+                'predikat' => $predikat
+            ];
+        });
+
+        // 3. LOGIKA PEMERINGKATAN (Ranking)
+        $ranking = $gradedData->sortByDesc('rata_rata')->values()->take(10); // Ambil 10 Besar
+
+        // 4. LOGIKA DISTRIBUSI NILAI
+        $distribusi = [
+            'Sangat Baik' => $gradedData->where('predikat', 'Sangat Baik')->count(),
+            'Baik' => $gradedData->where('predikat', 'Baik')->count(),
+            'Cukup' => $gradedData->where('predikat', 'Cukup')->count(),
+            'Kurang' => $gradedData->where('predikat', 'Kurang')->count(),
+        ];
+
+        // 5. RATA-RATA GLOBAL PER KATEGORI
+        $statsGlobal = [
+            'avg_teknis' => round($gradedData->avg('teknis'), 1),
+            'avg_disiplin' => round($gradedData->avg('disiplin'), 1),
+            'avg_perilaku' => round($gradedData->avg('perilaku'), 1),
+        ];
+
+        return view('admin.laporan.grading', compact('ranking', 'distribusi', 'statsGlobal'));
     }
 }

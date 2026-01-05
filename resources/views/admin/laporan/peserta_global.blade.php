@@ -28,7 +28,7 @@
                                     <i class="fas fa-building text-xs"></i>
                                 </span>
                                 <select name="skpd_id" class="w-full pl-9 border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 shadow-sm cursor-pointer">
-                                    <option value="">Semua Dinas</option>
+                                    <option value="">Semua Instansi</option>
                                     @foreach($listSkpd as $skpd)
                                         <option value="{{ $skpd->id }}" {{ request('skpd_id') == $skpd->id ? 'selected' : '' }}>
                                             {{ Str::limit($skpd->nama_dinas, 20) }}
@@ -39,13 +39,13 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Asal Instansi</label>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Asal Universitas/Sekolah</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                                     <i class="fas fa-university text-xs"></i>
                                 </span>
                                 <select name="instansi" class="w-full pl-9 border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 shadow-sm cursor-pointer">
-                                    <option value="">Semua Instansi</option>
+                                    <option value="">Semua Universitas/Sekolah</option>
                                     @foreach($listInstansi as $instansi)
                                         <option value="{{ $instansi }}" {{ request('instansi') == $instansi ? 'selected' : '' }}>
                                             {{ Str::limit($instansi, 20) }}
