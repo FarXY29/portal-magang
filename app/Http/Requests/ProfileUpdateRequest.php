@@ -15,18 +15,22 @@ class ProfileUpdateRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
+        // 1. Define Basic Rules
+        $rules = [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
             'phone' => ['nullable', 'string', 'max:20'],
-            //  VALIDASI USERNAME 
             'username' => ['nullable', 'string', 'max:255', Rule::unique(User::class)->ignore($this->user()->id)],
         ];
+
+        // 2. Add Logic for Peserta
         if ($this->user()->role === 'peserta') {
             $rules['nik'] = ['nullable', 'string', 'max:20'];
             $rules['asal_instansi'] = ['nullable', 'string', 'max:255'];
             $rules['major'] = ['nullable', 'string', 'max:255'];
         }
-        return $rules;
+
+        // 3. Return All Rules (THIS WAS THE ERROR LOCATION)
+        return $rules; 
     }
 }
