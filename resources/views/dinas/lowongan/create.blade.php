@@ -22,7 +22,7 @@
 
                     <!-- Deskripsi -->
                     <div class="mb-4">
-                        <label class="block font-bold text-gray-700 mb-2">Deskripsi Pekerjaan & Syarat</label>
+                        <label class="block font-bold text-gray-700 mb-2">Deskripsi Pekerjaan (Opsional)</label>
                         
                         <textarea name="deskripsi" class="wysiwyg-editor w-full border-gray-300 rounded-md shadow-sm">{{ old('deskripsi') }}</textarea>
                         

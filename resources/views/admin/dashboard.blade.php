@@ -30,7 +30,7 @@
 
             <div class="bg-white rounded-2xl shadow-sm p-6 mb-8 border border-gray-100">
                 <div class="mb-6">
-                    <h3 class="text-lg font-bold text-gray-800">Statistik Peminat Per SKPD</h3>
+                    <h3 class="text-lg font-bold text-gray-800">Statistik Peminat Per Instansi</h3>
                     <p class="text-sm text-gray-500">Menampilkan seluruh instansi (Gunakan scroll horizontal untuk melihat semua data)</p>
                 </div>
                 
@@ -47,7 +47,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div class="lg:col-span-2">
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <div class="p-4 bg-gray-50 font-bold text-gray-700 border-b">SKPD Terbaru</div>
+                        <div class="p-4 bg-gray-50 font-bold text-gray-700 border-b">Instansi Terbaru</div>
                         <ul class="divide-y">
                             @foreach($recentSkpds as $dinas)
                             <li class="p-4 flex justify-between items-center text-sm">

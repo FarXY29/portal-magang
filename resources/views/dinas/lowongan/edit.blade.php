@@ -35,7 +35,7 @@
                         </div>
 
                         <div class="mb-4">
-                            <label class="block font-bold text-gray-700 mb-2">Deskripsi Pekerjaan & Syarat</label>
+                            <label class="block font-bold text-gray-700 mb-2">Deskripsi Pekerjaan (Opsional)</label>
                             <textarea id="editor" name="deskripsi" class="w-full border-gray-300 rounded-md shadow-sm">{{ old('deskripsi', $loker->deskripsi) }}</textarea>
                         </div>
 

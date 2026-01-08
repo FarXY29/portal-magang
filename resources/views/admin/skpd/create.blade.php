@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Tambah Dinas & Akun Admin</h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Tambah Instansi & Akun Admin</h2>
     </x-slot>
 
     <div class="py-12">
@@ -10,14 +10,14 @@
                 <form action="{{ route('admin.skpd.store') }}" method="POST">
                     @csrf
                     
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">1. Informasi Dinas (SKPD)</h3>
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2">1. Informasi Instansi</h3>
 
-                    <!-- Nama Dinas -->
+                    <!-- Nama Instansi -->
                     <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Nama Dinas</label>
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Nama Instansi</label>
                         <input type="text" name="nama_dinas" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="Contoh: Dinas Kesehatan" required>
                     </div>
-
+`
                     <!-- Kode Unit & Alamat -->
                     <div class="grid grid-cols-2 gap-4 mb-4">
                         <div>
@@ -43,7 +43,7 @@
                         <p class="col-span-2 text-xs text-gray-500">*Koordinat diperlukan untuk validasi lokasi absensi peserta magang.</p>
                     </div>
 
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2 mt-8">2. Buat Akun Admin Dinas</h3>
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 border-b pb-2 mt-8">2. Buat Akun Admin Instansi</h3>
 
                     <!-- Email & Password -->
                     <div class="mb-4">

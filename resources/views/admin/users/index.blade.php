@@ -32,8 +32,7 @@
                             onchange="document.getElementById('searchForm').submit()">
                         <option value="">Semua Role</option>
                         <option value="admin_kota" {{ request('role') == 'admin_kota' ? 'selected' : '' }}>Super Admin</option>
-                        <option value="admin_skpd" {{ request('role') == 'admin_skpd' ? 'selected' : '' }}>Admin Dinas</option>
-                        <option value="kepala_dinas" {{ request('role') == 'kepala_dinas' ? 'selected' : '' }}>Kepala Dinas</option>
+                        <option value="admin_skpd" {{ request('role') == 'admin_skpd' ? 'selected' : '' }}>Admin Instansi</option>
                         <option value="mentor" {{ request('role') == 'mentor' ? 'selected' : '' }}>Pembimbing</option>
                         <option value="pembimbing" {{ request('role') == 'dosen/guru' ? 'selected' : '' }}>Dosen/Guru</option>
                         <option value="peserta" {{ request('role') == 'peserta' ? 'selected' : '' }}>Peserta</option>

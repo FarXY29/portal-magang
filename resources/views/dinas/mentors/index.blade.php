@@ -12,7 +12,7 @@
             <!-- Form Tambah Mentor -->
             <div class="w-full md:w-1/3">
                 <div class="bg-white p-6 shadow-sm rounded-lg border border-gray-200">
-                    <h3 class="font-bold mb-4 text-gray-800 border-b pb-2">Tambah Pegawai (Mentor)</h3>
+                    <h3 class="font-bold mb-4 text-gray-800 border-b pb-2">Tambah Pembimbing Lapangan</h3>
                     
                     @if(session('success'))
                         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded mb-4 text-sm">

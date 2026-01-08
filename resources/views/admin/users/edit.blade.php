@@ -31,16 +31,16 @@
                         <select name="role" id="roleSelect" class="w-full border-gray-300 rounded-md shadow-sm" onchange="toggleFields()">
                             <option value="peserta" {{ $user->role == 'peserta' ? 'selected' : '' }}>Peserta Magang</option>
                             <option value="pembimbing" {{ $user->role == 'pembimbing' ? 'selected' : '' }}>Dosen / Guru Pembimbing</option>
-                            <option value="mentor" {{ $user->role == 'mentor' ? 'selected' : '' }}>Mentor Lapangan (Pegawai)</option>
-                            <option value="admin_skpd" {{ $user->role == 'admin_skpd' ? 'selected' : '' }}>Admin Dinas (Kepala)</option>
+                            <option value="mentor" {{ $user->role == 'mentor' ? 'selected' : '' }}>Pembimbing Lapangan (Pegawai)</option>
+                            <option value="admin_skpd" {{ $user->role == 'admin_skpd' ? 'selected' : '' }}>Admin Instansi</option>
                             <option value="admin_kota" {{ $user->role == 'admin_kota' ? 'selected' : '' }}>Super Admin</option>
                         </select>
                     </div>
 
                     <div id="skpdField" class="mb-4 {{ in_array($user->role, ['admin_skpd', 'mentor']) ? '' : 'hidden' }} p-3 bg-blue-50 rounded border border-blue-100">
-                        <label class="block text-blue-800 text-xs font-bold mb-2 uppercase">Asal Dinas</label>
+                        <label class="block text-blue-800 text-xs font-bold mb-2 uppercase">Asal Instansi</label>
                         <select name="skpd_id" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
-                            <option value="">-- Pilih SKPD --</option>
+                            <option value="">-- Pilih Instansi --</option>
                             @foreach($skpds as $skpd)
                                 <option value="{{ $skpd->id }}" {{ $user->skpd_id == $skpd->id ? 'selected' : '' }}>{{ $skpd->nama_dinas }}</option>
                             @endforeach

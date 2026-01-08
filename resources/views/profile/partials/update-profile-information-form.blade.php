@@ -66,7 +66,7 @@
             <x-input-error class="mt-2" :messages="$errors->get('asal_instansi')" />
         </div>
 
-        <!-- Jurusan (TAMBAHAN BARU) -->
+        <!-- Jurusan -->
         <div>
             <x-input-label for="major" :value="__('Jurusan / Program Studi')" />
             <x-text-input id="major" name="major" type="text" class="mt-1 block w-full" :value="old('major', $user->major)" placeholder="Contoh: Teknik Informatika" required />

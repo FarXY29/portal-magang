@@ -21,7 +21,7 @@
                     </a>
 
                     <a href="{{ route('admin.skpd.create') }}" class="bg-blue-800 text-white px-4 py-2 rounded shadow hover:bg-blue-900 transition">
-                        <i class="fas fa-plus mr-1"></i> Tambah Dinas Baru
+                        <i class="fas fa-plus mr-1"></i> Tambah Instansi Baru
                     </a>
                 </div>
             </div>
@@ -30,7 +30,7 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Dinas</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Instansi</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kode Unit</th>
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase print:text-black">Peserta</th>
                             <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase print:text-black">Lowongan</th>
@@ -68,7 +68,7 @@
                                 <a href="{{ route('admin.skpd.edit', $dinas->id) }}" class="text-green-600 hover:text-white-900 font-bold text-sm">
                                     Edit
                                 </a>
-                                <form action="{{ route('admin.skpd.destroy', $dinas->id) }}" method="POST" onsubmit="return confirm('Hapus Dinas ini? Semua data user dan lowongan terkait akan ikut terhapus!')">
+                                <form action="{{ route('admin.skpd.destroy', $dinas->id) }}" method="POST" onsubmit="return confirm('Hapus Instansi ini? Semua data user dan lowongan terkait akan ikut terhapus!')">
                                     @csrf @method('DELETE')
                                     <button class="text-red-600 hover:text-red-900 font-bold text-sm">Hapus</button>
                                 </form>

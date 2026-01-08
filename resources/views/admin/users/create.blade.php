@@ -31,18 +31,17 @@
                         <select name="role" id="roleSelect" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500" onchange="toggleFields()">
                             <option value="peserta">Peserta Magang</option>
                             <option value="pembimbing">Dosen / Guru Pembimbing</option>
-                            <option value="mentor">Mentor Lapangan (Pegawai)</option>
-                            <option value="admin_skpd">Admin Dinas (Kepala)</option>
+                            <option value="mentor">Pembimbing Lapangan (Pegawai)</option>
+                            <option value="admin_skpd">Admin Instansi </option>
                             <option value="admin_kota">Super Admin</option>
-                            <option value="kepala_dinas">Kepala Dinas (Eksekutif)</option>
                         </select>
                     </div>
 
-                    <!-- Field Khusus Dinas (Hanya untuk Admin SKPD / Mentor) -->
+                    <!-- Field Khusus Dinas (Hanya untuk Admin Instansi / Mentor) -->
                     <div id="skpdField" class="mb-4 hidden p-3 bg-blue-50 rounded border border-blue-100">
-                        <label class="block text-blue-800 text-xs font-bold mb-2 uppercase">Asal Dinas (Wajib untuk Admin Dinas/Mentor)</label>
+                        <label class="block text-blue-800 text-xs font-bold mb-2 uppercase">Asal Instansi (Wajib untuk Admin Dinas/Mentor)</label>
                         <select name="skpd_id" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
-                            <option value="">-- Pilih SKPD --</option>
+                            <option value="">-- Pilih Instansi --</option>
                             @foreach($skpds as $skpd)
                                 <option value="{{ $skpd->id }}">{{ $skpd->nama_dinas }}</option>
                             @endforeach
@@ -74,8 +73,7 @@
             const skpdField = document.getElementById('skpdField');
             const instansiField = document.getElementById('instansiField');
 
-            if (role === 'admin_skpd' || role === 'mentor' || role === 'kepala_dinas') { 
-                // Tampilkan dropdown SKPD karena Kepala Dinas terikat dengan 1 dinas
+            if (role === 'admin_skpd' || role === 'mentor') { 
                 skpdField.classList.remove('hidden');
                 instansiField.classList.add('hidden');
             } else if (role === 'pembimbing' || role === 'peserta') {

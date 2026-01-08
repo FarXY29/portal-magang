@@ -178,11 +178,9 @@ class AdminSkpdController extends Controller
     {
         // 1. Hapus Validasi 'judul_posisi' dan 'batas_daftar'
         $request->validate([
-            // 'judul_posisi' => 'required', // DIHAPUS
             'required_major' => 'required',
-            'deskripsi' => 'required',
+            'deskripsi' => 'nullable|string',
             'kuota' => 'required|numeric',
-            // 'batas_daftar' => 'required|date', // DIHAPUS
         ]);
 
         InternshipPosition::create([
@@ -217,7 +215,7 @@ class AdminSkpdController extends Controller
         $request->validate([
             // 'judul_posisi' => 'required', // DIHAPUS
             'required_major' => 'required',
-            'deskripsi' => 'required',
+            'deskripsi' => 'nullable|string',
             'kuota' => 'required|numeric',
             // 'batas_daftar' => 'required|date', // DIHAPUS
             'status' => 'required|in:buka,tutup'

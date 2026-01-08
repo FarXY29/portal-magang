@@ -39,7 +39,6 @@
                             <td class="px-6 py-4 text-sm text-gray-600">
                                 @if($user->applications->isNotEmpty())
                                     {{ $user->applications->last()->position->skpd->nama_dinas }}
-                                    <div class="text-xs text-gray-400">{{ $user->applications->last()->position->judul_posisi }}</div>
                                 @else
                                     <span class="text-xs text-red-400 italic">Belum ada data magang</span>
                                 @endif
