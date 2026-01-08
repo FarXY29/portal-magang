@@ -97,7 +97,7 @@
                                         <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Dokumentasi</h4>
                                         @if($log->bukti_foto_path)
                                             <div class="relative group">
-                                                <img src="{{ Storage::url($log->bukti_foto_path) }}" class="max-w-[250px] max-h-[200px] rounded-lg border border-gray-200 shadow-sm hover:opacity-90 cursor-pointer object-cover" onclick="window.open(this.src)" title="Klik untuk memperbesar">
+                                                <img src="{{ Storage::url($log->bukti_foto_path) }}" class="w-full h-48 object-cover rounded-lg border border-gray-200 shadow-sm hover:opacity-90 cursor-pointer" onclick="window.open(this.src)" title="Klik untuk memperbesar">
                                             </div>
                                         @else
                                             <div class="w-full h-32 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 text-xs italic border border-dashed border-gray-300">
