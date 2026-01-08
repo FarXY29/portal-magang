@@ -11,9 +11,9 @@
             <div class="relative bg-white rounded-2xl p-8 shadow-sm border-l-8 border-teal-600 mb-10 overflow-hidden">
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-center">
                     <div>
-                        <h1 class="text-3xl font-bold mb-2 text-gray-800">Trend Peminat Magang</h1>
+                        <h1 class="text-3xl font-bold mb-2 text-gray-800">Selamat Datang, <strong>Admin {{ $skpd->nama_dinas }}</h1>
                         <p class="text-gray-600 text-sm md:text-base max-w-xl">
-                            Pantau statistik jumlah pelamar yang masuk ke {{ Auth::user()->skpd->nama_dinas ?? 'Dinas' }} berdasarkan periode waktu.
+                            Pantau aktivitas peserta magang Anda di sini.
                         </p>
                     </div>
                 </div>
@@ -64,28 +64,51 @@
             @endphp
 
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div class="bg-white rounded-xl shadow-sm p-6 border-b-4 border-yellow-500 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Pelamar Pending</p>
-                        <h3 class="text-3xl font-extrabold text-gray-800">{{ $pelamarMasuk }}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                
+                <a href="{{ route('dinas.pelamar') }}" class="group">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-yellow-400 p-6 group-hover:bg-yellow-50 transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Pelamar Masuk</p>
+                                <p class="text-3xl font-bold text-gray-800">{{ $widget['pending'] }}</p>
+                            </div>
+                            <div class="p-3 rounded-full bg-yellow-100 text-yellow-600">
+                                <i class="fas fa-inbox text-2xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">Menunggu konfirmasi Anda</p>
                     </div>
-                    <div class="text-yellow-500 text-2xl"><i class="fas fa-clock"></i></div>
-                </div>
-                <div class="bg-white rounded-xl shadow-sm p-6 border-b-4 border-green-500 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Peserta Aktif</p>
-                        <h3 class="text-3xl font-extrabold text-gray-800">{{ $pesertaAktif }}</h3>
+                </a>
+
+                <a href="{{ route('dinas.peserta.index') }}" class="group">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-teal-500 p-6 group-hover:bg-teal-50 transition">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-gray-500">Sedang Magang</p>
+                                <p class="text-3xl font-bold text-gray-800">{{ $widget['active'] }}</p>
+                            </div>
+                            <div class="p-3 rounded-full bg-teal-100 text-teal-600">
+                                <i class="fas fa-users text-2xl"></i>
+                            </div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2">Peserta aktif saat ini</p>
                     </div>
-                    <div class="text-green-500 text-2xl"><i class="fas fa-user-check"></i></div>
-                </div>
-                <div class="bg-white rounded-xl shadow-sm p-6 border-b-4 border-blue-500 flex items-center justify-between">
-                    <div>
-                        <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Lowongan Buka</p>
-                        <h3 class="text-3xl font-extrabold text-gray-800">{{ $lowonganBuka }}</h3>
+                </a>
+
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border-l-4 border-blue-500 p-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-500">Lulus / Selesai</p>
+                            <p class="text-3xl font-bold text-gray-800">{{ $widget['completed'] }}</p>
+                        </div>
+                        <div class="p-3 rounded-full bg-blue-100 text-blue-600">
+                            <i class="fas fa-check-circle text-2xl"></i>
+                        </div>
                     </div>
-                    <div class="text-blue-500 text-2xl"><i class="fas fa-briefcase"></i></div>
+                    <p class="text-xs text-gray-400 mt-2">Total alumni magang</p>
                 </div>
+
             </div>
 
             
@@ -124,6 +147,45 @@
                 </div>
             </div>
 
+            <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100">
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 h-full">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                        <i class="fas fa-university mr-2 text-indigo-500"></i>
+                        Asal Peserta Terbanyak
+                    </h3>
+                    
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-600">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3">#</th>
+                                    <th class="px-4 py-3">Instansi Pendidikan</th>
+                                    <th class="px-4 py-3 text-right">Jumlah</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($topInstansi as $index => $instansi)
+                                <tr class="border-b hover:bg-gray-50">
+                                    <td class="px-4 py-3 font-bold">{{ $index + 1 }}</td>
+                                    <td class="px-4 py-3 font-medium">{{ $instansi->asal_instansi }}</td>
+                                    <td class="px-4 py-3 text-right">
+                                        <span class="bg-indigo-100 text-indigo-800 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                                            {{ $instansi->total_peserta }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="3" class="px-4 py-6 text-center text-gray-400 italic">
+                                        Belum ada data peserta lulus/aktif.
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
