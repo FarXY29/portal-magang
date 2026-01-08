@@ -57,6 +57,25 @@
                             @endforeach
                         </ul>
                     </div>
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 mb-6">
+                        <h3 class="text-lg font-bold text-gray-800 mb-2">
+                            <i class="fas fa-search-plus mr-2 text-blue-600"></i> Cek Validitas Sertifikat
+                        </h3>
+                        <form action="{{ route('certificate.search') }}" method="POST" class="flex gap-3">
+                            @csrf
+                            <input type="text" name="nomor_sertifikat" 
+                                placeholder="Masukkan Nomor Seri Sertifikat (Contoh: MG-2026-00001)" 
+                                class="w-full rounded-lg border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                                required>
+                            <button type="submit" class="px-6 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition">
+                                Periksa
+                            </button>
+                        </form>
+                        
+                        @if(session('error'))
+                            <p class="text-red-500 text-sm mt-2 font-bold"><i class="fas fa-times-circle"></i> {{ session('error') }}</p>
+                        @endif
+                    </div>
                 </div>
                 <div class="bg-white rounded-2xl shadow-sm p-6 border border-gray-100 h-fit">
                     <h3 class="text-xs font-bold text-gray-400 uppercase mb-4 tracking-widest">Aksi Cepat</h3>
