@@ -9,6 +9,7 @@ use App\Models\InternshipPosition;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 
 class AdminSkpdController extends Controller
 {
@@ -17,7 +18,42 @@ class AdminSkpdController extends Controller
      */
     public function index()
     {
-        return view('dinas.dashboard');
+        $user = Auth::user();
+        $skpd = $user->skpd;
+
+        // Ambil ID semua lowongan milik SKPD ini
+        $positionIds = InternshipPosition::where('skpd_id', $skpd->id)->pluck('id');
+
+        // 1. WIDGET STATUS (Khusus SKPD ini)
+        $stats = Application::whereIn('internship_position_id', $positionIds)
+            ->select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->pluck('total', 'status')
+            ->toArray();
+
+        $widget = [
+            'pending'   => $stats['pending'] ?? 0,
+            'active'    => $stats['diterima'] ?? 0,
+            'completed' => $stats['selesai'] ?? 0,
+            'rejected'  => $stats['ditolak'] ?? 0,
+        ];
+
+        // 2. TOP 5 SEKOLAH/KAMPUS (Khusus yang magang di SKPD ini)
+        $topInstansi = DB::table('applications')
+            ->join('users', 'applications.user_id', '=', 'users.id')
+            ->whereIn('applications.internship_position_id', $positionIds) // Filter Lowongan SKPD
+            ->whereIn('applications.status', ['diterima', 'selesai'])
+            ->whereNotNull('users.asal_instansi')
+            ->select('users.asal_instansi', DB::raw('count(*) as total_peserta'))
+            ->groupBy('users.asal_instansi')
+            ->orderByDesc('total_peserta')
+            ->limit(5)
+            ->get();
+
+        // Data lowongan untuk tabel bawah (kode lama Anda mungkin seperti ini)
+        $recentPositions = InternshipPosition::where('skpd_id', $skpd->id)->latest()->take(5)->get();
+
+        return view('dinas.dashboard', compact('skpd', 'widget', 'topInstansi', 'recentPositions'));
     }
 
     // --- MANAJEMEN MENTOR (PEGAWAI DINAS) ---
