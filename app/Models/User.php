@@ -28,7 +28,7 @@ class User extends Authenticatable
         'nik',
         'phone',
         'asal_instansi', 
-        'major', // Kolom Jurusan Mahasiswa
+        'major', // Kolom Jurusan Mahasiswa / Siswa
     ];
 
     /**
