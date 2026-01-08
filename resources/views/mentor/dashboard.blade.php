@@ -98,8 +98,7 @@
 
                                         @if($mhs->status == 'diterima' || $mhs->status == 'selesai')
                                             <a href="{{ route('mentor.penilaian', $mhs->id) }}" 
-                                            class="inline-flex items-center px-3 py-1.5 border border-transparent rounded-md font-semibold text-xs text-white tracking-widest transition ease-in-out duration-150 {{ $mhs->nilai_rata_rata ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-teal-600 hover:bg-teal-700' }}">
-                                                <i class="fas fa-edit mr-1.5"></i>
+                                            class="w-full inline-flex items-center justify-center px-3 py-1.5 border border-transparent rounded text-xs font-bold text-white shadow-sm transition ease-in-out duration-150 {{ $mhs->nilai_rata_rata ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-teal-600 hover:bg-teal-700' }}">
                                                 {{ $mhs->nilai_rata_rata ? 'Edit Nilai' : 'Input Nilai' }}
                                             </a>
                                         @elseif($mhs->status == 'pending')
