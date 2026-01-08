@@ -15,6 +15,7 @@ use App\Http\Controllers\AdminSettingController;
 use App\Http\Controllers\Auth\RegisterPembimbingController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Models\InternshipPosition;
+use App\Http\Controllers\CertificateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -186,6 +187,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-});
+    });
+
+    // Route Publik untuk Verifikasi
+    Route::get('/verify-certificate/{token}', [CertificateController::class, 'verify'])->name('certificate.verify');
+    Route::post('/search-certificate', [CertificateController::class, 'search'])->name('certificate.search');
 
 require __DIR__.'/auth.php';
