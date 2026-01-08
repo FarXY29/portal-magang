@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Sertifikat Magang</title>
+    <div class="title">SERTIFIKAT MAGANG</div>
+    <div style="font-size: 12pt; margin-top: -15px; margin-bottom: 20px;">
+        Nomor: {{ $app->nomor_sertifikat ?? 'Draft' }}
+    </div>
     <style>
         /* Mengatur Halaman Landscape */
         @page {
@@ -139,6 +142,12 @@
                 <span style="font-weight: bold; text-decoration: underline;">{{ $app->mentor->name }}</span><br>
                 NIP. ...........................
             </div>
+        </div>
+
+        <<div style="position: absolute; bottom: 40px; left: 40px; text-align: center;">
+            <img src="data:image/svg+xml;base64, {{ base64_encode(QrCode::format('svg')->size(100)->generate(route('certificate.verify', $app->token_verifikasi ?? 'invalid'))) }} ">
+            <br>
+            <span style="font-size: 8pt;">Scan untuk verifikasi</span>
         </div>
 
     </div>
