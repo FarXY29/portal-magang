@@ -68,9 +68,8 @@
         <thead>
             <tr>
                 <th width="5%">No</th>
-                <th width="25%">Nama Peserta / Instansi</th>
-                <th width="25%">Lokasi Magang (SKPD)</th>
-                <th width="25%">Posisi Magang</th>
+                <th width="25%">Nama Peserta / Asal</th>
+                <th width="25%">Lokasi Magang (Instansi)</th>
                 <th width="10%">Mulai</th>
                 <th width="10%">Status</th>
             </tr>
@@ -84,7 +83,6 @@
                     <span style="font-size: 10pt; font-style: italic;">{{ $data->user->asal_instansi }}</span>
                 </td>
                 <td>{{ $data->position->skpd->nama_dinas }}</td>
-                <td>{{ $data->position->judul_posisi }}</td>
                 <td style="text-align: center;">
                     {{ \Carbon\Carbon::parse($data->tanggal_mulai)->format('d/m/Y') }}
                 </td>
@@ -107,10 +105,10 @@
     <div class="ttd-container">
         <div class="ttd-box-right">
             <p>Banjarmasin, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}</p>
-            <p>Kepala Bakesbangpol</p>
+            <p>Kepala ........</p>
             <br><br><br><br>
-            <p style="font-weight: bold; text-decoration: underline;">NAMA KEPALA BADAN</p>
-            <p>NIP. 19700101 200001 1 001</p>
+            <p style="font-weight: bold; text-decoration: underline;">NAMA ........</p>
+            <p>NIP. ........................</p>
         </div>
     </div>
 
