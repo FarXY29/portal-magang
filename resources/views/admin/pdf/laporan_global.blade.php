@@ -71,6 +71,7 @@
                 <th width="25%">Nama Peserta / Asal</th>
                 <th width="25%">Lokasi Magang (Instansi)</th>
                 <th width="10%">Mulai</th>
+                <th width="10%">Selesai</th>
                 <th width="10%">Status</th>
             </tr>
         </thead>
@@ -85,6 +86,9 @@
                 <td>{{ $data->position->skpd->nama_dinas }}</td>
                 <td style="text-align: center;">
                     {{ \Carbon\Carbon::parse($data->tanggal_mulai)->format('d/m/Y') }}
+                </td>
+                <td style="text-align: center;">
+                    {{ \Carbon\Carbon::parse($data->tanggal_selesai)->format('d/m/Y') }}
                 </td>
                 <td style="text-align: center;">
                     @if($data->status == 'selesai')
