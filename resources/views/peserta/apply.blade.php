@@ -4,13 +4,38 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
                 
                 <div class="mb-6 border-b pb-4">
                     <h3 class="text-2xl font-bold text-gray-900">{{ $position->skpd->nama_dinas }}</h3>
                     <p class="text-gray-500 text-sm mt-1">Silakan lengkapi form di bawah ini untuk melamar magang.</p>
                 </div>
+
+                {{-- === TAMBAHAN: INFORMASI LOWONGAN === --}}
+                <div class="bg-teal-50 border border-teal-100 rounded-lg p-5 mb-8 shadow-sm">
+                    <div class="mb-4">
+                        <h4 class="text-lg font-bold text-teal-800 mb-1">
+                            {{ $position->judul_posisi ?? 'Posisi Magang' }}
+                        </h4>
+                        <div class="flex flex-wrap gap-4 text-sm mt-2">
+                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-white border border-teal-200 text-teal-700 font-medium">
+                                <i class="fas fa-graduation-cap mr-2"></i> {{ $position->required_major }}
+                            </span>
+                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-white border border-teal-200 text-teal-700 font-medium">
+                                <i class="fas fa-users mr-2"></i> Kuota: {{ $position->kuota }} Orang
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="text-sm text-gray-600 bg-white p-4 rounded border border-teal-100">
+                        <span class="font-bold text-gray-700 block mb-1">Deskripsi Pekerjaan:</span>
+                        <div class="prose prose-sm max-w-none">
+                            {!! $position->deskripsi !!}
+                        </div>
+                    </div>
+                </div>
+                {{-- === AKHIR TAMBAHAN === --}}
 
                 @if(session('error'))
                     <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
@@ -31,7 +56,7 @@
                     
                     <div class="mb-6">
                         <label class="block text-gray-700 text-sm font-bold mb-2">Surat Pengantar (PDF)</label>
-                        <input type="file" name="surat" class="w-full border border-gray-300 rounded p-2 text-sm" accept=".pdf" required>
+                        <input type="file" name="surat" class="w-full border border-gray-300 rounded p-2 text-sm focus:ring-teal-500 focus:border-teal-500" accept=".pdf" required>
                         <p class="text-xs text-gray-500 mt-1">*Surat Permohonan Magang dari Kampus/Sekolah</p>
                         @error('surat') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                     </div>
@@ -41,7 +66,7 @@
                             <x-input-label for="tanggal_mulai" :value="__('Rencana Tanggal Mulai')" />
                             <input type="date" id="tanggal_mulai" name="tanggal_mulai" 
                                 value="{{ old('tanggal_mulai') }}" 
-                                class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" 
+                                class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500" 
                                 min="{{ date('Y-m-d') }}" required>
                         </div>
 
@@ -49,17 +74,17 @@
                             <x-input-label for="tanggal_selesai" :value="__('Rencana Tanggal Selesai')" />
                             <input type="date" id="tanggal_selesai" name="tanggal_selesai" 
                                 value="{{ old('tanggal_selesai') }}"
-                                class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500" 
+                                class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500" 
                                 min="{{ date('Y-m-d') }}" required>
                         </div>
                     </div>
 
                     <div id="availability-result" class="mb-6 hidden rounded-md p-4 border text-sm font-bold flex items-center gap-2">
-                        </div>
+                    </div>
 
-                    <div class="flex justify-end space-x-2">
-                        <a href="{{ route('home') }}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Batal</a>
-                        <button type="submit" id="submitBtn" class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 font-bold shadow disabled:opacity-50 disabled:cursor-not-allowed">
+                    <div class="flex justify-end space-x-2 pt-4 border-t">
+                        <a href="{{ route('home') }}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">Batal</a>
+                        <button type="submit" id="submitBtn" class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 font-bold shadow disabled:opacity-50 disabled:cursor-not-allowed transition">
                             <i class="fas fa-paper-plane mr-1"></i> Kirim Lamaran
                         </button>
                     </div>
