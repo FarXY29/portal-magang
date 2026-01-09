@@ -101,8 +101,9 @@
                                 <thead class="bg-gray-50">
                                     <tr>
                                         <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Peserta / Instansi</th>
-                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Lokasi & Posisi</th>
+                                        <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Lokasi</th>
                                         <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Mulai Magang</th>
+                                        <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Selesai Magang</th>
                                         <th class="px-6 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
                                     </tr>
                                 </thead>
@@ -117,14 +118,12 @@
                                         </td>
                                         <td class="px-6 py-4">
                                             <div class="text-sm text-gray-800 font-medium">{{ $data->position->skpd->nama_dinas }}</div>
-                                            <div class="mt-1">
-                                                <span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded text-xs border border-gray-200 inline-block">
-                                                    {{ $data->position->judul_posisi }}
-                                                </span>
-                                            </div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-600">
                                             {{ \Carbon\Carbon::parse($data->tanggal_mulai)->format('d M Y') }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-600">
+                                            {{ \Carbon\Carbon::parse($data->tanggal_selesai)->format('d M Y') }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-center">
                                             @if($data->status == 'selesai')
