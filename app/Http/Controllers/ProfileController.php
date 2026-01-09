@@ -27,10 +27,25 @@ class ProfileController extends Controller
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
         $request->user()->fill($request->validated());
+        $user = $request->user();
+        $user->fill($request->validated());
 
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
         }
+
+        // TAMBAHAN: Handle Upload Signature
+        if ($request->hasFile('signature')) {
+            // Hapus file lama jika ada
+            if ($user->signature && \Illuminate\Support\Facades\Storage::exists('public/' . $user->signature)) {
+                \Illuminate\Support\Facades\Storage::delete('public/' . $user->signature);
+            }
+            
+            // Simpan file baru
+            $path = $request->file('signature')->store('signatures', 'public');
+            $user->signature = $path;
+        }
+        
 
         $request->user()->save();
 

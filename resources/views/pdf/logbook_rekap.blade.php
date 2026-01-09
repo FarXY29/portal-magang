@@ -8,18 +8,16 @@
         .header h1 { margin: 0; font-size: 16px; }
         .header h2 { margin: 5px 0; font-size: 14px; }
         
-        .meta { margin-bottom: 20px; width: 100%; }
-        .meta td { padding: 3px; vertical-align: top; }
+        /* Menggunakan float:left untuk meta agar layout stabil */
+        .meta-container { width: 100%; margin-bottom: 20px; overflow: hidden; }
+        .meta-left { float: left; width: 50%; }
+        .meta-right { float: right; width: 45%; }
         
-        table.data { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        table.data th, table.data td { border: 1px solid black; padding: 5px; text-align: left; }
-        table.data th { background-color: #f0f0f0; text-align: center; }
+        table { border-collapse: collapse; width: 100%; }
+        .table-data th, .table-data td { border: 1px solid black; padding: 6px; text-align: left; vertical-align: top; }
+        .table-data th { background-color: #f0f0f0; text-align: center; }
         
-        .status-ok { color: green; font-weight: bold; }
-        .status-rev { color: red; font-style: italic; }
-        
-        .footer { width: 100%; margin-top: 30px; }
-        .ttd { width: 30%; float: right; text-align: center; }
+        .footer { margin-top: 30px; page-break-inside: avoid; }
     </style>
 </head>
 <body>
@@ -30,32 +28,46 @@
         <p>Pemerintah Kota Banjarmasin</p>
     </div>
 
-    <table class="meta">
-        <tr>
-            <td width="15%">Nama Peserta</td>
-            <td width="2%">:</td>
-            <td>{{ $user->name }}</td>
-            <td width="15%">Posisi</td>
-            <td width="2%">:</td>
-            <td>{{ $app->position->judul_posisi }}</td>
-        </tr>
-        <tr>
-            <td>NIM/NISN</td>
-            <td>:</td>
-            <td>{{ $user->nik ?? '-' }}</td> <!-- Asumsi NIK dipakai sbg NIM sementara -->
-            <td>Asal Instansi</td>
-            <td>:</td>
-            <td>{{ $user->asal_instansi }}</td>
-        </tr>
-    </table>
+    {{-- Informasi Peserta --}}
+    <div class="meta-container">
+        <div class="meta-left">
+            <table>
+                <tr>
+                    <td width="30%">Nama Peserta</td>
+                    <td width="5%">:</td>
+                    <td><strong>{{ $user->name }}</strong></td>
+                </tr>
+                <tr>
+                    <td>NIM/NISN</td>
+                    <td>:</td>
+                    <td>{{ $user->nomor_induk ?? '-' }}</td>
+                </tr>
+            </table>
+        </div>
+        <div class="meta-right">
+            <table>
+                <tr>
+                    <td width="30%">Posisi</td>
+                    <td width="5%">:</td>
+                    <td>{{ $app->position->judul_posisi }}</td>
+                </tr>
+                <tr>
+                    <td>Asal Instansi</td>
+                    <td>:</td>
+                    <td>{{ $user->asal_instansi }}</td>
+                </tr>
+            </table>
+        </div>
+    </div>
 
-    <table class="data">
+    {{-- Tabel Logbook --}}
+    <table class="table-data">
         <thead>
             <tr>
-                <th width="5%">No</th>
-                <th width="15%">Tanggal</th>
-                <th width="50%">Uraian Kegiatan</th>
-                <th width="15%">Paraf Pembimbing Lapangan</th>
+                <th style="width: 5%">No</th>
+                <th style="width: 15%">Tanggal</th>
+                <th style="width: 60%">Uraian Kegiatan</th>
+                <th style="width: 20%">Paraf Pembimbing</th>
             </tr>
         </thead>
         <tbody>
@@ -66,23 +78,51 @@
                 <td>
                     {{ $log->kegiatan }}
                     @if($log->komentar_mentor)
-                        <br><i style="font-size: 10px; color: gray;">Catatan: {{ $log->komentar_mentor }}</i>
+                        <br><br>
+                        <i style="color: #555; font-size: 10px;">Catatan Mentor: {{ $log->komentar_mentor }}</i>
                     @endif
                 </td>
-                <td></td> <!-- Kolom kosong untuk paraf manual jika diprint -->
+                <td style="text-align: center; vertical-align: middle;">
+                    {{-- MENAMPILKAN PARAF --}}
+                    @if(in_array($log->status_validasi, ['approved', 'disetujui', 'valid']))
+                        @if($app->mentor && $app->mentor->signature)
+                            {{-- Menggunakan public_path() WAJIB untuk DomPDF --}}
+                            <img src="{{ public_path('storage/' . $app->mentor->signature) }}" style="height: 35px; width: auto;">
+                        @else
+                            {{-- Fallback jika gambar belum diupload --}}
+                            <span style="font-size: 10px; font-weight: bold; color: green;">(Valid)</span>
+                        @endif
+                    @else
+                        -
+                    @endif
+                </td>
             </tr>
             @endforeach
         </tbody>
     </table>
 
+    {{-- Footer Tanda Tangan --}}
     <div class="footer">
-        <div class="ttd">
-            <p>Banjarmasin, {{ date('d F Y') }}</p>
-            <p>Pembimbing Lapangan,</p>
-            <br><br><br>
-            <p><strong>{{ $app->mentor->name ?? '.........................' }}</strong></p>
-            <p>NIP. {{ $app->mentor->nik ?? '................' }}</p>
-        </div>
+        <table style="width: 100%; border: none;">
+            <tr>
+                <td style="width: 60%; border: none;"></td>
+                <td style="width: 40%; border: none; text-align: center;">
+                    <p>Banjarmasin, {{ date('d F Y') }}</p>
+                    <p>Pembimbing Lapangan,</p>
+                    
+                    @if($app->mentor && $app->mentor->signature)
+                        <div style="height: 60px; display: flex; justify-content: center; align-items: center;">
+                            <img src="{{ public_path('storage/' . $app->mentor->signature) }}" style="height: 60px; width: auto;">
+                        </div>
+                    @else
+                        <br><br><br>
+                    @endif
+
+                    <p style="font-weight: bold; text-decoration: underline;">{{ $app->mentor->name ?? '.........................' }}</p>
+                    <p>NIP. {{ $app->mentor->nomor_induk ?? '-' }}</p>
+                </td>
+            </tr>
+        </table>
     </div>
 
 </body>

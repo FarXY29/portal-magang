@@ -21,6 +21,7 @@ class Skpd extends Model
         'jam_mulai_pulang', 
         'latitude',
         'longitude',
+        'ttd_kepala', // Kolom Tanda Tangan Kepala Dinas
     ];
 
     // Relasi: Satu SKPD punya banyak Posisi Magang

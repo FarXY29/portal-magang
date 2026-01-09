@@ -36,6 +36,17 @@
                             <x-input-error :messages="$errors->get('alamat')" class="mt-2" />
                         </div>
 
+                        <div class="mb-4">
+                            <label class="block text-gray-700 text-sm font-bold mb-2">Scan Tanda Tangan Kepala Dinas (PNG Transparan)</label>
+                            <input type="file" name="ttd_kepala" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            @if($skpd->ttd_kepala)
+                                <div class="mt-2">
+                                    <p class="text-xs text-gray-500">Preview:</p>
+                                    <img src="{{ asset('storage/' . $skpd->ttd_kepala) }}" class="h-20 border p-1 rounded">
+                                </div>
+                            @endif
+                        </div>
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <x-input-label for="latitude" :value="__('Latitude')" />

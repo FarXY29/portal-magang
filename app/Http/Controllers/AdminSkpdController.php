@@ -200,7 +200,8 @@ class AdminSkpdController extends Controller
             'nama_pejabat' => 'required|string|max:255',
             'nip_pejabat' => 'required|string|max:50',
             'jabatan_pejabat' => 'required|string|max:100',
-        ]);
+            'ttd_kepala' => 'nullable|image|max:2048',
+        ]); 
 
         $skpd = Auth::user()->skpd;
 
@@ -209,6 +210,17 @@ class AdminSkpdController extends Controller
             'nip_pejabat' => $request->nip_pejabat,
             'jabatan_pejabat' => $request->jabatan_pejabat,
         ]);
+
+        // Handle Upload TTD
+        if ($request->hasFile('ttd_kepala')) {
+            if ($skpd->ttd_kepala) {
+                \Illuminate\Support\Facades\Storage::delete('public/' . $skpd->ttd_kepala);
+            }
+            $path = $request->file('ttd_kepala')->store('skpd_signatures', 'public');
+            $validated['ttd_kepala'] = $path;
+        }
+
+        $skpd->update($validated);
 
         return back()->with('success', 'Data pejabat penandatangan berhasil diperbarui!');
     }

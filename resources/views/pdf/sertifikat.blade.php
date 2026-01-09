@@ -130,25 +130,53 @@
             sampai dengan {{ \Carbon\Carbon::parse($app->end_date)->translatedFormat('d F Y') }}.
         </p>
 
+        {{-- === PERBAIKAN: Definisi Variable SKPD === --}}
+        @php
+            $skpd = $app->position->skpd; 
+        @endphp
+
         <table class="signature-section">
             <tr>
+                {{-- Kolom Kiri: Kepala Dinas / Pejabat --}}
                 <td>
                     Mengetahui,<br>
-                    <span style="font-weight: bold;">{{ $app->position->skpd->jabatan_pejabat ?? 'Kepala Dinas' }}</span>
+                    <span style="font-weight: bold;">{{ $skpd->jabatan_pejabat ?? 'Kepala Dinas' }}</span>
+                    
                     <br><br>
-                    <div class="sign-space"></div>
+                    
+                    {{-- Tanda Tangan Kepala Dinas --}}
+                    @if($skpd->ttd_kepala && file_exists(public_path('storage/' . $skpd->ttd_kepala)))
+                        <img src="{{ public_path('storage/' . $skpd->ttd_kepala) }}" style="height: 60px; width: auto;">
+                    @else
+                        <div class="sign-space"></div>
+                    @endif
+
+                    <br>
                     <span style="font-weight: bold; text-decoration: underline;">
-                        {{ $app->position->skpd->nama_pejabat ?? '................................' }}
+                        {{ $skpd->nama_pejabat ?? '................................' }}
                     </span><br>
-                    NIP. {{ $app->position->skpd->nip_pejabat ?? '....................' }}
+                    NIP. {{ $skpd->nip_pejabat ?? '....................' }}
                 </td>
+
+                {{-- Kolom Kanan: Pembimbing Lapangan --}}
                 <td>
                     Banjarmasin, {{ \Carbon\Carbon::now()->translatedFormat('d F Y') }}<br>
                     Pembimbing Lapangan
+                    
                     <br><br>
-                    <div class="sign-space"></div>
-                    <span style="font-weight: bold; text-decoration: underline;">{{ $app->mentor->name }}</span><br>
-                    NIP. ...........................
+
+                    {{-- Tanda Tangan Mentor --}}
+                    @if($app->mentor && $app->mentor->signature && file_exists(public_path('storage/' . $app->mentor->signature)))
+                        <img src="{{ public_path('storage/' . $app->mentor->signature) }}" style="height: 60px; width: auto;">
+                    @else
+                        <div class="sign-space"></div>
+                    @endif
+
+                    <br>
+                    <span style="font-weight: bold; text-decoration: underline;">
+                        {{ $app->mentor->name ?? '................................' }}
+                    </span><br>
+                    NIP/NIK. {{ $app->mentor->nomor_induk ?? '-' }}
                 </td>
             </tr>
         </table>

@@ -87,6 +87,17 @@
                                        required>
                             </div>
 
+                            <div class="mb-4">
+            <x-input-label for="signature" :value="__('Upload Tanda Tangan / Paraf (Format: PNG/JPG, Transparan lebih baik)')" />
+                <input id="signature" name="signature" type="file" class="mt-1 block w-full border border-gray-300 rounded p-1" accept="image/*" />
+                    @if ($skpd->ttd_kepala)
+                <div class="mt-2">
+                    <p class="text-sm text-gray-500">Tanda Tangan Saat Ini:</p>
+                        <img src="{{ asset('storage/' . $skpd->ttd_kepala) }}" alt="Signature" class="h-16 mt-1 border rounded p-1">                        </div>
+                @endif
+            <x-input-error class="mt-2" :messages="$errors->get('signature')" />
+        </div>
+
                         </div>
 
                         <div class="mt-8 flex items-center justify-end">
