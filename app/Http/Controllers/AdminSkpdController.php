@@ -10,6 +10,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 
 class AdminSkpdController extends Controller
 {
@@ -335,19 +337,127 @@ class AdminSkpdController extends Controller
     }
 
     // --- LAPORAN REKAPITULASI ---
-    public function laporanRekap()
+    public function laporanRekap(Request $request)
     {
-        $skpdId = Auth::user()->skpd_id;
-        $rekap = Application::whereHas('position', function($q) use ($skpdId) {
-            $q->where('skpd_id', $skpdId);
-        })
-        ->whereIn('status', ['diterima', 'selesai'])
-        ->with(['user', 'position', 'mentor'])
-        ->orderBy('created_at', 'desc')
-        ->get();
+        $user = Auth::user();
+        
+        // 1. Query Dasar: Ambil aplikasi yang melamar ke SKPD user yang login
+        $query = Application::with(['user', 'position'])
+            ->whereHas('position', function($q) use ($user) {
+                $q->where('skpd_id', $user->skpd_id); // Filter hanya SKPD login
+            });
 
-        return view('dinas.laporan.rekap', compact('rekap'));
+        // 2. Filter Status
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
+        // 3. Filter Asal Sekolah/Universitas (Instansi)
+        if ($request->has('asal_instansi') && $request->asal_instansi != '') {
+            $searchInstansi = $request->asal_instansi;
+            $query->whereHas('user', function($q) use ($searchInstansi) {
+                $q->where('asal_instansi', 'like', '%' . $searchInstansi . '%');
+            });
+        }
+
+        // 4. Filter Periode (Berdasarkan Tanggal Mulai atau Selesai yang beririsan)
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $start = $request->start_date;
+            $end = $request->end_date;
+            
+            $query->where(function($q) use ($start, $end) {
+                // Logika: Tampilkan jika tanggal magang peserta beririsan dengan filter
+                $q->whereBetween('tanggal_mulai', [$start, $end])
+                ->orWhereBetween('tanggal_selesai', [$start, $end]);
+            });
+        }
+
+        // 5. Sorting (Urutan Nama)
+        // Kita perlu JOIN table users karena kolom 'name' ada di tabel users, bukan applications
+        if ($request->has('sort')) {
+            $sort = $request->sort;
+            if ($sort == 'name_asc') {
+                $query->join('users', 'applications.user_id', '=', 'users.id')
+                    ->orderBy('users.name', 'asc')
+                    ->select('applications.*'); // Penting: Select apps saja agar ID tidak tertimpa
+            } elseif ($sort == 'name_desc') {
+                $query->join('users', 'applications.user_id', '=', 'users.id')
+                    ->orderBy('users.name', 'desc')
+                    ->select('applications.*');
+            } else {
+                $query->latest();
+            }
+        } else {
+            $query->latest();
+        }
+
+        $applications = $query->get();
+
+        return view('dinas.laporan.rekap', compact('applications'));
     }
+
+    
+
+    public function printRekap(Request $request)
+    {
+        $user = Auth::user();
+        
+        // 1. Query Dasar
+        $query = Application::with(['user', 'position'])
+            ->whereHas('position', function($q) use ($user) {
+                $q->where('skpd_id', $user->skpd_id);
+            });
+
+        // 2. Filter Status
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
+        // 3. Filter Asal Sekolah
+        if ($request->has('asal_instansi') && $request->asal_instansi != '') {
+            $searchInstansi = $request->asal_instansi;
+            $query->whereHas('user', function($q) use ($searchInstansi) {
+                $q->where('asal_instansi', 'like', '%' . $searchInstansi . '%');
+            });
+        }
+
+        // 4. Filter Periode
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $start = $request->start_date;
+            $end = $request->end_date;
+            $query->where(function($q) use ($start, $end) {
+                $q->whereBetween('tanggal_mulai', [$start, $end])
+                  ->orWhereBetween('tanggal_selesai', [$start, $end]);
+            });
+        }
+
+        // 5. Sorting
+        if ($request->has('sort')) {
+            $sort = $request->sort;
+            if ($sort == 'name_asc') {
+                $query->join('users', 'applications.user_id', '=', 'users.id')
+                      ->orderBy('users.name', 'asc')->select('applications.*');
+            } elseif ($sort == 'name_desc') {
+                $query->join('users', 'applications.user_id', '=', 'users.id')
+                      ->orderBy('users.name', 'desc')->select('applications.*');
+            } else {
+                $query->latest();
+            }
+        } else {
+            $query->latest();
+        }
+
+        $applications = $query->get();
+        $skpd = $user->skpd; // Data dinas untuk kop surat
+
+        // Generate PDF
+        $pdf = Pdf::loadView('dinas.pdf.rekap_peserta', compact('applications', 'skpd', 'request'));
+        $pdf->setPaper('a4', 'landscape'); // Landscape agar tabel muat
+        
+        return $pdf->stream('Laporan_Rekap_Peserta.pdf');
+    }
+
+    // --- LAPORAN GRADING ---
 
     public function laporanGradingDinas()
     {
