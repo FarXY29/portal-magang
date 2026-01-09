@@ -116,6 +116,7 @@ Route::middleware('auth')->group(function () {
         
         // Laporan Dinas
         Route::get('/laporan/rekap', [AdminSkpdController::class, 'laporanRekap'])->name('laporan.rekap');
+        Route::get('/laporan/rekap/print', [AdminSkpdController::class, 'printRekap'])->name('laporan.rekap.print');
         Route::get('/laporan/grading', [AdminSkpdController::class, 'laporanGradingDinas'])->name('laporan.grading');
 
         // RUTE PENGATURAN PEJABAT
