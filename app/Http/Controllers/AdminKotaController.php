@@ -224,6 +224,32 @@ class AdminKotaController extends Controller
             });
         }
 
+        // 2. Filter Status
+        if ($request->has('status') && $request->status != '') {
+            $query->where('status', $request->status);
+        }
+
+        // 3. Filter Berdasarkan Tanggal (Periode Magang)
+        // Logika: Mencari irisan tanggal magang dengan range yang dipilih
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $start = $request->start_date;
+            $end = $request->end_date;
+            
+            $query->where(function($q) use ($start, $end) {
+                $q->whereBetween('tanggal_mulai', [$start, $end])
+                  ->orWhereBetween('tanggal_selesai', [$start, $end]);
+            });
+        } 
+        // Jika hanya diisi "Mulai Magang" (Mencari yg mulai setelah tanggal ini)
+        elseif ($request->filled('start_date')) {
+            $query->where('tanggal_mulai', '>=', $request->start_date);
+        }
+        // Jika hanya diisi "Selesai Magang" (Mencari yg selesai sebelum tanggal ini)
+        elseif ($request->filled('end_date')) {
+            $query->where('tanggal_selesai', '<=', $request->end_date);
+        }
+
+        $applications = $query->latest()->get();
         // Ambil Data
         $allInterns = $query->orderBy('created_at', 'desc')->get();
 

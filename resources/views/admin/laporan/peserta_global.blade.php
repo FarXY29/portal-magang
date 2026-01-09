@@ -3,7 +3,7 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">Laporan Global Peserta Magang</h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-5">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             
             <div class="flex justify-between mb-6 print:hidden">
@@ -22,23 +22,6 @@
                     <form method="GET" action="{{ route('admin.laporan.peserta_global') }}" class="flex flex-col gap-4">
                         
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Lokasi Magang</label>
-                            <div class="relative">
-                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                    <i class="fas fa-building text-xs"></i>
-                                </span>
-                                <select name="skpd_id" class="w-full pl-9 border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 shadow-sm cursor-pointer">
-                                    <option value="">Semua Instansi</option>
-                                    @foreach($listSkpd as $skpd)
-                                        <option value="{{ $skpd->id }}" {{ request('skpd_id') == $skpd->id ? 'selected' : '' }}>
-                                            {{ Str::limit($skpd->nama_dinas, 20) }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-
-                        <div>
                             <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Asal Universitas/Sekolah</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
@@ -56,25 +39,53 @@
                         </div>
 
                         <div>
-                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Cari Posisi</label>
+                            <label class="block text-xs font-semibold text-gray-600 uppercase mb-1">Lokasi Magang</label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-                                    <i class="fas fa-search text-xs"></i>
+                                    <i class="fas fa-building text-xs"></i>
                                 </span>
-                                <input type="text" name="posisi" value="{{ request('posisi') }}" placeholder="Contoh: Programmer..." 
-                                       class="w-full pl-9 border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 shadow-sm">
+                                <select name="skpd_id" class="w-full pl-9 border-gray-300 rounded-md text-sm focus:ring-indigo-500 focus:border-indigo-500 shadow-sm cursor-pointer">
+                                    <option value="">Semua Instansi</option>
+                                    @foreach($listSkpd as $skpd)
+                                        <option value="{{ $skpd->id }}" {{ request('skpd_id') == $skpd->id ? 'selected' : '' }}>
+                                            {{ Str::limit($skpd->nama_dinas, 20) }}
+                                        </option>
+                                    @endforeach
+                                </select>
                             </div>
                         </div>
 
-                        <div class="pt-2 flex flex-col gap-2">
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+                            <select name="status" class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                                <option value="">Semua Status</option>
+                                <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="diterima" {{ request('status') == 'diterima' ? 'selected' : '' }}>Aktif (Diterima)</option>
+                                <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                <option value="ditolak" {{ request('status') == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Mulai Magang</label>
+                            <input type="date" name="start_date" value="{{ request('start_date') }}" 
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Selesai Magang</label>
+                            <input type="date" name="end_date" value="{{ request('end_date') }}" 
+                                class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 text-sm">
+                        </div>
+
+                        <div class="w-full md:w-1/4 pt-2 flex flex-row gap-2">
                             <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md shadow hover:bg-indigo-700 text-sm font-bold w-full transition flex items-center justify-center">
-                                Terapkan Filter
+                                Filter
                             </button>
-                            @if(request()->anyFilled(['skpd_id', 'instansi', 'posisi']))
-                                <a href="{{ route('admin.laporan.peserta_global') }}" class="bg-gray-100 text-gray-600 px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-200 text-sm font-bold w-full text-center transition">
-                                    Reset
-                                </a>
-                            @endif
+                            <a href="{{ route('admin.laporan.peserta_global') }}" class="bg-gray-100 text-gray-600 px-4 py-2 rounded-md border border-gray-300 hover:bg-gray-200 text-sm font-bold w-full text-center transition flex items-center justify-center">
+                                Reset
+                            </a>
                         </div>
                     </form>
                 </div>
