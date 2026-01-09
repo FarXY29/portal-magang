@@ -169,6 +169,10 @@
                 <span style="font-weight: bold;">{{ $app->position->skpd->jabatan_pejabat ?? 'Kepala Dinas' }}</span><br>
                 {{ $app->position->skpd->nama_dinas }}
                 
+                {{-- Tanda Tangan Kepala Dinas --}}
+                    @if($app->position->skpd->ttd_kepala && file_exists(public_path('storage/' . $app->position->skpd->ttd_kepala)))
+                        <img src="{{ public_path('storage/' . $app->position->skpd->ttd_kepala) }}" style="height: 60px; width: auto;">
+                    @endif
                 <div class="sign-space"></div> <span class="text-bold" style="text-decoration: underline;">
                     {{ $app->position->skpd->nama_pejabat ?? '........................................' }}
                 </span><br>
@@ -176,8 +180,12 @@
             </td>
 
             <td width="50%">
-                Pembimbing Lapangan<br>
-                <br> <div class="sign-space"></div> <span class="text-bold" style="text-decoration: underline;">{{ $app->mentor->name }}</span><br>
+                Pembimbing Lapangan<br> <br>
+                {{-- Tanda Tangan Mentor --}}
+                    @if($app->mentor && $app->mentor->signature && file_exists(public_path('storage/' . $app->mentor->signature)))
+                        <img src="{{ public_path('storage/' . $app->mentor->signature) }}" style="height: 60px; width: auto;">
+                    @endif
+                <div class="sign-space"></div> <span class="text-bold" style="text-decoration: underline;">{{ $app->mentor->name }}</span><br>
                 NIP. ...........................
             </td>
         </tr>

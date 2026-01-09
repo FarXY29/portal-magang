@@ -49,7 +49,7 @@
                 </div>
             </div>
                     
-                    <form action="{{ route('dinas.pejabat.update') }}" method="POST">
+                    <form action="{{ route('dinas.pejabat.update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
 
@@ -87,16 +87,36 @@
                                        required>
                             </div>
 
-                            <div class="mb-4">
-            <x-input-label for="signature" :value="__('Upload Tanda Tangan / Paraf (Format: PNG/JPG, Transparan lebih baik)')" />
-                <input id="signature" name="signature" type="file" class="mt-1 block w-full border border-gray-300 rounded p-1" accept="image/*" />
-                    @if ($skpd->ttd_kepala)
-                <div class="mt-2">
-                    <p class="text-sm text-gray-500">Tanda Tangan Saat Ini:</p>
-                        <img src="{{ asset('storage/' . $skpd->ttd_kepala) }}" alt="Signature" class="h-16 mt-1 border rounded p-1">                        </div>
-                @endif
-            <x-input-error class="mt-2" :messages="$errors->get('signature')" />
-        </div>
+                            <div class="border-t pt-4 mt-4">
+                        <h4 class="text-sm font-bold text-gray-700 mb-4 uppercase">Tanda Tangan Digital</h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <x-input-label for="ttd_kepala" :value="__('Scan Tanda Tangan Kepala Dinas (Format PNG Transparan)')" />
+                                <input id="ttd_kepala" name="ttd_kepala" type="file" 
+                                    class="mt-1 block w-full text-sm text-gray-500
+                                    file:mr-4 file:py-2 file:px-4
+                                    file:rounded-md file:border-0
+                                    file:text-sm file:font-semibold
+                                    file:bg-indigo-50 file:text-indigo-700
+                                    hover:file:bg-indigo-100 border border-gray-300 rounded-md p-1" 
+                                    accept="image/png, image/jpeg" />
+                                <p class="text-xs text-gray-500 mt-1">*Disarankan menggunakan file PNG dengan background transparan (tanpa latar putih).</p>
+                                <x-input-error class="mt-2" :messages="$errors->get('ttd_kepala')" />
+                            </div>
+
+                            <div class="flex items-center justify-center border border-dashed border-gray-300 rounded-lg p-4 bg-gray-50 h-32">
+                                @if($skpd->ttd_kepala)
+                                    <div class="text-center">
+                                        <p class="text-xs text-gray-400 mb-1">Tanda Tangan Saat Ini:</p>
+                                        <img src="{{ asset('storage/' . $skpd->ttd_kepala) }}" alt="TTD Kepala" class="h-20 object-contain mx-auto">
+                                    </div>
+                                @else
+                                    <p class="text-sm text-gray-400 italic">Belum ada tanda tangan diupload.</p>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
 
                         </div>
 
@@ -117,7 +137,8 @@
                         <p>Mengetahui,</p>
                         <p class="font-bold mb-8">{{ $skpd->jabatan_pejabat ?? 'Nama Jabatan' }}</p>
                         
-                        <div class="h-16"></div> 
+                            <img src="{{ asset('storage/' . $skpd->ttd_kepala) }}" alt="TTD Kepala" class="h-12 object-contain mx-auto">
+
                         
                         <p class="font-bold underline">{{ $skpd->nama_pejabat ?? 'Nama Pejabat' }}</p>
                         <p>NIP. {{ $skpd->nip_pejabat ?? '....................' }}</p>

@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Support\Facades\Storage;
 
 
 class AdminSkpdController extends Controller
@@ -200,7 +201,7 @@ class AdminSkpdController extends Controller
             'nama_pejabat' => 'required|string|max:255',
             'nip_pejabat' => 'required|string|max:50',
             'jabatan_pejabat' => 'required|string|max:100',
-            'ttd_kepala' => 'nullable|image|max:2048',
+            'ttd_kepala' => 'nullable|image|mimes:png,jpg,jpeg|max:2048',
         ]); 
 
         $skpd = Auth::user()->skpd;
@@ -211,15 +212,21 @@ class AdminSkpdController extends Controller
             'jabatan_pejabat' => $request->jabatan_pejabat,
         ]);
 
-        // Handle Upload TTD
+        // 2. Proses Upload Tanda Tangan
         if ($request->hasFile('ttd_kepala')) {
-            if ($skpd->ttd_kepala) {
-                \Illuminate\Support\Facades\Storage::delete('public/' . $skpd->ttd_kepala);
+            // Hapus file lama jika ada
+            if ($skpd->ttd_kepala && Storage::exists('public/' . $skpd->ttd_kepala)) {
+                Storage::delete('public/' . $skpd->ttd_kepala);
             }
-            $path = $request->file('ttd_kepala')->store('skpd_signatures', 'public');
+
+            // Simpan file baru ke folder 'signatures' di storage publik
+            $path = $request->file('ttd_kepala')->store('signatures', 'public');
+            
+            // Masukkan path ke array data yang akan diupdate
             $validated['ttd_kepala'] = $path;
         }
 
+        // 3. Update Database
         $skpd->update($validated);
 
         return back()->with('success', 'Data pejabat penandatangan berhasil diperbarui!');
