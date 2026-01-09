@@ -266,7 +266,7 @@
                                     @endphp
 
                                     @if($isMatch)
-                                        <a href="{{ route('peserta.daftar.form', $loker->id) }}" class="w-full block text-center bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition font-semibold shadow-md hover:shadow-lg transform active:scale-95">Lamar Sekarang</a>
+                                        <a href="{{ route('peserta.daftar.form', $loker->id) }}" class="w-full block text-center bg-teal-600 text-white py-2 rounded-lg hover:bg-teal-700 transition font-semibold shadow-md hover:shadow-lg transform active:scale-95">Ajukan Lamaran</a>
                                     @else
                                         <button disabled class="w-full block text-center bg-gray-100 text-gray-400 py-2 rounded-lg cursor-not-allowed font-medium border border-gray-200"><i class="fas fa-ban mr-1"></i> Jurusan Tidak Sesuai</button>
                                     @endif
@@ -274,7 +274,8 @@
                                     <button disabled class="w-full block text-center bg-gray-200 text-gray-500 py-2 rounded-lg cursor-not-allowed text-sm font-medium">Mode Admin (View Only)</button>
                                 @endif
                             @else
-                                <a href="{{ route('login') }}" class="w-full block text-center bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-700 transition font-semibold shadow-md group-hover:bg-gray-900">Login untuk Melamar</a>
+                                {{-- Ubah link ke route peserta.daftar.form. Middleware Auth akan menangani redirect dan mengingat url tujuan --}}
+                                <a href="{{ route('peserta.daftar.form', $loker->id) }}" class="w-full block text-center bg-gray-800 text-white py-2 rounded-lg hover:bg-gray-700 transition font-semibold shadow-md group-hover:bg-gray-900">Ajukan Lamaran</a>
                             @endauth
                         </div>
                     </div>
