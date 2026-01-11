@@ -35,4 +35,17 @@ class Skpd extends Model
     {
         return $this->hasMany(User::class);
     }
+
+    public function applications()
+    {
+        // Menghubungkan SKPD langsung ke Application melewati InternshipPosition
+        return $this->hasManyThrough(
+            \App\Models\Application::class,
+            \App\Models\InternshipPosition::class,
+            'skpd_id',                // Foreign key di tabel internship_positions
+            'internship_position_id', // Foreign key di tabel applications
+            'id',                     // Local key di tabel skpds
+            'id'                      // Local key di tabel internship_positions
+        );
+    }
 }

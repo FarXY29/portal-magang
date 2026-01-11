@@ -1,121 +1,184 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Dashboard Mentor Lapangan
-        </h2>
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <h2 class="font-extrabold text-2xl text-gray-800 leading-tight flex items-center gap-2">
+                <i class="fas fa-chalkboard-teacher text-indigo-600"></i>
+                {{ __('Dashboard Mentor') }}
+            </h2>
+            <div class="text-sm text-gray-500 font-medium bg-white px-4 py-1.5 rounded-full shadow-sm border border-gray-100">
+                {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8 bg-gray-50/50 min-h-screen font-sans">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-8">
             
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-indigo-100 relative overflow-hidden group hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-indigo-500 uppercase tracking-widest mb-1">Total Bimbingan</p>
+                            <h3 class="text-3xl font-black text-gray-800">{{ $interns->count() }}</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shadow-sm">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-teal-100 relative overflow-hidden group hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-teal-500 uppercase tracking-widest mb-1">Sedang Magang</p>
+                            <h3 class="text-3xl font-black text-gray-800">{{ $interns->where('status', 'diterima')->count() }}</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 shadow-sm">
+                            <i class="fas fa-user-clock"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-blue-100 relative overflow-hidden group hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-blue-500 uppercase tracking-widest mb-1">Selesai / Lulus</p>
+                            <h3 class="text-3xl font-black text-gray-800">{{ $interns->where('status', 'selesai')->count() }}</h3>
+                        </div>
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600 shadow-sm">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             @if(session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4 shadow-sm">
-                    <i class="fas fa-check mr-1"></i> {{ session('success') }}
+                <div x-data="{ show: true }" x-show="show" class="flex items-center p-4 mb-4 text-green-800 rounded-xl bg-green-50 border border-green-100 shadow-sm relative">
+                    <i class="fas fa-check-circle flex-shrink-0 w-5 h-5 mr-3 text-green-600"></i>
+                    <div class="text-sm font-bold">{{ session('success') }}</div>
+                    <button @click="show = false" class="ml-auto text-green-500 hover:text-green-700"><i class="fas fa-times"></i></button>
                 </div>
             @endif
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 border-l-4 border-indigo-500">
-                <h3 class="text-lg font-bold mb-1">Daftar Mahasiswa Bimbingan</h3>
-                <p class="text-sm text-gray-500 mb-4">Kelola logbook harian dan berikan penilaian akhir.</p>
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="p-6 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                            <i class="fas fa-list-ul text-indigo-500"></i> Daftar Mahasiswa Bimbingan
+                        </h3>
+                        <p class="text-xs text-gray-500 mt-1">Pantau aktivitas, validasi kehadiran, dan berikan penilaian.</p>
+                    </div>
+                </div>
                 
                 <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
+                    <table class="min-w-full divide-y divide-gray-100">
                         <thead class="bg-gray-50">
                             <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama Peserta</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jadwal Magang</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">Kehadiran (Valid)</th> <!-- Kolom Baru -->
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nilai Akhir</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Profil Peserta</th>
+                                <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Periode & Status</th>
+                                <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Kehadiran (Valid)</th>
+                                <th class="px-6 py-4 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Nilai Akhir</th>
+                                <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200">
+                        <tbody class="bg-white divide-y divide-gray-50">
                             @forelse($interns as $mhs)
-                            <tr class="hover:bg-gray-50 transition">
+                            <tr class="hover:bg-gray-50 transition group">
                                 <td class="px-6 py-4">
-                                    <div class="font-bold text-gray-900">{{ $mhs->user->name }}</div>
-                                    <div class="text-xs text-gray-500">{{ $mhs->user->email }}</div>
-                                    <div class="mt-1">
-                                        @if($mhs->status == 'diterima')
-                                            <span class="px-2 py-0.5 text-[10px] bg-green-100 text-green-800 rounded-full font-bold">AKTIF</span>
-                                        @else
-                                            <span class="px-2 py-0.5 text-[10px] bg-blue-100 text-blue-800 rounded-full font-bold">SELESAI</span>
-                                        @endif
+                                    <div class="flex items-center gap-3">
+                                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center text-indigo-700 font-bold text-sm border border-indigo-200 shadow-sm">
+                                            {{ strtoupper(substr($mhs->user->name, 0, 1)) }}
+                                        </div>
+                                        <div>
+                                            <div class="text-sm font-bold text-gray-900 group-hover:text-indigo-600 transition">{{ $mhs->user->name }}</div>
+                                            <div class="text-xs text-gray-500">{{ $mhs->user->email }}</div>
+                                        </div>
                                     </div>
                                 </td>
 
-                                
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($mhs->tanggal_mulai)
-                                        <div class="text-sm text-gray-900 font-medium">
-                                            <i class="far fa-calendar-alt text-indigo-400 mr-1"></i>
-                                            {{ \Carbon\Carbon::parse($mhs->tanggal_mulai)->format('d M') }} - {{ \Carbon\Carbon::parse($mhs->tanggal_selesai)->format('d M Y') }}
-                                        </div>
-                                        <div class="text-xs text-gray-500 mt-1 pl-5">
-                                            Status: 
-                                            @if($mhs->status == 'diterima') 
-                                                <span class="text-green-600 font-bold">Aktif</span>
-                                            @else 
-                                                <span class="text-blue-600 font-bold">Lulus</span>
+                                <td class="px-6 py-4">
+                                    <div class="flex flex-col gap-1">
+                                        @if($mhs->tanggal_mulai)
+                                            <span class="text-xs font-medium text-gray-600 flex items-center gap-1">
+                                                <i class="far fa-calendar-alt"></i>
+                                                {{ \Carbon\Carbon::parse($mhs->tanggal_mulai)->format('d M') }} - {{ \Carbon\Carbon::parse($mhs->tanggal_selesai)->format('d M Y') }}
+                                            </span>
+                                        @else
+                                            <span class="text-xs text-gray-400 italic">Jadwal belum diset</span>
+                                        @endif
+
+                                        <div>
+                                            @if($mhs->status == 'diterima')
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-green-100 text-green-700 border border-green-200">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse"></span> AKTIF
+                                                </span>
+                                            @elseif($mhs->status == 'selesai')
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 border border-blue-200">
+                                                    <i class="fas fa-check-circle mr-1 text-[8px]"></i> SELESAI
+                                                </span>
                                             @endif
                                         </div>
-                                    @else
-                                        <span class="text-xs text-gray-400">Belum diset</span>
-                                    @endif
+                                    </div>
                                 </td>
-                                
-                                <!-- KOLOM KEHADIRAN (BARU) -->
+
                                 <td class="px-6 py-4 text-center">
                                     @php
-                                        // Menghitung logbook yang sudah divalidasi (disetujui)
                                         $validLogs = $mhs->logs->where('status_validasi', 'disetujui')->count();
                                     @endphp
-                                    <div class="text-lg font-bold text-green-600">{{ $validLogs }} Hari</div>
-                                    <div class="text-[10px] text-gray-400">Total Validasi</div>
+                                    <div class="inline-flex flex-col items-center">
+                                        <span class="text-lg font-black text-gray-800">{{ $validLogs }}</span>
+                                        <span class="text-[10px] text-gray-400 font-bold uppercase">Hari Valid</span>
+                                    </div>
                                 </td>
 
-                                <td class="px-6 py-4">
+                                <td class="px-6 py-4 text-center">
                                     @if($mhs->nilai_angka)
-                                        <div class="text-lg font-bold text-indigo-700">{{ $mhs->nilai_angka }}</div>
-                                        <div class="text-xs text-gray-500">Predikat: {{ $mhs->predikat }}</div>
+                                        <div class="inline-flex flex-col items-center bg-indigo-50 px-3 py-1 rounded-lg border border-indigo-100">
+                                            <span class="text-lg font-black text-indigo-600">{{ $mhs->nilai_angka }}</span>
+                                            <span class="text-[10px] font-bold text-indigo-400 uppercase">{{ $mhs->predikat }}</span>
+                                        </div>
                                     @else
-                                        <span class="text-xs text-gray-400 italic">Belum dinilai</span>
+                                        <span class="text-xs text-gray-400 italic bg-gray-100 px-2 py-1 rounded">Belum dinilai</span>
                                     @endif
                                 </td>
 
-                                <td class="px-6 py-4 flex flex-col gap-2">
-                                    <!-- Validasi Logbook -->
-                                    <a href="{{ route('mentor.logbook', $mhs->id) }}" class="inline-flex items-center justify-center bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded text-xs font-bold hover:bg-gray-50 shadow-sm transition">
-                                        <i class="fas fa-book mr-1"></i> Logbook
-                                    </a>
-                                    <!-- Validasi Kehadiran -->
-                                    <a href="{{ route('mentor.attendance.index', $mhs->id) }}" class="inline-flex items-center justify-center bg-white border border-gray-300 text-gray-700 px-3 py-1.5 rounded text-xs font-bold hover:bg-gray-50 shadow-sm transition">
-                                        <i class="fas fa-book mr-1"></i> Kehadiran
-                                    </a>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex justify-end gap-2 flex-wrap sm:flex-nowrap">
+                                        
+                                        <a href="{{ route('mentor.logbook', $mhs->id) }}" 
+                                           class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 text-xs font-bold hover:text-indigo-600 hover:border-indigo-300 hover:bg-indigo-50 transition shadow-sm" 
+                                           title="Periksa Logbook">
+                                            <i class="fas fa-book-open mr-1.5"></i> Logbook
+                                        </a>
 
-                                    <!-- Input Nilai (Hanya jika belum selesai/lulus) -->
-                                    <div class="flex items-center gap-3">
+                                        <a href="{{ route('mentor.attendance.index', $mhs->id) }}" 
+                                           class="inline-flex items-center px-3 py-1.5 bg-white border border-gray-200 rounded-lg text-gray-600 text-xs font-bold hover:text-teal-600 hover:border-teal-300 hover:bg-teal-50 transition shadow-sm" 
+                                           title="Riwayat Absensi">
+                                            <i class="fas fa-clock mr-1.5"></i> Absensi
+                                        </a>
 
                                         @if($mhs->status == 'diterima' || $mhs->status == 'selesai')
                                             <a href="{{ route('mentor.penilaian', $mhs->id) }}" 
-                                            class="w-full inline-flex items-center justify-center px-3 py-1.5 border border-transparent rounded text-xs font-bold text-white shadow-sm transition ease-in-out duration-150 {{ $mhs->nilai_rata_rata ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-teal-600 hover:bg-teal-700' }}">
-                                                {{ $mhs->nilai_rata_rata ? 'Edit Nilai' : 'Input Nilai' }}
+                                               class="inline-flex items-center px-3 py-1.5 border rounded-lg text-xs font-bold transition shadow-sm
+                                               {{ $mhs->nilai_angka 
+                                                    ? 'bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100' 
+                                                    : 'bg-indigo-600 text-white border-transparent hover:bg-indigo-700' 
+                                               }}">
+                                                <i class="fas fa-star mr-1.5"></i> {{ $mhs->nilai_angka ? 'Edit Nilai' : 'Input Nilai' }}
                                             </a>
-                                        @elseif($mhs->status == 'pending')
-                                            <span class="text-gray-400 text-xs italic">Menunggu Persetujuan</span>
-                                        @else
-                                            <span class="text-red-400 text-xs italic">Ditolak</span>
                                         @endif
-                                        
                                     </div>
                                 </td>
                             </tr>
                             @empty
                             <tr>
-                                <td colspan="5" class="text-center py-8 text-gray-500">
-                                    <div class="flex flex-col items-center">
-                                        <i class="far fa-folder-open text-2xl mb-2 text-gray-400"></i>
-                                        <span>Belum ada mahasiswa yang ditugaskan ke Anda.</span>
+                                <td colspan="5" class="px-6 py-12 text-center">
+                                    <div class="flex flex-col items-center justify-center text-gray-400">
+                                        <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mb-3">
+                                            <i class="fas fa-users-slash text-3xl text-gray-300"></i>
+                                        </div>
+                                        <p class="font-bold text-gray-600">Belum ada mahasiswa bimbingan</p>
+                                        <p class="text-xs mt-1">Anda belum ditugaskan untuk membimbing peserta magang manapun.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -124,6 +187,7 @@
                     </table>
                 </div>
             </div>
+
         </div>
     </div>
 </x-app-layout>

@@ -1,61 +1,148 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Edit Pengguna: {{ $user->name }}</h2>
+        <div class="flex items-center justify-between">
+            <h2 class="font-extrabold text-2xl text-gray-800 leading-tight flex items-center gap-2">
+                <i class="fas fa-user-edit text-teal-600"></i>
+                {{ __('Edit Data Pengguna') }}
+            </h2>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+    <div class="py-12 bg-gray-50/50 min-h-screen">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            
+            <div class="mb-6">
+                <a href="{{ route('admin.users.index') }}" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-teal-600 transition">
+                    <i class="fas fa-arrow-left mr-2"></i> Kembali ke Manajemen User
+                </a>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-2xl border border-gray-100">
                 
-                <form action="{{ route('admin.users.update', $user->id) }}" method="POST">
+                <form action="{{ route('admin.users.update', $user->id) }}" method="POST" class="p-8">
                     @csrf
                     @method('PUT')
                     
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Nama Lengkap</label>
-                        <input type="text" name="name" value="{{ $user->name }}" class="w-full border-gray-300 rounded-md shadow-sm" required>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        
+                        <div class="space-y-6">
+                            <div class="pb-2 border-b border-gray-100 mb-4">
+                                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                    <i class="fas fa-id-card text-teal-500"></i> Identitas Akun
+                                </h3>
+                                <p class="text-xs text-gray-500">Perbarui informasi login pengguna.</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Nama Lengkap</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <input type="text" name="name" value="{{ old('name', $user->name) }}" 
+                                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border-gray-300 focus:ring-teal-500 focus:border-teal-500 transition shadow-sm" 
+                                        required>
+                                </div>
+                                @error('name') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Email Login</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                    <input type="email" name="email" value="{{ old('email', $user->email) }}"
+                                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border-gray-300 focus:ring-teal-500 focus:border-teal-500 transition shadow-sm" 
+                                        required>
+                                </div>
+                                @error('email') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-100">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Ubah Password (Opsional)</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-key"></i>
+                                    </span>
+                                    <input type="password" name="password"
+                                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border-gray-300 focus:ring-teal-500 focus:border-teal-500 transition shadow-sm bg-white" 
+                                        placeholder="Kosongkan jika tidak ingin mengubah">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2 italic">*Hanya isi jika user meminta reset password.</p>
+                                @error('password') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
+
+                        <div class="space-y-6">
+                            <div class="pb-2 border-b border-gray-100 mb-4">
+                                <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+                                    <i class="fas fa-user-tag text-blue-500"></i> Pengaturan Akses
+                                </h3>
+                                <p class="text-xs text-gray-500">Sesuaikan peran dan afiliasi pengguna.</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Role Pengguna</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-users-cog"></i>
+                                    </span>
+                                    <select name="role" id="roleSelect" onchange="toggleFields()"
+                                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border-gray-300 focus:ring-teal-500 focus:border-teal-500 transition shadow-sm cursor-pointer bg-gray-50">
+                                        <option value="peserta" {{ $user->role == 'peserta' ? 'selected' : '' }}>Peserta Magang</option>
+                                        <option value="pembimbing" {{ $user->role == 'pembimbing' ? 'selected' : '' }}>Dosen / Guru Pembimbing</option>
+                                        <option value="mentor" {{ $user->role == 'mentor' ? 'selected' : '' }}>Pembimbing Lapangan (Pegawai)</option>
+                                        <option value="admin_skpd" {{ $user->role == 'admin_skpd' ? 'selected' : '' }}>Admin Instansi</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200 transition-all duration-300">
+                                
+                                <div id="skpdField" class="{{ in_array($user->role, ['admin_skpd', 'mentor']) ? '' : 'hidden' }}">
+                                    <label class="block text-xs font-bold text-blue-600 uppercase mb-2 tracking-wide">
+                                        <i class="fas fa-building mr-1"></i> Asal Instansi
+                                    </label>
+                                    <select name="skpd_id" class="w-full rounded-lg border-gray-300 text-sm focus:ring-blue-500 focus:border-blue-500">
+                                        <option value="">-- Pilih Instansi --</option>
+                                        @foreach($skpds as $skpd)
+                                            <option value="{{ $skpd->id }}" {{ $user->skpd_id == $skpd->id ? 'selected' : '' }}>
+                                                {{ $skpd->nama_dinas }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div id="instansiField" class="{{ in_array($user->role, ['peserta', 'pembimbing']) ? '' : 'hidden' }}">
+                                    <label class="block text-xs font-bold text-green-600 uppercase mb-2 tracking-wide">
+                                        <i class="fas fa-university mr-1"></i> Asal Sekolah / Kampus
+                                    </label>
+                                    <input type="text" name="asal_instansi" value="{{ old('asal_instansi', $user->asal_instansi) }}"
+                                        class="w-full rounded-lg border-gray-300 text-sm focus:ring-green-500 focus:border-green-500" 
+                                        placeholder="Contoh: Universitas Lambung Mangkurat">
+                                </div>
+
+                                <div id="noneField" class="{{ $user->role == 'admin_kota' ? '' : 'hidden' }} text-center text-gray-400 text-sm py-2">
+                                    <i class="fas fa-info-circle mr-1"></i> Super Admin memiliki akses penuh.
+                                </div>
+                            </div>
+
+                            @if($user->created_at)
+                                <div class="text-xs text-gray-400 pt-2 border-t border-gray-100">
+                                    Terdaftar sejak: {{ $user->created_at->translatedFormat('d F Y') }}
+                                </div>
+                            @endif
+
+                        </div>
                     </div>
 
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Email Login</label>
-                        <input type="email" name="email" value="{{ $user->email }}" class="w-full border-gray-300 rounded-md shadow-sm" required>
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Password Baru (Opsional)</label>
-                        <input type="password" name="password" class="w-full border-gray-300 rounded-md shadow-sm" placeholder="Isi hanya jika ingin mengganti password">
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Role (Peran)</label>
-                        <select name="role" id="roleSelect" class="w-full border-gray-300 rounded-md shadow-sm" onchange="toggleFields()">
-                            <option value="peserta" {{ $user->role == 'peserta' ? 'selected' : '' }}>Peserta Magang</option>
-                            <option value="pembimbing" {{ $user->role == 'pembimbing' ? 'selected' : '' }}>Dosen / Guru Pembimbing</option>
-                            <option value="mentor" {{ $user->role == 'mentor' ? 'selected' : '' }}>Pembimbing Lapangan (Pegawai)</option>
-                            <option value="admin_skpd" {{ $user->role == 'admin_skpd' ? 'selected' : '' }}>Admin Instansi</option>
-                            <option value="admin_kota" {{ $user->role == 'admin_kota' ? 'selected' : '' }}>Super Admin</option>
-                        </select>
-                    </div>
-
-                    <div id="skpdField" class="mb-4 {{ in_array($user->role, ['admin_skpd', 'mentor']) ? '' : 'hidden' }} p-3 bg-blue-50 rounded border border-blue-100">
-                        <label class="block text-blue-800 text-xs font-bold mb-2 uppercase">Asal Instansi</label>
-                        <select name="skpd_id" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
-                            <option value="">-- Pilih Instansi --</option>
-                            @foreach($skpds as $skpd)
-                                <option value="{{ $skpd->id }}" {{ $user->skpd_id == $skpd->id ? 'selected' : '' }}>{{ $skpd->nama_dinas }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div id="instansiField" class="mb-4 {{ in_array($user->role, ['peserta', 'pembimbing']) ? '' : 'hidden' }} p-3 bg-green-50 rounded border border-green-100">
-                        <label class="block text-green-800 text-xs font-bold mb-2 uppercase">Asal Sekolah/Kampus</label>
-                        <input type="text" name="asal_instansi" value="{{ $user->asal_instansi }}" class="w-full border-gray-300 rounded-md shadow-sm text-sm">
-                    </div>
-
-                    <div class="flex justify-end space-x-2 mt-6">
-                        <a href="{{ route('admin.users.index') }}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Batal</a>
-                        <button type="submit" class="px-4 py-2 bg-blue-800 text-white rounded hover:bg-blue-900 font-bold shadow">
-                            Update User
+                    <div class="flex items-center justify-end space-x-3 mt-8 pt-6 border-t border-gray-100">
+                        <a href="{{ route('admin.users.index') }}" class="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition shadow-sm">
+                            Batal
+                        </a>
+                        <button type="submit" class="px-6 py-2.5 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 shadow-lg shadow-teal-200 transition transform active:scale-95 flex items-center">
+                            <i class="fas fa-save mr-2"></i> Perbarui Data
                         </button>
                     </div>
                 </form>
@@ -69,16 +156,20 @@
             const role = document.getElementById('roleSelect').value;
             const skpdField = document.getElementById('skpdField');
             const instansiField = document.getElementById('instansiField');
+            const noneField = document.getElementById('noneField');
 
+            // Reset Visibility
+            skpdField.classList.add('hidden');
+            instansiField.classList.add('hidden');
+            noneField.classList.add('hidden');
+
+            // Logic Check
             if (role === 'admin_skpd' || role === 'mentor') {
                 skpdField.classList.remove('hidden');
-                instansiField.classList.add('hidden');
             } else if (role === 'pembimbing' || role === 'peserta') {
-                skpdField.classList.add('hidden');
                 instansiField.classList.remove('hidden');
             } else {
-                skpdField.classList.add('hidden');
-                instansiField.classList.add('hidden');
+                noneField.classList.remove('hidden');
             }
         }
     </script>

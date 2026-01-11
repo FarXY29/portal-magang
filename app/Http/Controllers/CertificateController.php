@@ -12,7 +12,10 @@ class CertificateController extends Controller
      */
     public function verify($token)
     {
-        $app = Application::where('token_verifikasi', $token)
+        // Gunakan 'with' untuk memuat User, Position, dan SKPD sekaligus
+        // Menghindari query berulang saat view dirender
+        $app = Application::with(['user', 'position.skpd', 'mentor']) 
+                ->where('token_verifikasi', $token)
                 ->where('status', 'selesai')
                 ->firstOrFail();
 

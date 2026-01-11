@@ -1,52 +1,127 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Edit Lowongan
-        </h2>
+        <div class="flex items-center justify-between">
+            <h2 class="font-extrabold text-2xl text-gray-800 leading-tight flex items-center gap-2">
+                <i class="fas fa-edit text-teal-600"></i>
+                {{ __('Edit Lowongan Magang') }}
+            </h2>
+        </div>
     </x-slot>
 
-    <div class="py-12">
+    <div class="py-8 bg-gray-50/50 min-h-screen font-sans">
         <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
-                    
+            
+            <div class="mb-6">
+                <a href="{{ route('dinas.lowongan.index') }}" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-teal-600 transition group">
+                    <div class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center mr-2 group-hover:border-teal-500 shadow-sm">
+                        <i class="fas fa-arrow-left text-xs"></i>
+                    </div>
+                    Kembali ke Daftar Lowongan
+                </a>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                
+                <div class="p-6 border-b border-gray-50 bg-gray-50/50 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 text-xl border border-teal-100">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Formulir Perubahan Data</h3>
+                        <p class="text-xs text-gray-500">Perbarui informasi posisi magang yang tersedia.</p>
+                    </div>
+                </div>
+
+                <div class="p-8">
                     <form action="{{ route('dinas.lowongan.update', $loker->id) }}" method="POST">
                         @csrf
                         @method('PUT')
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                        <div class="space-y-6">
+                            
                             <div>
-                                <label class="block font-bold text-gray-700 mb-2">Kualifikasi Jurusan</label>
-                                <input type="text" name="required_major" value="{{ old('required_major', $loker->required_major) }}" class="w-full border-gray-300 rounded-md shadow-sm">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Nama Posisi / Jabatan Magang</label>
+                                <input type="text" name="judul_posisi" value="{{ old('judul_posisi', $loker->judul_posisi) }}" 
+                                    class="w-full rounded-xl border-gray-300 focus:border-teal-500 focus:ring focus:ring-teal-200 transition shadow-sm font-bold text-gray-800">
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Kualifikasi Jurusan</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <i class="fas fa-graduation-cap"></i>
+                                        </span>
+                                        <input type="text" name="required_major" value="{{ old('required_major', $loker->required_major) }}" 
+                                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border-gray-300 focus:border-teal-500 focus:ring focus:ring-teal-200 transition shadow-sm"
+                                            placeholder="Contoh: Teknik Informatika, DKV">
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Kuota Penerimaan</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <i class="fas fa-users"></i>
+                                        </span>
+                                        <input type="number" name="kuota" value="{{ old('kuota', $loker->kuota) }}" min="0" 
+                                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border-gray-300 focus:border-teal-500 focus:ring focus:ring-teal-200 transition shadow-sm">
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Status Pendaftaran</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <i class="fas fa-info-circle"></i>
+                                        </span>
+                                        <select name="status" class="w-full pl-10 pr-4 py-2.5 rounded-xl border-gray-300 focus:border-teal-500 focus:ring focus:ring-teal-200 transition shadow-sm cursor-pointer bg-white">
+                                            <option value="buka" {{ $loker->status == 'buka' ? 'selected' : '' }}>🟢 Dibuka (Aktif)</option>
+                                            <option value="tutup" {{ $loker->status == 'tutup' ? 'selected' : '' }}>🔴 Ditutup (Arsip)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Batas Akhir Pendaftaran</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                            <i class="far fa-calendar-alt"></i>
+                                        </span>
+                                        <input type="date" name="batas_daftar" value="{{ old('batas_daftar', \Carbon\Carbon::parse($loker->batas_daftar)->format('Y-m-d')) }}" 
+                                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border-gray-300 focus:border-teal-500 focus:ring focus:ring-teal-200 transition shadow-sm">
+                                    </div>
+                                </div>
+
                             </div>
 
                             <div>
-                                <label class="block font-bold text-gray-700 mb-2">Kapasitas (Kuota)</label>
-                                <input type="number" name="kuota" value="{{ old('kuota', $loker->kuota) }}" class="w-full border-gray-300 rounded-md shadow-sm" min="1">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Deskripsi & Syarat Detail</label>
+                                <div class="rounded-xl overflow-hidden border border-gray-300 shadow-sm focus-within:ring-2 focus-within:ring-teal-200 focus-within:border-teal-500 transition">
+                                    <textarea id="editor" name="deskripsi" class="w-full border-0 focus:ring-0">{{ old('deskripsi', $loker->deskripsi) }}</textarea>
+                                </div>
                             </div>
+
                         </div>
 
-                        <div class="mb-4">
-                            <label class="block font-bold text-gray-700 mb-2">Status Lowongan</label>
-                            <select name="status" class="w-full border-gray-300 rounded-md shadow-sm">
-                                <option value="buka" {{ $loker->status == 'buka' ? 'selected' : '' }}>Dibuka</option>
-                                <option value="tutup" {{ $loker->status == 'tutup' ? 'selected' : '' }}>Ditutup</option>
-                            </select>
+                        <div class="mt-8 pt-6 border-t border-gray-100 flex items-center justify-end gap-3">
+                            <a href="{{ route('dinas.lowongan.index') }}" class="px-6 py-2.5 rounded-xl border border-gray-300 text-gray-600 font-bold hover:bg-gray-50 transition text-sm">
+                                Batal
+                            </a>
+                            <button type="submit" class="px-6 py-2.5 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 shadow-lg shadow-teal-200 transition transform active:scale-95 text-sm flex items-center gap-2">
+                                <i class="fas fa-save"></i> Simpan Perubahan
+                            </button>
                         </div>
 
-                        <div class="mb-4">
-                            <label class="block font-bold text-gray-700 mb-2">Deskripsi Pekerjaan (Opsional)</label>
-                            <textarea id="editor" name="deskripsi" class="w-full border-gray-300 rounded-md shadow-sm">{{ old('deskripsi', $loker->deskripsi) }}</textarea>
-                        </div>
-
-                        <div class="flex justify-end gap-2">
-                            <a href="{{ route('dinas.lowongan.index') }}" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300">Batal</a>
-                            <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700">Update Perubahan</button>
-                        </div>
                     </form>
-
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -57,15 +132,27 @@
             if (editorElement) {
                 CKEDITOR.ClassicEditor.create(editorElement, {
                     toolbar: {
-                        items: ['undo', 'redo', '|', 'fontFamily', 'fontSize', '|', 'bold', 'italic', 'underline', 'fontColor', '|', 'alignment', '|', 'bulletedList', 'numberedList'],
+                        items: [
+                            'undo', 'redo', '|', 'heading', '|',
+                            'bold', 'italic', 'underline', 'bulletedList', 'numberedList', '|',
+                            'alignment', 'outdent', 'indent', '|', 'link', 'blockQuote'
+                        ],
                         shouldNotGroupWhenFull: true
                     },
-                    placeholder: 'Tulis deskripsi...',
-                    fontSize: { options: [ 10, 12, 14, 'default', 18, 20, 22 ] },
-                    removePlugins: ['CKBox', 'CKFinder', 'EasyImage', 'RealTimeCollaborativeComments', 'RealTimeCollaborativeTrackChanges', 'RealTimeCollaborativeRevisionHistory', 'PresenceList', 'Comments', 'TrackChanges', 'TrackChangesData', 'RevisionHistory', 'Pagination', 'WProofreader', 'MathType', 'Image', 'ImageCaption', 'ImageStyle', 'ImageToolbar', 'ImageUpload', 'Table', 'TableToolbar', 'MediaEmbed']
+                    placeholder: 'Jelaskan tanggung jawab dan persyaratan magang secara rinci...',
+                    removePlugins: [
+                        'CKBox', 'CKFinder', 'EasyImage', 'RealTimeCollaborativeComments', 
+                        'RealTimeCollaborativeTrackChanges', 'RealTimeCollaborativeRevisionHistory', 
+                        'PresenceList', 'Comments', 'TrackChanges', 'TrackChangesData', 
+                        'RevisionHistory', 'Pagination', 'WProofreader', 'MathType', 
+                        'Image', 'ImageCaption', 'ImageStyle', 'ImageToolbar', 'ImageUpload', 
+                        'Table', 'TableToolbar', 'MediaEmbed'
+                    ]
                 }).then(editor => {
+                    // Set min height for editor content area
                     editor.editing.view.change(writer => {
-                        writer.setStyle('min-height', '300px', editor.editing.view.document.getRoot());
+                        writer.setStyle('min-height', '250px', editor.editing.view.document.getRoot());
+                        writer.setStyle('border-radius', '0 0 0.75rem 0.75rem', editor.editing.view.document.getRoot());
                     });
                 }).catch(error => console.error(error));
             }

@@ -1,72 +1,149 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Edit Data SKPD
-        </h2>
+        <div class="flex items-center justify-between">
+            <h2 class="font-extrabold text-2xl text-gray-800 leading-tight flex items-center gap-2">
+                <i class="fas fa-edit text-teal-600"></i>
+                {{ __('Edit Data SKPD') }}
+            </h2>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-12 bg-gray-50/50 min-h-screen">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
+            
             <div class="mb-6">
-                <a href="{{ route('admin.skpd.index') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+                <a href="{{ route('admin.skpd.index') }}" class="inline-flex items-center text-sm font-bold text-gray-500 hover:text-teal-600 transition">
+                    <i class="fas fa-arrow-left mr-2"></i> Kembali ke Daftar SKPD
+                </a>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-2xl border border-gray-100">
+                
+                <form action="{{ route('admin.skpd.update', $skpd->id) }}" method="POST" enctype="multipart/form-data" class="p-8">
+                    @csrf
+                    @method('PUT')
                     
-                    <form action="{{ route('admin.skpd.update', $skpd->id) }}" method="POST">
-                        @csrf
-                        @method('PUT')
-
-                        <div class="mb-4">
-                            <x-input-label for="nama_dinas" :value="__('Nama Dinas / Instansi')" />
-                            <x-text-input id="nama_dinas" class="block mt-1 w-full" type="text" name="nama_dinas" :value="old('nama_dinas', $skpd->nama_dinas)" required autofocus />
-                            <x-input-error :messages="$errors->get('nama_dinas')" class="mt-2" />
+                    <div class="flex items-center gap-3 mb-8 pb-4 border-b border-gray-100">
+                        <div class="w-12 h-12 rounded-full bg-teal-50 flex items-center justify-center text-teal-600 text-xl border border-teal-100">
+                            <i class="fas fa-building"></i>
                         </div>
-
-                        <div class="mb-4">
-                            <x-input-label for="kode_unit_kerja" :value="__('Kode Unit Kerja')" />
-                            <x-text-input id="kode_unit_kerja" class="block mt-1 w-full" type="text" name="kode_unit_kerja" :value="old('kode_unit_kerja', $skpd->kode_unit_kerja)" required />
-                            <x-input-error :messages="$errors->get('kode_unit_kerja')" class="mt-2" />
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800">{{ $skpd->nama_dinas }}</h3>
+                            <p class="text-sm text-gray-500">Perbarui informasi profil dan lokasi instansi.</p>
                         </div>
+                    </div>
 
-                        <div class="mb-4">
-                            <x-input-label for="alamat" :value="__('Alamat Kantor')" />
-                            <textarea id="alamat" name="alamat" class="border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm block mt-1 w-full" rows="3" required>{{ old('alamat', $skpd->alamat) }}</textarea>
-                            <x-input-error :messages="$errors->get('alamat')" class="mt-2" />
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="block text-gray-700 text-sm font-bold mb-2">Scan Tanda Tangan Kepala Dinas (PNG Transparan)</label>
-                            <input type="file" name="ttd_kepala" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                            @if($skpd->ttd_kepala)
-                                <div class="mt-2">
-                                    <p class="text-xs text-gray-500">Preview:</p>
-                                    <img src="{{ asset('storage/' . $skpd->ttd_kepala) }}" class="h-20 border p-1 rounded">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Nama Instansi / SKPD</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
+                                        <i class="fas fa-landmark"></i>
+                                    </span>
+                                    <input type="text" name="nama_dinas" value="{{ old('nama_dinas', $skpd->nama_dinas) }}" 
+                                        class="w-full pl-10 pr-4 py-3 rounded-xl border-gray-300 focus:border-teal-500 focus:ring focus:ring-teal-200 transition shadow-sm" required>
                                 </div>
-                            @endif
+                                @error('nama_dinas') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Kode Unit Kerja</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 pointer-events-none">
+                                        <i class="fas fa-barcode"></i>
+                                    </span>
+                                    <input type="text" name="kode_unit_kerja" value="{{ old('kode_unit_kerja', $skpd->kode_unit_kerja) }}"
+                                        class="w-full pl-10 pr-4 py-3 rounded-xl border-gray-300 focus:border-teal-500 focus:ring focus:ring-teal-200 transition shadow-sm" required>
+                                </div>
+                                @error('kode_unit_kerja') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Alamat Kantor</label>
+                                <div class="relative">
+                                    <textarea name="alamat" rows="4"
+                                        class="w-full pl-10 pr-4 py-3 rounded-xl border-gray-300 focus:border-teal-500 focus:ring focus:ring-teal-200 transition shadow-sm" 
+                                        required>{{ old('alamat', $skpd->alamat) }}</textarea>
+                                    <span class="absolute top-3 left-3 text-gray-400 pointer-events-none">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                    </span>
+                                </div>
+                                @error('alamat') <span class="text-red-500 text-xs mt-1">{{ $message }}</span> @enderror
+                            </div>
                         </div>
 
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <x-input-label for="latitude" :value="__('Latitude')" />
-                                <x-text-input id="latitude" class="block mt-1 w-full" type="text" name="latitude" :value="old('latitude', $skpd->latitude)" required />
-                                <x-input-error :messages="$errors->get('latitude')" class="mt-2" />
+                        <div class="space-y-6">
+                            
+                            <div class="bg-blue-50/50 p-5 rounded-xl border border-blue-100">
+                                <label class="block text-sm font-bold text-gray-700 mb-3 flex justify-between">
+                                    <span>Koordinat Lokasi</span>
+                                    <span class="text-xs text-blue-600 font-normal"><i class="fas fa-satellite-dish mr-1"></i> Untuk Absensi</span>
+                                </label>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-xs font-bold pointer-events-none">LAT</span>
+                                        <input type="text" name="latitude" value="{{ old('latitude', $skpd->latitude) }}"
+                                            class="w-full pl-10 pr-4 py-2 rounded-lg border-gray-300 focus:border-teal-500 focus:ring-teal-200 text-sm" required>
+                                    </div>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 text-xs font-bold pointer-events-none">LNG</span>
+                                        <input type="text" name="longitude" value="{{ old('longitude', $skpd->longitude) }}"
+                                            class="w-full pl-10 pr-4 py-2 rounded-lg border-gray-300 focus:border-teal-500 focus:ring-teal-200 text-sm" required>
+                                    </div>
+                                </div>
+                                @error('latitude') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
                             </div>
-                            <div>
-                                <x-input-label for="longitude" :value="__('Longitude')" />
-                                <x-text-input id="longitude" class="block mt-1 w-full" type="text" name="longitude" :value="old('longitude', $skpd->longitude)" required />
-                                <x-input-error :messages="$errors->get('longitude')" class="mt-2" />
-                            </div>
-                        </div>
 
-                        <div class="flex items-center justify-end mt-4">
-                            <x-primary-button class="ml-4">
-                                {{ __('Simpan Perubahan') }}
-                            </x-primary-button>
+                            <div class="bg-gray-50 p-5 rounded-xl border border-gray-200">
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Scan Tanda Tangan Kepala Dinas</label>
+                                <p class="text-xs text-gray-500 mb-3">Format: PNG Transparan (Disarankan). Maks 2MB.</p>
+                                
+                                <div class="flex items-start gap-4">
+                                    <div class="flex-shrink-0">
+                                        @if($skpd->ttd_kepala)
+                                            <div class="relative group">
+                                                <div class="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-white overflow-hidden p-1">
+                                                    <img src="{{ asset('storage/' . $skpd->ttd_kepala) }}" alt="TTD Preview" class="max-h-full max-w-full object-contain">
+                                                </div>
+                                                <span class="text-[10px] text-center block mt-1 text-green-600 font-bold">Terupload <i class="fas fa-check"></i></span>
+                                            </div>
+                                        @else
+                                            <div class="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center bg-gray-100 text-gray-400 text-xs text-center p-2">
+                                                Belum ada TTD
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <div class="flex-grow">
+                                        <input type="file" name="ttd_kepala" accept="image/png, image/jpeg"
+                                            class="block w-full text-sm text-gray-500
+                                            file:mr-4 file:py-2 file:px-4
+                                            file:rounded-full file:border-0
+                                            file:text-xs file:font-semibold
+                                            file:bg-teal-50 file:text-teal-700
+                                            hover:file:bg-teal-100
+                                            cursor-pointer focus:outline-none border border-gray-300 rounded-lg">
+                                        <p class="text-xs text-gray-400 mt-2 italic">Biarkan kosong jika tidak ingin mengubah tanda tangan.</p>
+                                    </div>
+                                </div>
+                                @error('ttd_kepala') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <div class="flex items-center justify-end space-x-3 mt-10 pt-6 border-t border-gray-100">
+                        <a href="{{ route('admin.skpd.index') }}" class="px-5 py-2.5 bg-white border border-gray-300 text-gray-700 rounded-xl font-bold hover:bg-gray-50 transition shadow-sm">
+                            Batal
+                        </a>
+                        <button type="submit" class="px-6 py-2.5 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 shadow-lg shadow-teal-200 transition transform active:scale-95 flex items-center">
+                            <i class="fas fa-save mr-2"></i> Simpan Perubahan
+                        </button>
+                    </div>
+                </form>
+
             </div>
         </div>
     </div>

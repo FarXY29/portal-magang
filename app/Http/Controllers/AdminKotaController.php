@@ -15,11 +15,19 @@ class AdminKotaController extends Controller
 {
     public function index()
     {
+        // Cache sederhana untuk count (opsional, jika ingin lebih cepat lagi)
         $totalSkpd = Skpd::count();
         $totalUser = User::count();
+        
+        // Ambil data terbaru secukupnya saja
         $recentSkpds = Skpd::latest()->take(5)->get();
 
-        $skpdStats = Skpd::with(['positions.applications'])->get()->map(function($dinas) {
+        // --- OPTIMASI QUERY CHART ---
+        // Menggunakan withCount 'applications' (Relasi yang kita buat di langkah 1)
+        // Kita tidak perlu memuat seluruh data positions & applications (with)
+        $skpds = Skpd::withCount('applications')->get();
+
+        $skpdStats = $skpds->map(function($dinas) {
             $name = $dinas->nama_dinas;
             $words = explode(' ', $name);
             $limit = ceil(count($words) / 2);
@@ -30,7 +38,7 @@ class AdminKotaController extends Controller
 
             return [
                 'name' => $formattedName,
-                'count' => $dinas->positions->flatMap->applications->count()
+                'count' => $dinas->applications_count // Akses langsung hasil count SQL
             ];
         });
 
@@ -45,7 +53,14 @@ class AdminKotaController extends Controller
 
     public function indexSkpd()
     {
-        $skpds = Skpd::with(['positions.applications'])->get();
+        // --- OPTIMASI: PAGINATION & EAGER LOADING ---
+        // Gunakan paginate(10) agar tidak meload ratusan data sekaligus
+        // Gunakan withCount untuk menghitung pelamar tanpa query n+1
+        $skpds = Skpd::with('positions') // Muat posisi jika perlu ditampilkan list-nya
+                    ->withCount('applications') // Hitung total pelamar
+                    ->orderBy('nama_dinas', 'asc')
+                    ->paginate(10); // Pagination halaman
+
         return view('admin.skpd.index', compact('skpds'));
     }
 
@@ -66,13 +81,7 @@ class AdminKotaController extends Controller
             'password_admin' => 'required|min:8',
         ]);
 
-        $skpd = Skpd::create([
-            'nama_dinas' => $request->nama_dinas,
-            'kode_unit_kerja' => $request->kode_unit_kerja,
-            'alamat' => $request->alamat,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-        ]);
+        $skpd = Skpd::create($request->only(['nama_dinas','kode_unit_kerja','alamat','latitude','longitude']));
 
         User::create([
             'name' => 'Admin ' . $request->nama_dinas,
@@ -97,20 +106,13 @@ class AdminKotaController extends Controller
 
         $request->validate([
             'nama_dinas' => 'required|string|max:255',
-            // Ignore ID saat ini untuk validasi unique
             'kode_unit_kerja' => 'required|string|max:50|unique:skpds,kode_unit_kerja,'.$skpd->id, 
             'alamat' => 'required|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
         ]);
 
-        $skpd->update([
-            'nama_dinas' => $request->nama_dinas,
-            'kode_unit_kerja' => $request->kode_unit_kerja,
-            'alamat' => $request->alamat,
-            'latitude' => $request->latitude,
-            'longitude' => $request->longitude,
-        ]);
+        $skpd->update($request->only(['nama_dinas','kode_unit_kerja','alamat','latitude','longitude']));
 
         return redirect()->route('admin.skpd.index')->with('success', 'Data SKPD berhasil diperbarui!');
     }
@@ -126,35 +128,35 @@ class AdminKotaController extends Controller
     // --- LAPORAN & EXCEL ---
     
     public function report()
-{
-    $laporan = Skpd::with(['positions.applications'])->get()->map(function($dinas) {
-        $positions = $dinas->positions;
-        $applications = $positions->flatMap->applications;
-        
-        $totalPelamar = $applications->count();
-        $totalDiterima = $applications->whereIn('status', ['diterima', 'selesai'])->count();
-        $totalPosisi = $positions->count();
-        
-        // --- PROSES DATA (LOGIKA TAMBAHAN) ---
-        // Menghitung berapa persen pelamar yang berhasil diterima (Efektivitas Seleksi)
-        $seleksiRate = $totalPelamar > 0 ? round(($totalDiterima / $totalPelamar) * 100, 1) : 0;
-        
-        // Menghitung rata-rata pelamar per posisi untuk melihat instansi terpopuler
-        $avgPelamar = $totalPosisi > 0 ? round($totalPelamar / $totalPosisi, 1) : 0;
+    {
+        $laporan = Skpd::with(['positions.applications'])->get()->map(function($dinas) {
+            $positions = $dinas->positions;
+            $applications = $positions->flatMap->applications;
+            
+            $totalPelamar = $applications->count();
+            $totalDiterima = $applications->whereIn('status', ['diterima', 'selesai'])->count();
+            $totalPosisi = $positions->count();
+            
+            // --- PROSES DATA (LOGIKA TAMBAHAN) ---
+            // Menghitung berapa persen pelamar yang berhasil diterima (Efektivitas Seleksi)
+            $seleksiRate = $totalPelamar > 0 ? round(($totalDiterima / $totalPelamar) * 100, 1) : 0;
+            
+            // Menghitung rata-rata pelamar per posisi untuk melihat instansi terpopuler
+            $avgPelamar = $totalPosisi > 0 ? round($totalPelamar / $totalPosisi, 1) : 0;
 
-        return [
-            'nama_dinas' => $dinas->nama_dinas,
-            'lowongan_aktif' => $positions->where('status', 'buka')->count(),
-            'total_pelamar' => $totalPelamar,
-            'total_magang' => $totalDiterima,
-            'seleksi_rate' => $seleksiRate . '%', // Hasil Proses
-            'avg_peminat' => $avgPelamar . ' orang/posisi', // Hasil Proses
-        ];
-    });
+            return [
+                'nama_dinas' => $dinas->nama_dinas,
+                'lowongan_aktif' => $positions->where('status', 'buka')->count(),
+                'total_pelamar' => $totalPelamar,
+                'total_magang' => $totalDiterima,
+                'seleksi_rate' => $seleksiRate . '%', // Hasil Proses
+                'avg_peminat' => $avgPelamar . ' orang/posisi', // Hasil Proses
+            ];
+        });
 
-    $laporan = $laporan->sortByDesc('total_pelamar');
-    return view('admin.laporan', compact('laporan'));
-}
+        $laporan = $laporan->sortByDesc('total_pelamar');
+        return view('admin.laporan', compact('laporan'));
+    }
 
     public function exportExcel()
     {

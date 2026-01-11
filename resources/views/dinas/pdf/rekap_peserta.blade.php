@@ -35,7 +35,7 @@
             Instansi: {{ $request->asal_instansi ?: 'Semua' }}
         </p>
     </div>
-
+<div>
     <table>
         <thead>
             <tr>
@@ -74,6 +74,12 @@
             @endforelse
         </tbody>
     </table>
-
+    </div>
+{{-- Script untuk memunculkan dialog print otomatis saat PDF dibuka --}}
+    <script type="text/php">
+        if ( isset($pdf) ) {
+            $pdf->get_cpdf()->addJS('print(true);');
+        }
+    </script>
 </body>
 </html>

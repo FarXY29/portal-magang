@@ -1,148 +1,220 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Manajemen Pengguna (Super Admin)</h2>
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <h2 class="font-extrabold text-2xl text-gray-800 leading-tight flex items-center gap-2">
+                <i class="fas fa-users-cog text-teal-600"></i>
+                {{ __('Manajemen Pengguna') }}
+            </h2>
+            <div class="text-sm text-gray-500 font-medium bg-white px-4 py-1.5 rounded-full shadow-sm border border-gray-100">
+                Total User: <span class="font-bold text-teal-600">{{ $users->total() }}</span>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="flex justify-between mb-6 print:hidden">
-                    <a href="{{ route('admin.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
-                </div>
-            <!-- Notifikasi -->
-            @if(session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
-                    {{ session('success') }}
-                </div>
-            @endif
-            @if(session('error'))
-                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
-                    {{ session('error') }}
-                </div>
-            @endif
+    <div class="py-8 bg-gray-50/50 min-h-screen font-sans">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <a href="{{ route('admin.dashboard') }}" class="group flex items-center text-sm font-bold text-gray-500 hover:text-teal-600 transition">
+                    <div class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center mr-2 group-hover:border-teal-500 shadow-sm">
+                        <i class="fas fa-arrow-left text-xs"></i>
+                    </div>
+                    Kembali
+                </a>
 
-            <!-- Toolbar (Search & Add) -->
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                @if(session('success'))
+                    <div x-data="{ show: true }" x-show="show" class="flex items-center p-3 text-green-800 rounded-lg bg-green-50 border border-green-100 shadow-sm text-sm font-medium w-full md:w-auto">
+                        <i class="fas fa-check-circle flex-shrink-0 w-4 h-4 mr-2"></i>
+                        {{ session('success') }}
+                        <button @click="show = false" class="ml-4 text-green-600 hover:text-green-800"><i class="fas fa-times"></i></button>
+                    </div>
+                @endif
+            </div>
+
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4">
                 
-                <!-- FORM PENCARIAN OTOMATIS -->
-                <form method="GET" action="{{ route('admin.users.index') }}" id="searchForm" class="flex w-full md:w-auto">
+                <form method="GET" action="{{ route('admin.users.index') }}" id="searchForm" class="flex flex-col md:flex-row w-full md:w-auto flex-1 max-w-3xl gap-2">
                     
-                    <!-- Filter Role (Auto Submit saat ganti) -->
-                    <select name="role" 
-                            class="border-gray-300 rounded-l-md text-sm focus:ring-teal-500 focus:border-teal-500 cursor-pointer"
-                            onchange="document.getElementById('searchForm').submit()">
-                        <option value="">Semua Role</option>
-                        <option value="admin_kota" {{ request('role') == 'admin_kota' ? 'selected' : '' }}>Super Admin</option>
-                        <option value="admin_skpd" {{ request('role') == 'admin_skpd' ? 'selected' : '' }}>Admin Instansi</option>
-                        <option value="mentor" {{ request('role') == 'mentor' ? 'selected' : '' }}>Pembimbing</option>
-                        <option value="pembimbing" {{ request('role') == 'dosen/guru' ? 'selected' : '' }}>Dosen/Guru</option>
-                        <option value="peserta" {{ request('role') == 'peserta' ? 'selected' : '' }}>Peserta</option>
-                    </select>
-
-                    <!-- Input Search (Auto Submit dengan delay/debounce) -->
-                    <div class="relative w-full md:w-64">
-                        <input type="text" 
-                               name="search" 
-                               value="{{ request('search') }}" 
-                               placeholder="Cari nama/email..." 
-                               class="border-gray-300 border-l-0 text-sm focus:ring-teal-500 focus:border-teal-500 w-full rounded-r-md"
-                               oninput="autoSubmitSearch()">
-                        
-                        <!-- Icon Loading (Opsional, muncul saat mengetik) -->
-                        <div id="loadingIcon" class="absolute right-3 top-2.5 hidden">
-                            <i class="fas fa-spinner fa-spin text-gray-400"></i>
+                    <div class="relative w-full md:w-[180px]">
+                        <select name="role" onchange="document.getElementById('searchForm').submit()"
+                            class="w-full pl-9 pr-8 py-2.5 bg-gray-50 border-gray-200 text-gray-700 text-sm rounded-xl focus:ring-teal-500 focus:border-teal-500 cursor-pointer hover:bg-gray-100 transition font-medium appearance-none">
+                            <option value="">Semua Role</option>
+                            <option value="admin_kota" {{ request('role') == 'admin_kota' ? 'selected' : '' }}>Super Admin</option>
+                            <option value="admin_skpd" {{ request('role') == 'admin_skpd' ? 'selected' : '' }}>Admin Instansi</option>
+                            <option value="mentor" {{ request('role') == 'mentor' ? 'selected' : '' }}>Pembimbing</option>
+                            <option value="peserta" {{ request('role') == 'peserta' ? 'selected' : '' }}>Peserta Magang</option>
+                        </select>
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-filter text-gray-400 text-xs"></i>
+                        </div>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <i class="fas fa-chevron-down text-gray-400 text-xs"></i>
                         </div>
                     </div>
 
-                    <!-- Tombol Cari disembunyikan karena sudah otomatis, tapi bisa dimunculkan jika perlu -->
-                    <noscript>
-                        <button class="bg-teal-600 text-white px-4 rounded-r-md hover:bg-teal-700 text-sm ml-2">Cari</button>
-                    </noscript>
+                    <div class="relative w-full">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fas fa-search text-gray-400 text-sm"></i>
+                        </div>
+                        <input type="text" name="search" value="{{ request('search') }}" 
+                            placeholder="Cari nama atau email..." 
+                            class="w-full pl-10 pr-10 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition shadow-sm"
+                            oninput="autoSubmitSearch()">
+                        
+                        <div id="loadingIcon" class="absolute inset-y-0 right-0 pr-3 flex items-center hidden">
+                            <i class="fas fa-circle-notch fa-spin text-teal-500"></i>
+                        </div>
+                        
+                        @if(request('search'))
+                            <a href="{{ route('admin.users.index') }}" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 transition" title="Hapus Pencarian">
+                                <i class="fas fa-times-circle"></i>
+                            </a>
+                        @endif
+                    </div>
                 </form>
-                <a href="{{ route('admin.users.create') }}" class="bg-blue-800 text-white px-4 py-2 rounded-md shadow hover:bg-blue-900 transition text-sm font-bold w-full md:w-auto text-center">
-                    <i class="fas fa-user-plus mr-2"></i> Tambah User Baru
+
+                <a href="{{ route('admin.users.create') }}" class="flex items-center justify-center px-5 py-2.5 bg-blue-600 text-white rounded-xl font-bold hover:bg-blue-700 shadow-lg shadow-blue-200 transition transform active:scale-95 text-sm w-full md:w-auto whitespace-nowrap">
+                    <i class="fas fa-user-plus mr-2"></i> Tambah User
                 </a>
             </div>
 
-            <!-- Tabel User -->
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200 overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
+            <div class="hidden md:block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-100">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama / Email</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Role (Peran)</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Detail Info</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Aksi</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">User Profile</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Role & Status</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Afiliasi / Detail</th>
+                            <th class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-200 bg-white">
+                    <tbody class="bg-white divide-y divide-gray-50">
                         @forelse($users as $user)
-                        <tr class="hover:bg-gray-50">
+                        <tr class="hover:bg-gray-50 transition">
                             <td class="px-6 py-4">
-                                <div class="text-sm font-bold text-gray-900">{{ $user->name }}</div>
-                                <div class="text-xs text-gray-500">{{ $user->email }}</div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                    {{ $user->role == 'admin_kota' ? 'bg-red-100 text-red-800' : 
-                                      ($user->role == 'admin_skpd' ? 'bg-blue-100 text-blue-800' : 
-                                      ($user->role == 'peserta' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800')) }}">
-                                    {{ strtoupper(str_replace('_', ' ', $user->role)) }}
-                                </span>
-                            </td>
-                            <td class="px-6 py-4 text-xs text-gray-600">
-                                @if($user->skpd)
-                                    <div class="flex items-center"><i class="fas fa-building mr-1 w-4"></i> {{ $user->skpd->nama_dinas }}</div>
-                                @endif
-                                @if($user->asal_instansi)
-                                    <div class="flex items-center"><i class="fas fa-university mr-1 w-4"></i> {{ $user->asal_instansi }}</div>
-                                @endif
-                                @if($user->nik || $user->phone)
-                                    <div class="flex items-center mt-1 text-gray-400">
-                                        {{ $user->phone }} {{ $user->nik ? ' | NIK: '.$user->nik : '' }}
+                                <div class="flex items-center">
+                                    <div class="flex-shrink-0 h-10 w-10">
+                                        <div class="h-10 w-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-600 font-bold border border-gray-300">
+                                            {{ strtoupper(substr($user->name, 0, 1)) }}
+                                        </div>
                                     </div>
-                                @endif
+                                    <div class="ml-4 max-w-xs">
+                                        <div class="text-sm font-bold text-gray-900 truncate">{{ $user->name }}</div>
+                                        <div class="text-xs text-gray-500 flex items-center gap-1 break-all">
+                                            {{ $user->email }}
+                                        </div>
+                                    </div>
+                                </div>
                             </td>
-                            <td class="px-6 py-4 text-sm font-medium flex gap-2">
-                                <a href="{{ route('admin.users.edit', $user->id) }}" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded">Edit</a>
-                                
-                                @if(auth()->id() != $user->id)
-                                    <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" onsubmit="return confirm('Hapus user ini secara permanen?')">
-                                        @csrf @method('DELETE')
-                                        <button class="text-red-600 hover:text-red-900 bg-red-50 px-3 py-1 rounded">Hapus</button>
-                                    </form>
-                                @endif
+                            <td class="px-6 py-4">
+                                @include('admin.users.partials.role-badge', ['role' => $user->role])
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500">
+                                @include('admin.users.partials.user-detail', ['user' => $user])
+                            </td>
+                            <td class="px-6 py-4 text-right text-sm font-medium">
+                                @include('admin.users.partials.action-buttons', ['user' => $user])
                             </td>
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-4 text-center text-gray-500">Tidak ada data pengguna.</td>
+                            <td colspan="4" class="px-6 py-12 text-center text-gray-500">Tidak ada data.</td>
                         </tr>
                         @endforelse
                     </tbody>
                 </table>
-                <div class="p-4 border-t border-gray-200">
-                    {{ $users->links() }}
-                </div>
             </div>
+
+            <div class="grid grid-cols-1 gap-4 md:hidden">
+                @forelse($users as $user)
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col gap-3">
+                    
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center text-gray-600 font-bold border border-gray-300">
+                                {{ strtoupper(substr($user->name, 0, 1)) }}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-gray-900 text-sm">{{ $user->name }}</h4>
+                                <p class="text-xs text-gray-500 break-all">{{ $user->email }}</p>
+                            </div>
+                        </div>
+                        <div>
+                            @include('admin.users.partials.role-badge', ['role' => $user->role])
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 my-1"></div>
+
+                    <div class="text-sm text-gray-600 space-y-2">
+                        @include('admin.users.partials.user-detail', ['user' => $user])
+                    </div>
+
+                    <div class="flex items-center justify-end gap-2 mt-2 pt-2">
+                        @include('admin.users.partials.action-buttons', ['user' => $user])
+                    </div>
+                </div>
+                @empty
+                <div class="text-center py-10 text-gray-500 bg-white rounded-xl">
+                    <i class="fas fa-user-slash text-2xl mb-2"></i>
+                    <p>Tidak ada data.</p>
+                </div>
+                @endforelse
+            </div>
+
+            <div class="mt-4">
+                {{ $users->links() }}
+            </div>
+
         </div>
     </div>
 
-    <!-- SCRIPT AUTO SEARCH -->
     <script>
         let timeout = null;
-
         function autoSubmitSearch() {
-            // Tampilkan icon loading jika ada
             const loading = document.getElementById('loadingIcon');
             if(loading) loading.classList.remove('hidden');
-
-            // Hapus timeout sebelumnya (reset timer jika user masih mengetik)
             clearTimeout(timeout);
-
-            // Set timer baru: Form dikirim 1 detik setelah berhenti mengetik
             timeout = setTimeout(function () {
                 document.getElementById('searchForm').submit();
-            }, 1000);
+            }, 800);
         }
     </script>
 </x-app-layout>
+
+{{-- 
+    BLOCK KECIL UNTUK MENGHINDARI DUPLIKASI KODE
+    (Bisa dipindah ke file terpisah, tapi disatukan disini agar mudah dicopy) 
+--}}
+
+@php
+    // Logic Badge Warna
+    function getRoleBadge($role) {
+        $colors = [
+            'admin_kota' => 'bg-purple-100 text-purple-700 border-purple-200',
+            'admin_skpd' => 'bg-teal-100 text-teal-700 border-teal-200',
+            'mentor'     => 'bg-blue-100 text-blue-700 border-blue-200',
+            'peserta'    => 'bg-green-100 text-green-700 border-green-200',
+            'dosen/guru' => 'bg-orange-100 text-orange-700 border-orange-200',
+        ];
+        return $colors[$role] ?? 'bg-gray-100 text-gray-700';
+    }
+    
+    function getRoleName($role) {
+        $names = [
+            'admin_kota' => 'Super Admin',
+            'admin_skpd' => 'Admin SKPD',
+            'mentor'     => 'Pembimbing Lap',
+            'peserta'    => 'Peserta Magang',
+        ];
+        return $names[$role] ?? ucwords(str_replace('_', ' ', $role));
+    }
+@endphp
+
+@if(!function_exists('renderRoleBadge')) 
+    {{-- Hacky way inside single file, but idealnya dipisah --}}
+@endif
+
+{{-- Karena kita di dalam satu file untuk jawaban ini, saya pakai include directive manual logic diatas --}}
+@section('role-badge')
+@endsection

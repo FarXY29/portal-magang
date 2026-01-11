@@ -1,61 +1,83 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Validasi Logbook: {{ $app->user->name }}
-        </h2>
+        <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <h2 class="font-extrabold text-2xl text-gray-800 leading-tight flex items-center gap-2">
+                <i class="fas fa-check-double text-teal-600"></i>
+                {{ __('Validasi Logbook') }}
+            </h2>
+            <div class="flex items-center gap-3">
+                <span class="text-sm text-gray-500">Mahasiswa:</span>
+                <span class="px-3 py-1 bg-white border border-gray-200 rounded-full text-sm font-bold text-gray-700 shadow-sm">
+                    {{ $app->user->name }}
+                </span>
+            </div>
+        </div>
     </x-slot>
 
-    <div class="py-8">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="py-8 bg-gray-50/50 min-h-screen font-sans">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             
-            <!-- Navigasi & Alert -->
-            <div class="flex justify-between mb-6 print:hidden">
-                <a href="{{ route('mentor.dashboard') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
+            <div class="flex justify-between items-center mb-6 print:hidden">
+                <a href="{{ route('mentor.dashboard') }}" class="group flex items-center text-sm font-bold text-gray-500 hover:text-teal-600 transition">
+                    <div class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center mr-2 group-hover:border-teal-500 shadow-sm">
+                        <i class="fas fa-arrow-left text-xs"></i>
+                    </div>
+                    Kembali ke Dashboard
+                </a>
             </div>
 
             @if(session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6 shadow-sm text-sm">
-                    <i class="fas fa-check mr-1"></i> {{ session('success') }}
+                <div x-data="{ show: true }" x-show="show" class="flex items-center p-4 mb-4 text-green-800 rounded-xl bg-green-50 border border-green-100 shadow-sm relative">
+                    <i class="fas fa-check-circle flex-shrink-0 w-5 h-5 mr-3 text-green-600"></i>
+                    <div class="text-sm font-bold">{{ session('success') }}</div>
+                    <button @click="show = false" class="ml-auto text-green-500 hover:text-green-700"><i class="fas fa-times"></i></button>
                 </div>
             @endif
 
             @if($logs->isEmpty())
-                <div class="text-center py-12 bg-white rounded-lg border border-gray-200 shadow-sm">
-                    <i class="fas fa-book text-gray-300 text-4xl mb-3"></i>
-                    <p class="text-gray-500 text-sm">Mahasiswa ini belum mengisi logbook kegiatan.</p>
+                <div class="flex flex-col items-center justify-center py-16 bg-white rounded-2xl shadow-sm border border-gray-100">
+                    <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                        <i class="fas fa-book-open text-3xl text-gray-300"></i>
+                    </div>
+                    <h3 class="text-lg font-bold text-gray-700">Logbook Kosong</h3>
+                    <p class="text-sm text-gray-500 mt-1">Mahasiswa ini belum mengunggah aktivitas apapun.</p>
                 </div>
             @else
-                <!-- Layout Grid: Pasti terbagi kolom di layar sedang/besar -->
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start" x-data="{ activeTab: {{ $logs->first()->id }} }">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start" 
+                     x-data="{ activeTab: {{ session('last_id') ?? $logs->first()->id }} }">
                     
-                    <!-- KOLOM KIRI: MENU LIST (Lebar 4 dari 12) -->
                     <div class="md:col-span-4 col-span-1">
-                        <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden sticky top-6">
-                            <div class="p-4 bg-gray-50 border-b border-gray-200">
-                                <h3 class="font-bold text-gray-700 text-sm">Riwayat Logbook</h3>
+                        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-8">
+                            <div class="p-4 border-b border-gray-50 bg-gray-50/50 flex justify-between items-center">
+                                <h3 class="font-bold text-gray-700 text-sm">Riwayat Aktivitas</h3>
+                                <span class="text-[10px] font-bold bg-gray-200 text-gray-600 px-2 py-0.5 rounded-full">{{ $logs->count() }}</span>
                             </div>
-                            <div class="max-h-[70vh] overflow-y-auto">
-                                <ul class="divide-y divide-gray-100">
+                            
+                            <div class="max-h-[70vh] overflow-y-auto custom-scrollbar">
+                                <ul class="divide-y divide-gray-50">
                                     @foreach($logs as $log)
                                     <li>
                                         <button 
                                             @click="activeTab = {{ $log->id }}"
-                                            :class="{ 'bg-indigo-50 border-l-4 border-indigo-500': activeTab === {{ $log->id }}, 'hover:bg-gray-50 border-l-4 border-transparent': activeTab !== {{ $log->id }} }"
-                                            class="w-full text-left px-4 py-3 transition duration-150 ease-in-out focus:outline-none">
-                                            <div class="flex justify-between items-center mb-1">
-                                                <span class="text-sm font-bold text-gray-700">
+                                            :class="{ 'bg-teal-50 border-l-4 border-teal-500': activeTab === {{ $log->id }}, 'hover:bg-gray-50 border-l-4 border-transparent': activeTab !== {{ $log->id }} }"
+                                            class="w-full text-left px-4 py-3 transition duration-150 ease-in-out focus:outline-none group">
+                                            
+                                            <div class="flex justify-between items-start mb-1">
+                                                <span class="text-sm font-bold text-gray-800" 
+                                                      :class="{ 'text-teal-700': activeTab === {{ $log->id }} }">
                                                     {{ \Carbon\Carbon::parse($log->tanggal)->format('d M Y') }}
                                                 </span>
-                                                <!-- Status Badge -->
+                                                
                                                 @if($log->status_validasi == 'disetujui')
-                                                    <span class="text-[10px] bg-green-100 text-green-800 px-2 py-0.5 rounded-full font-bold">OK</span>
+                                                    <i class="fas fa-check-circle text-green-500 text-xs" title="Disetujui"></i>
                                                 @elseif($log->status_validasi == 'revisi')
-                                                    <span class="text-[10px] bg-red-100 text-red-800 px-2 py-0.5 rounded-full font-bold">REV</span>
+                                                    <i class="fas fa-exclamation-circle text-red-500 text-xs" title="Revisi"></i>
                                                 @else
-                                                    <span class="text-[10px] bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full font-bold">PENDING</span>
+                                                    <div class="w-2 h-2 rounded-full bg-yellow-400 mt-1.5" title="Pending"></div>
                                                 @endif
                                             </div>
-                                            <p class="text-xs text-gray-500 truncate">
+                                            
+                                            <p class="text-xs text-gray-500 truncate group-hover:text-gray-700">
                                                 {{ Str::limit($log->kegiatan, 40) }}
                                             </p>
                                         </button>
@@ -66,87 +88,116 @@
                         </div>
                     </div>
 
-                    <!-- KOLOM KANAN: HALAMAN DETAIL (Lebar 8 dari 12) -->
                     <div class="md:col-span-8 col-span-1">
                         @foreach($logs as $log)
                         <div x-show="activeTab === {{ $log->id }}" 
-                             x-cloak
-                             class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 min-h-[300px]">
+                             x-transition:enter="transition ease-out duration-200"
+                             x-transition:enter-start="opacity-0 translate-y-2"
+                             x-transition:enter-end="opacity-100 translate-y-0"
+                             style="display: none;">
                             
-                            <!-- Header Detail -->
-                            <div class="flex justify-between items-start border-b border-gray-100 pb-4 mb-4">
-                                <div>
-                                    <h3 class="text-lg font-bold text-gray-800">Detail Kegiatan</h3>
-                                    <p class="text-sm text-gray-500 mt-1">
-                                        <i class="far fa-calendar-alt mr-1"></i> {{ \Carbon\Carbon::parse($log->tanggal)->format('l, d F Y') }}
-                                    </p>
+                            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                                
+                                <div class="p-6 border-b border-gray-50 flex justify-between items-start">
+                                    <div>
+                                        <h3 class="text-xl font-extrabold text-gray-800">Detail Kegiatan</h3>
+                                        <p class="text-sm text-gray-500 mt-1 flex items-center">
+                                            <i class="far fa-calendar-alt mr-2 text-teal-500"></i> 
+                                            {{ \Carbon\Carbon::parse($log->tanggal)->translatedFormat('l, d F Y') }}
+                                        </p>
+                                    </div>
+                                    
+                                    @php
+                                        $statusClass = match($log->status_validasi) {
+                                            'disetujui' => 'bg-green-100 text-green-700 border-green-200',
+                                            'revisi' => 'bg-red-100 text-red-700 border-red-200',
+                                            default => 'bg-yellow-100 text-yellow-800 border-yellow-200'
+                                        };
+                                        $statusIcon = match($log->status_validasi) {
+                                            'disetujui' => 'fa-check-circle',
+                                            'revisi' => 'fa-undo',
+                                            default => 'fa-clock'
+                                        };
+                                    @endphp
+                                    <span class="px-4 py-1.5 rounded-full text-xs font-bold uppercase border {{ $statusClass }} flex items-center gap-2">
+                                        <i class="fas {{ $statusIcon }}"></i> {{ ucfirst($log->status_validasi) }}
+                                    </span>
                                 </div>
-                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider
-                                    {{ $log->status_validasi == 'disetujui' ? 'bg-green-100 text-green-800' : '' }}
-                                    {{ $log->status_validasi == 'revisi' ? 'bg-red-100 text-red-800' : '' }}
-                                    {{ $log->status_validasi == 'pending' ? 'bg-yellow-100 text-yellow-800' : '' }}">
-                                    {{ ucfirst($log->status_validasi) }}
-                                </span>
-                            </div>
 
-                            <div class="flex flex-col gap-6">
-                                <!-- Bukti Foto (Kiri) & Deskripsi (Kanan) -->
-                                <div class="flex flex-col md:flex-row gap-6">
-                                    <!-- Foto -->
-                                    <div class="w-full md:w-1/3 flex-shrink-0">
-                                        <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Dokumentasi</h4>
-                                        @if($log->bukti_foto_path)
-                                            <div class="relative group">
-                                                <img src="{{ Storage::url($log->bukti_foto_path) }}" class="w-full h-48 object-cover rounded-lg border border-gray-200 shadow-sm hover:opacity-90 cursor-pointer" onclick="window.open(this.src)" title="Klik untuk memperbesar">
+                                <div class="p-6">
+                                    <div class="flex flex-col lg:flex-row gap-8">
+                                        
+                                        <div class="w-full lg:w-1/3 flex-shrink-0">
+                                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Dokumentasi</h4>
+                                            @if($log->bukti_foto_path)
+                                                <div class="relative group rounded-xl overflow-hidden shadow-sm border border-gray-200 cursor-zoom-in" onclick="window.open('{{ Storage::url($log->bukti_foto_path) }}')">
+                                                    <img src="{{ Storage::url($log->bukti_foto_path) }}" class="w-full h-48 object-cover transition transform group-hover:scale-105 duration-500">
+                                                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition"></div>
+                                                </div>
+                                                <p class="text-[10px] text-gray-400 mt-2 text-center">Klik gambar untuk memperbesar</p>
+                                            @else
+                                                <div class="w-full h-40 bg-gray-50 rounded-xl flex flex-col items-center justify-center text-gray-400 text-xs border-2 border-dashed border-gray-200">
+                                                    <i class="far fa-image text-2xl mb-1"></i>
+                                                    <span>Tidak ada foto</span>
+                                                </div>
+                                            @endif
+                                        </div>
+
+                                        <div class="w-full lg:w-2/3">
+                                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Deskripsi Pekerjaan</h4>
+                                            <div class="p-5 bg-gray-50 rounded-xl border border-gray-100 text-gray-700 text-sm leading-relaxed whitespace-pre-line min-h-[10rem]">
+                                                {{ $log->kegiatan }}
                                             </div>
-                                        @else
-                                            <div class="w-full h-32 bg-gray-50 rounded-lg flex items-center justify-center text-gray-400 text-xs italic border border-dashed border-gray-300">
-                                                Tanpa Foto
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-8 pt-6 border-t border-gray-100">
+                                        
+                                        @if($log->komentar_mentor)
+                                            <div class="mb-6 p-4 bg-blue-50 rounded-xl border border-blue-100 flex gap-3 items-start">
+                                                <i class="fas fa-comment-dots text-blue-500 mt-1"></i>
+                                                <div>
+                                                    <span class="block text-xs font-bold text-blue-700 uppercase mb-1">Catatan Anda Sebelumnya:</span>
+                                                    <p class="text-sm text-blue-900 italic">"{{ $log->komentar_mentor }}"</p>
+                                                </div>
                                             </div>
                                         @endif
-                                    </div>
 
-                                    <!-- Deskripsi -->
-                                    <div class="w-full md:w-2/3">
-                                        <h4 class="text-xs font-bold text-gray-400 uppercase mb-2">Deskripsi Aktivitas</h4>
-                                        <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 text-sm text-gray-800 leading-relaxed whitespace-pre-line h-full">
-                                            {{ $log->kegiatan }}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Form Validasi -->
-                                <div class="mt-4 pt-4 border-t border-gray-100">
-                                    @if($log->komentar_mentor)
-                                        <div class="mb-4 p-3 bg-indigo-50 rounded border border-indigo-100 text-sm">
-                                            <span class="font-bold text-indigo-700 text-xs uppercase block mb-1">Catatan Anda:</span>
-                                            <p class="text-gray-800">{{ $log->komentar_mentor }}</p>
-                                        </div>
-                                    @endif
-
-                                    @if($log->status_validasi == 'pending' || $log->status_validasi == 'revisi')
-                                        <form action="{{ route('mentor.logbook.validasi', $log->id) }}" method="POST" class="bg-gray-50 p-4 rounded-lg">
-                                            @csrf
-                                            <label class="text-sm font-bold text-gray-700 mb-2 block">Validasi & Beri Nilai:</label>
-                                            <div class="flex gap-2 items-start">
-                                                <input type="text" name="komentar" placeholder="Tulis catatan atau revisi..." class="flex-grow text-sm border-gray-300 rounded-md shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 h-10">
+                                        @if($log->status_validasi != 'disetujui_permanen') 
+                                        <form action="{{ route('mentor.logbook.validasi', $log->id) }}" method="POST" class="bg-gray-50 p-5 rounded-2xl border border-gray-200">
+                                                @csrf
+                                                <h4 class="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                                    <i class="fas fa-pen-nib text-teal-600"></i> Berikan Validasi & Catatan
+                                                </h4>
                                                 
-                                                <button type="submit" name="status" value="disetujui" class="bg-green-600 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-green-700 transition shadow-sm h-10 flex items-center gap-1">
-                                                    <i class="fas fa-check"></i> Terima
-                                                </button>
-                                                <button type="submit" name="status" value="revisi" class="bg-red-600 text-white px-4 py-2 rounded-md text-sm font-bold hover:bg-red-700 transition shadow-sm h-10 flex items-center gap-1">
-                                                    <i class="fas fa-undo"></i> Revisi
-                                                </button>
+                                                <div class="flex flex-col sm:flex-row gap-3">
+                                                    <input type="text" name="komentar" 
+                                                        class="flex-grow rounded-xl border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 text-sm" 
+                                                        placeholder="Tulis catatan revisi atau apresiasi (Opsional)..."
+                                                        value="{{ $log->status_validasi == 'revisi' ? $log->komentar_mentor : '' }}">
+                                                    
+                                                    <div class="flex gap-2 flex-shrink-0">
+                                                        <button type="submit" name="status" value="disetujui" 
+                                                            class="bg-teal-600 text-white px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-teal-700 transition shadow-sm flex items-center gap-2">
+                                                            <i class="fas fa-check"></i> Terima
+                                                        </button>
+                                                        
+                                                        <button type="submit" name="status" value="revisi" 
+                                                            class="bg-white text-red-600 border border-red-200 px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-red-50 transition shadow-sm flex items-center gap-2">
+                                                            <i class="fas fa-undo"></i> Revisi
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        @else
+                                            <div class="text-center py-4">
+                                                <p class="text-sm text-gray-400 italic">Logbook ini telah disetujui.</p>
                                             </div>
-                                        </form>
-                                    @else
-                                        <div class="text-center text-sm text-gray-400 py-2">
-                                            <i class="fas fa-lock mr-1"></i> Logbook ini sudah divalidasi.
-                                        </div>
-                                    @endif
+                                        @endif
+
+                                    </div>
                                 </div>
                             </div>
-
                         </div>
                         @endforeach
                     </div>
@@ -156,4 +207,11 @@
 
         </div>
     </div>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+    </style>
 </x-app-layout>

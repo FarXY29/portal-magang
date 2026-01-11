@@ -1,51 +1,111 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Edit Pembimbing Lapangan</h2>
+        <div class="flex items-center justify-between">
+            <h2 class="font-extrabold text-2xl text-gray-800 leading-tight flex items-center gap-2">
+                <i class="fas fa-user-edit text-teal-600"></i>
+                {{ __('Edit Data Pembimbing') }}
+            </h2>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-2xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                <div class="flex justify-between mb-6 print:hidden">
-                    <a href="{{ route('dinas.mentors.index') }}" class="text-gray-600 hover:text-gray-900">&larr; Kembali</a>
-                </div>
-                <form action="{{ route('dinas.mentors.update', $mentor->id) }}" method="POST">
-                    @csrf
-                    @method('PUT') <!-- Method Spoofing untuk Update -->
-                    
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Nama Pegawai</label>
-                        <input type="text" name="name" value="{{ old('name', $mentor->name) }}" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
-                        @error('name') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
+    <div class="py-8 bg-gray-50/50 min-h-screen font-sans">
+        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+            
+            <div class="mb-6">
+                <a href="{{ route('dinas.mentors.index') }}" class="group inline-flex items-center text-sm font-bold text-gray-500 hover:text-teal-600 transition">
+                    <div class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center mr-2 group-hover:border-teal-500 shadow-sm">
+                        <i class="fas fa-arrow-left text-xs"></i>
                     </div>
-
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">NIP</label>
-                        <input type="text" name="nip" value="{{ old('nip', $mentor->nik) }}" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500">
-                        @error('nip') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div class="mb-4">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Email Login</label>
-                        <input type="email" name="email" value="{{ old('email', $mentor->email) }}" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500" required>
-                        @error('email') <span class="text-red-500 text-xs">{{ $message }}</span> @enderror
-                    </div>
-
-                    <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Password Baru (Opsional)</label>
-                        <input type="password" name="password" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-teal-500 focus:border-teal-500" placeholder="Biarkan kosong jika tidak ingin mengganti password">
-                        <p class="text-xs text-gray-500 mt-1">*Isi minimal 6 karakter hanya jika ingin mereset password.</p>
-                    </div>
-
-                    <div class="flex justify-end space-x-2">
-                        <a href="{{ route('dinas.mentors.index') }}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300">Batal</a>
-                        <button type="submit" class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 font-bold shadow">
-                            <i class="fas fa-save mr-1"></i> Simpan Perubahan
-                        </button>
-                    </div>
-                </form>
-
+                    Kembali ke Daftar Mentor
+                </a>
             </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                
+                <div class="p-6 border-b border-gray-50 bg-gray-50/50 flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 text-xl border border-indigo-100">
+                        <i class="fas fa-user-cog"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-800">Form Edit Data</h3>
+                        <p class="text-xs text-gray-500">Perbarui informasi akun pegawai pembimbing.</p>
+                    </div>
+                </div>
+
+                <div class="p-8">
+                    <form action="{{ route('dinas.mentors.update', $mentor->id) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+                        
+                        <div class="space-y-6">
+                            
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Nama Pegawai</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-user"></i>
+                                    </span>
+                                    <input type="text" name="name" value="{{ old('name', $mentor->name) }}" 
+                                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm text-sm" 
+                                        required>
+                                </div>
+                                @error('name') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">NIP (Nomor Induk Pegawai)</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-id-card"></i>
+                                    </span>
+                                    <input type="text" name="nip" value="{{ old('nip', $mentor->nik) }}" 
+                                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm text-sm" 
+                                        placeholder="19xxxxxxxx xxx x xxx">
+                                </div>
+                                @error('nip') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-gray-700 mb-2">Email Login</label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
+                                        <i class="fas fa-envelope"></i>
+                                    </span>
+                                    <input type="email" name="email" value="{{ old('email', $mentor->email) }}" 
+                                        class="w-full pl-10 pr-4 py-2.5 rounded-xl border-gray-300 focus:ring-indigo-500 focus:border-indigo-500 transition shadow-sm text-sm" 
+                                        required>
+                                </div>
+                                @error('email') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="bg-yellow-50 border border-yellow-100 rounded-xl p-5">
+                                <label class="block text-sm font-bold text-gray-800 mb-2 flex items-center gap-2">
+                                    <i class="fas fa-key text-yellow-600"></i> Password Baru (Opsional)
+                                </label>
+                                <div class="relative">
+                                    <input type="password" name="password" 
+                                        class="w-full px-4 py-2.5 rounded-lg border-gray-300 focus:ring-yellow-500 focus:border-yellow-500 transition shadow-sm text-sm bg-white" 
+                                        placeholder="Kosongkan jika tidak ingin mengubah password">
+                                </div>
+                                <p class="text-xs text-gray-500 mt-2 italic">*Hanya isi jika pegawai lupa password atau ingin reset.</p>
+                                @error('password') <span class="text-red-500 text-xs mt-1 block">{{ $message }}</span> @enderror
+                            </div>
+
+                        </div>
+
+                        <div class="mt-8 pt-6 border-t border-gray-100 flex items-center justify-end gap-3">
+                            <a href="{{ route('dinas.mentors.index') }}" class="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 font-bold hover:bg-gray-50 transition text-sm">
+                                Batal
+                            </a>
+                            <button type="submit" class="px-6 py-2.5 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 shadow-lg shadow-teal-200 transition transform active:scale-95 text-sm flex items-center gap-2">
+                                <i class="fas fa-check-circle"></i> Simpan Perubahan
+                            </button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+
         </div>
     </div>
 </x-app-layout>

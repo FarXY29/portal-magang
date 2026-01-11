@@ -1,94 +1,130 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Lengkapi Berkas Lamaran</h2>
+        <div class="flex items-center justify-between">
+            <h2 class="font-extrabold text-2xl text-gray-800 leading-tight flex items-center gap-2">
+                <i class="fas fa-file-signature text-teal-600"></i>
+                {{ __('Formulir Lamaran Magang') }}
+            </h2>
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+    <div class="py-8 bg-gray-50/50 min-h-screen font-sans">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            
+            <div class="mb-6">
+                <a href="{{ route('home') }}" class="group inline-flex items-center text-sm font-bold text-gray-500 hover:text-teal-600 transition">
+                    <div class="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center mr-2 group-hover:border-teal-500 shadow-sm">
+                        <i class="fas fa-arrow-left text-xs"></i>
+                    </div>
+                    Kembali ke Daftar Lowongan
+                </a>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
                 
-                <div class="mb-6 border-b pb-4">
-                    <h3 class="text-2xl font-bold text-gray-900">{{ $position->skpd->nama_dinas }}</h3>
-                    <p class="text-gray-500 text-sm mt-1">Silakan lengkapi form di bawah ini untuk melamar magang.</p>
-                </div>
-
-                {{-- === TAMBAHAN: INFORMASI LOWONGAN === --}}
-                <div class="bg-teal-50 border border-teal-100 rounded-lg p-5 mb-8 shadow-sm">
-                    <div class="mb-4">
-                        <h4 class="text-lg font-bold text-teal-800 mb-1">
-                            {{ $position->judul_posisi ?? 'Posisi Magang' }}
-                        </h4>
-                        <div class="flex flex-wrap gap-4 text-sm mt-2">
-                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-white border border-teal-200 text-teal-700 font-medium">
-                                <i class="fas fa-graduation-cap mr-2"></i> {{ $position->required_major }}
-                            </span>
-                            <span class="inline-flex items-center px-3 py-1 rounded-full bg-white border border-teal-200 text-teal-700 font-medium">
-                                <i class="fas fa-users mr-2"></i> Kuota: {{ $position->kuota }} Orang
-                            </span>
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                        <div class="bg-gradient-to-br from-teal-600 to-teal-800 p-6 text-white">
+                            <h3 class="font-bold text-lg leading-tight opacity-90">{{ $position->skpd->nama_dinas }}</h3>
+                            <h2 class="font-extrabold text-2xl mt-1">{{ $position->judul_posisi }}</h2>
                         </div>
-                    </div>
-
-                    <div class="text-sm text-gray-600 bg-white p-4 rounded border border-teal-100">
-                        <span class="font-bold text-gray-700 block mb-1">Deskripsi Pekerjaan:</span>
-                        <div class="prose prose-sm max-w-none">
-                            {!! $position->deskripsi !!}
-                        </div>
-                    </div>
-                </div>
-                {{-- === AKHIR TAMBAHAN === --}}
-
-                @if(session('error'))
-                    <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
-                        <div class="flex">
-                            <div class="flex-shrink-0">
-                                <i class="fas fa-exclamation-circle text-red-400"></i>
+                        <div class="p-6">
+                            <div class="flex flex-wrap gap-2 mb-6">
+                                <span class="px-3 py-1 bg-teal-50 text-teal-700 rounded-lg text-xs font-bold border border-teal-100 flex items-center">
+                                    <i class="fas fa-graduation-cap mr-1.5"></i> {{ $position->required_major }}
+                                </span>
+                                <span class="px-3 py-1 bg-blue-50 text-blue-700 rounded-lg text-xs font-bold border border-blue-100 flex items-center">
+                                    <i class="fas fa-users mr-1.5"></i> Kuota: {{ $position->kuota }}
+                                </span>
                             </div>
-                            <div class="ml-3">
-                                <p class="text-sm text-red-700 font-bold">Gagal Melamar</p>
-                                <p class="text-sm text-red-600 mt-1">{{ session('error') }}</p>
+
+                            <h4 class="text-sm font-bold text-gray-800 uppercase tracking-wide mb-3 border-b border-gray-100 pb-2">Detail Pekerjaan</h4>
+                            <div class="prose prose-sm text-gray-600 text-sm leading-relaxed mb-6">
+                                {!! $position->deskripsi !!}
+                            </div>
+
+                            <div class="bg-yellow-50 border border-yellow-100 rounded-xl p-4 flex gap-3">
+                                <i class="fas fa-lightbulb text-yellow-500 mt-0.5"></i>
+                                <p class="text-xs text-yellow-800">
+                                    Pastikan tanggal magang yang Anda ajukan sesuai dengan ketentuan kampus dan ketersediaan kuota instansi.
+                                </p>
                             </div>
                         </div>
                     </div>
-                @endif
+                </div>
 
-                <form action="{{ route('peserta.daftar', $position->id) }}" method="POST" enctype="multipart/form-data" id="applyForm">
-                    @csrf
-                    
-                    <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-bold mb-2">Surat Pengantar (PDF)</label>
-                        <input type="file" name="surat" class="w-full border border-gray-300 rounded p-2 text-sm focus:ring-teal-500 focus:border-teal-500" accept=".pdf" required>
-                        <p class="text-xs text-gray-500 mt-1">*Surat Permohonan Magang dari Kampus/Sekolah</p>
-                        @error('surat') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-2">
-                        <div>
-                            <x-input-label for="tanggal_mulai" :value="__('Rencana Tanggal Mulai')" />
-                            <input type="date" id="tanggal_mulai" name="tanggal_mulai" 
-                                value="{{ old('tanggal_mulai') }}" 
-                                class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500" 
-                                min="{{ date('Y-m-d') }}" required>
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+                        <div class="p-6 border-b border-gray-50 bg-gray-50/30">
+                            <h3 class="font-bold text-gray-800 flex items-center gap-2">
+                                <i class="fas fa-pen-alt text-teal-500"></i> Lengkapi Data Lamaran
+                            </h3>
                         </div>
 
-                        <div>
-                            <x-input-label for="tanggal_selesai" :value="__('Rencana Tanggal Selesai')" />
-                            <input type="date" id="tanggal_selesai" name="tanggal_selesai" 
-                                value="{{ old('tanggal_selesai') }}"
-                                class="block mt-1 w-full border-gray-300 rounded-md shadow-sm focus:border-teal-500 focus:ring-teal-500" 
-                                min="{{ date('Y-m-d') }}" required>
+                        <div class="p-8">
+                            @if(session('error'))
+                                <div class="mb-6 bg-red-50 border border-red-100 text-red-700 px-4 py-3 rounded-xl flex items-start gap-3">
+                                    <i class="fas fa-exclamation-circle mt-0.5"></i>
+                                    <div>
+                                        <p class="font-bold text-sm">Gagal Mengirim Lamaran</p>
+                                        <p class="text-xs mt-1">{{ session('error') }}</p>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <form action="{{ route('peserta.daftar', $position->id) }}" method="POST" enctype="multipart/form-data" id="applyForm">
+                                @csrf
+
+                                <div class="mb-8">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Upload Surat Pengantar (PDF)</label>
+                                    <div class="flex items-center justify-center w-full">
+                                        <label for="surat" class="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-xl cursor-pointer bg-gray-50 hover:bg-gray-100 transition group">
+                                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                                <i class="fas fa-cloud-upload-alt text-3xl text-gray-400 group-hover:text-teal-500 transition mb-2"></i>
+                                                <p class="mb-1 text-sm text-gray-500"><span class="font-semibold text-teal-600">Klik untuk upload</span> atau drag & drop</p>
+                                                <p class="text-xs text-gray-400">PDF (Maks. 2MB)</p>
+                                            </div>
+                                            <input id="surat" name="surat" type="file" class="hidden" accept=".pdf" required />
+                                        </label>
+                                    </div>
+                                    <p id="file-name" class="text-xs text-teal-600 mt-2 font-bold hidden"></p> 
+                                    @error('surat') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                </div>
+
+                                <div class="mb-6">
+                                    <label class="block text-sm font-bold text-gray-700 mb-3">Rencana Periode Magang</label>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 p-5 rounded-xl border border-gray-200">
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tanggal Mulai</label>
+                                            <input type="date" id="tanggal_mulai" name="tanggal_mulai" 
+                                                class="w-full rounded-lg border-gray-300 focus:border-teal-500 focus:ring focus:ring-teal-200 transition shadow-sm text-sm"
+                                                min="{{ date('Y-m-d') }}" required>
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Tanggal Selesai</label>
+                                            <input type="date" id="tanggal_selesai" name="tanggal_selesai" 
+                                                class="w-full rounded-lg border-gray-300 focus:border-teal-500 focus:ring focus:ring-teal-200 transition shadow-sm text-sm"
+                                                min="{{ date('Y-m-d') }}" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="availability-result" class="hidden mb-8">
+                                    </div>
+
+                                <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-100">
+                                    <a href="{{ route('home') }}" class="px-6 py-3 rounded-xl border border-gray-300 text-gray-600 font-bold hover:bg-gray-50 transition text-sm">
+                                        Batal
+                                    </a>
+                                    <button type="submit" id="submitBtn" class="px-8 py-3 bg-teal-600 text-white rounded-xl font-bold hover:bg-teal-700 shadow-lg shadow-teal-200 transition transform active:scale-95 text-sm flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed">
+                                        <i class="fas fa-paper-plane"></i> Kirim Lamaran
+                                    </button>
+                                </div>
+
+                            </form>
                         </div>
                     </div>
-
-                    <div id="availability-result" class="mb-6 hidden rounded-md p-4 border text-sm font-bold flex items-center gap-2">
-                    </div>
-
-                    <div class="flex justify-end space-x-2 pt-4 border-t">
-                        <a href="{{ route('home') }}" class="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition">Batal</a>
-                        <button type="submit" id="submitBtn" class="px-4 py-2 bg-teal-600 text-white rounded hover:bg-teal-700 font-bold shadow disabled:opacity-50 disabled:cursor-not-allowed transition">
-                            <i class="fas fa-paper-plane mr-1"></i> Kirim Lamaran
-                        </button>
-                    </div>
-                </form>
+                </div>
 
             </div>
         </div>
@@ -100,38 +136,42 @@
             const endInput = document.getElementById('tanggal_selesai');
             const resultDiv = document.getElementById('availability-result');
             const submitBtn = document.getElementById('submitBtn');
-            const form = document.getElementById('applyForm');
-            const positionId = "{{ $position->id }}"; // ID Posisi dari Controller
+            const fileInput = document.getElementById('surat');
+            const fileNameDisplay = document.getElementById('file-name');
+            
+            const positionId = "{{ $position->id }}"; 
 
-            // Fungsi Validasi Tanggal
+            // File Upload Preview Name
+            fileInput.addEventListener('change', function(){
+                if(this.files && this.files.length > 0){
+                    fileNameDisplay.textContent = 'File terpilih: ' + this.files[0].name;
+                    fileNameDisplay.classList.remove('hidden');
+                }
+            });
+
+            // Logic Cek Tanggal
             function validateDates() {
                 const startDate = startInput.value;
                 const endDate = endInput.value;
 
-                // Pastikan Tanggal Selesai minimal sama dengan Tanggal Mulai
                 if(startDate) {
                     endInput.min = startDate;
                 }
 
-                // Hanya cek jika kedua tanggal sudah diisi
                 if (startDate && endDate) {
                     if (new Date(endDate) < new Date(startDate)) {
-                        showResult('error', 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.', 'text-red-600 bg-red-50 border-red-200');
+                        showResult('error', 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.', 'bg-red-50 border-red-200 text-red-700');
                         submitBtn.disabled = true;
                         return;
                     }
-                    
-                    // Panggil Fungsi Cek ke Server
                     checkAvailability(startDate, endDate);
                 } else {
                     hideResult();
                 }
             }
 
-            // Fungsi AJAX Fetch ke Server
             function checkAvailability(start, end) {
-                // Tampilkan status loading
-                showResult('loading', 'Mengecek ketersediaan kuota...', 'text-gray-600 bg-gray-50 border-gray-200');
+                showResult('loading', 'Sedang memeriksa ketersediaan kuota...', 'bg-gray-50 border-gray-200 text-gray-600');
                 submitBtn.disabled = true;
 
                 fetch(`/magang/check-availability/${positionId}`, {
@@ -145,29 +185,27 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.status === 'available') {
-                        showResult('success', data.message, data.class);
-                        submitBtn.disabled = false; // Aktifkan tombol kirim
+                        showResult('success', data.message, data.class); // data.class biasanya bg-green...
+                        submitBtn.disabled = false;
                     } else {
-                        showResult('error', data.message, data.class);
-                        submitBtn.disabled = true; // Matikan tombol kirim
+                        showResult('error', data.message, data.class); // data.class biasanya bg-red...
+                        submitBtn.disabled = true;
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    showResult('error', 'Terjadi kesalahan saat mengecek kuota.', 'text-red-600 bg-red-50 border-red-200');
+                    showResult('error', 'Terjadi kesalahan sistem. Coba lagi nanti.', 'bg-red-50 border-red-200 text-red-700');
                 });
             }
 
-            // Helper untuk update tampilan alert
             function showResult(type, message, cssClass) {
-                resultDiv.className = `mb-6 rounded-md p-4 border text-sm font-bold flex items-center gap-2 ${cssClass}`;
-                
                 let icon = '';
-                if(type === 'loading') icon = '<i class="fas fa-spinner fa-spin"></i>';
-                else if(type === 'success') icon = '<i class="fas fa-check-circle"></i>';
-                else icon = '<i class="fas fa-times-circle"></i>';
+                if(type === 'loading') icon = '<i class="fas fa-spinner fa-spin mr-2"></i>';
+                else if(type === 'success') icon = '<i class="fas fa-check-circle mr-2 text-green-600"></i>';
+                else icon = '<i class="fas fa-times-circle mr-2 text-red-600"></i>';
 
-                resultDiv.innerHTML = `${icon} <span>${message}</span>`;
+                resultDiv.className = `p-4 rounded-xl border flex items-center ${cssClass}`;
+                resultDiv.innerHTML = `<div class="font-bold text-sm flex items-center">${icon} ${message}</div>`;
                 resultDiv.classList.remove('hidden');
             }
 
@@ -175,7 +213,6 @@
                 resultDiv.classList.add('hidden');
             }
 
-            // Pasang Event Listener
             startInput.addEventListener('change', validateDates);
             endInput.addEventListener('change', validateDates);
         });
