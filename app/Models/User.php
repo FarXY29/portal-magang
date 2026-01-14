@@ -29,7 +29,7 @@ class User extends Authenticatable
         'phone',
         'asal_instansi', 
         'major',
-        'signature', // Kolom Jurusan Mahasiswa / Siswa
+        'signature', // Kolom Tanda Tangan Mentor
     ];
 
     /**

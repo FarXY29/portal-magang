@@ -219,7 +219,7 @@ class MagangController extends Controller
 
         $pdf = Pdf::loadView('pdf.sertifikat', ['app' => $finishedApp]);
         $pdf->setPaper('a4', 'landscape');
-        return $pdf->download('Sertifikat-Magang-'.$user->name.'.pdf');
+        return $pdf->stream('Sertifikat-Magang-'.$user->name.'.pdf');
     }
 
     /**
@@ -239,17 +239,19 @@ class MagangController extends Controller
         $position = InternshipPosition::findOrFail($id);
         $kapasitasMaksimal = $position->kuota;
 
-        // Hitung Bentrok (Logika sama persis dengan storeApplication)
-        $bentrokCount = Application::where('internship_position_id', $id)
+        // Query untuk mencari peserta yang bentrok
+        // Kita simpan query builder-nya dulu agar bisa digunakan untuk count() dan get()
+        $conflictingAppsQuery = Application::where('internship_position_id', $id)
             ->whereIn('status', ['diterima', 'pending'])
             ->where(function($q) use ($reqStart, $reqEnd) {
                 $q->where('tanggal_mulai', '<=', $reqEnd)
                   ->where('tanggal_selesai', '>=', $reqStart);
-            })
-            ->count();
+            });
+
+        // Hitung jumlah yang bentrok
+        $bentrokCount = $conflictingAppsQuery->count();
 
         $isAvailable = $bentrokCount < $kapasitasMaksimal;
-        $sisaKursi = $kapasitasMaksimal - $bentrokCount;
 
         if ($isAvailable) {
             return response()->json([
@@ -258,10 +260,36 @@ class MagangController extends Controller
                 'class' => 'text-green-600 bg-green-50 border-green-200'
             ]);
         } else {
+            // JIKA PENUH: Cari peserta terakhir yang selesai magang
+            // Ambil data peserta yang bentrok, urutkan berdasarkan tanggal selesai paling akhir (descending)
+            $lastParticipant = $conflictingAppsQuery->orderBy('tanggal_selesai', 'desc')->first();
+            
+            $suggestionMessage = "";
+            $suggestionDate = "";
+            $suggestionDateText = "";
+
+            if ($lastParticipant) {
+                // Ambil tanggal selesai peserta tsb
+                $finishDate = Carbon::parse($lastParticipant->tanggal_selesai);
+                
+                // Tanggal kosong adalah besoknya (H+1)
+                $nextAvailableDate = $finishDate->copy()->addDay();
+
+                $suggestionDate = $nextAvailableDate->format('Y-m-d');
+                $suggestionDateText = $nextAvailableDate->translatedFormat('d F Y');
+
+                $suggestionMessage = " Kuota Penuh untuk rentang tanggal ini. Sudah ada {$bentrokCount} peserta terjadwal sampai " . $finishDate->translatedFormat('d F Y') . ".";
+            } else {
+                $suggestionMessage = " Kuota Penuh untuk rentang tanggal ini.";
+            }
+
             return response()->json([
                 'status' => 'full',
-                'message' => "Kuota Penuh untuk rentang tanggal ini. Sudah ada {$bentrokCount} peserta terjadwal.",
-                'class' => 'text-red-600 bg-red-50 border-red-200'
+                'message' => $suggestionMessage,
+                'class' => 'text-red-600 bg-red-50 border-red-200',
+                // Data tambahan untuk frontend (tombol saran)
+                'suggestion_date' => $suggestionDate, 
+                'suggestion_text' => $suggestionDateText
             ]);
         }
     }
@@ -280,6 +308,6 @@ class MagangController extends Controller
 
         // Generate PDF
         $pdf = Pdf::loadView('pdf.transkrip_nilai', compact('app'));
-        return $pdf->download('Transkrip-Magang-'.$app->user->name.'.pdf');
+        return $pdf->stream('Transkrip-Magang-'.$app->user->name.'.pdf');
     }
 }

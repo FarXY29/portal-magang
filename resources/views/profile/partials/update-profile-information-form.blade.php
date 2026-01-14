@@ -51,16 +51,15 @@
 
         @if ($user->role === 'mentor' || $user->role === 'dinas')
         <div class="mb-4">
-                <x-input-label for="signature" :value="__('Upload Tanda Tangan / Paraf (Format: PNG/JPG, Transparan lebih baik)')" />
-                    <input id="signature" name="signature" type="file" class="mt-1 block w-full border border-gray-300 rounded p-1" accept="image/*" />
-                        @if ($user->signature)
-                    <div class="mt-2">
-                        <p class="text-sm text-gray-500">Tanda Tangan Saat Ini:</p>
-                            <img src="{{ asset('storage/' . $user->signature) }}" alt="Signature" class="h-16 mt-1 border rounded p-1">
-                        </div>
-                    @endif
-                <x-input-error class="mt-2" :messages="$errors->get('signature')" />
-            </div>
+            <x-input-label for="signature" :value="__('Upload Tanda Tangan / Paraf (Format: PNG/JPG, Transparan lebih baik)')" />
+                <input id="signature" name="signature" type="file" class="mt-1 block w-full border border-gray-300 rounded p-1" accept="image/*" />
+                    @if ($user->signature)
+                <div class="mt-2">
+                    <p class="text-sm text-gray-500">Tanda Tangan Saat Ini:</p>
+                        <img src="{{ asset('storage/' . $user->signature) }}" alt="Signature" class="h-16 mt-1 border rounded p-1">                        </div>
+                @endif
+            <x-input-error class="mt-2" :messages="$errors->get('signature')" />
+        </div>
         @endif
 
         @if ($user->role === 'peserta')

@@ -195,10 +195,10 @@
                                         <i class="fas fa-print"></i> Rekap
                                     </a>
                                 @elseif($app->status == 'selesai')
-                                    <a href="{{ route('peserta.sertifikat') }}" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition shadow-sm flex items-center gap-2">
+                                    <a href="{{ route('peserta.sertifikat') }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition shadow-sm flex items-center gap-2">
                                         <i class="fas fa-certificate"></i> Sertifikat
                                     </a>
-                                    <a href="{{ route('peserta.download.nilai', $app->id) }}" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-bold hover:bg-green-700 transition shadow-sm flex items-center gap-2">
+                                    <a href="{{ route('peserta.download.nilai', $app->id) }}" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-bold hover:bg-green-700 transition shadow-sm flex items-center gap-2">
                                         <i class="fas fa-file-alt"></i> Transkrip
                                     </a>
                                 @endif

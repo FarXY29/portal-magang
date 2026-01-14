@@ -131,90 +131,130 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
+        const startInput = document.getElementById('tanggal_mulai');
+        const endInput = document.getElementById('tanggal_selesai');
+        const resultDiv = document.getElementById('availability-result');
+        const submitBtn = document.getElementById('submitBtn');
+        const fileInput = document.getElementById('surat');
+        const fileNameDisplay = document.getElementById('file-name');
+        
+        const positionId = "{{ $position->id }}"; 
+
+        // File Upload Preview
+        fileInput.addEventListener('change', function(){
+            if(this.files && this.files.length > 0){
+                fileNameDisplay.textContent = 'File terpilih: ' + this.files[0].name;
+                fileNameDisplay.classList.remove('hidden');
+            }
+        });
+
+        function validateDates() {
+            const startDate = startInput.value;
+            const endDate = endInput.value;
+
+            if(startDate) endInput.min = startDate;
+
+            if (startDate && endDate) {
+                if (new Date(endDate) < new Date(startDate)) {
+                    showResult('error', 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.', 'bg-red-50 border-red-200 text-red-700');
+                    submitBtn.disabled = true;
+                    return;
+                }
+                checkAvailability(startDate, endDate);
+            } else {
+                hideResult();
+            }
+        }
+
+        function checkAvailability(start, end) {
+            showResult('loading', 'Sedang memeriksa ketersediaan kuota...', 'bg-gray-50 border-gray-200 text-gray-600');
+            submitBtn.disabled = true;
+
+            fetch(`/magang/check-availability/${positionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ start: start, end: end })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'available') {
+                    showResult('success', data.message, data.class);
+                    submitBtn.disabled = false;
+                    submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                } else {
+                    // JIKA PENUH: Tampilkan Pesan + Tombol Saran Tanggal
+                    let errorMessage = data.message;
+                    
+                    // Tambahkan opsi tanggal saran jika ada dari controller
+                    if(data.suggestion_date) {
+                        errorMessage += `
+                            <div class="mt-2 text-xs text-gray-600">
+                                Tanggal kosong berikutnya mulai: 
+                                <button type="button" onclick="setStartDate('${data.suggestion_date}')" 
+                                    class="underline font-bold text-teal-600 hover:text-teal-800 ml-1">
+                                    ${data.suggestion_text} (Gunakan Tanggal Ini)
+                                </button>
+                            </div>
+                        `;
+                    }
+                    
+                    showResult('error', errorMessage, data.class);
+                    submitBtn.disabled = true;
+                    submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showResult('error', 'Terjadi kesalahan sistem. Coba lagi nanti.', 'bg-red-50 border-red-200 text-red-700');
+            });
+        }
+
+        // Helper: Tampilkan Alert
+        function showResult(type, messageHtml, cssClass) {
+            let icon = '';
+            if(type === 'loading') icon = '<i class="fas fa-spinner fa-spin mr-2"></i>';
+            else if(type === 'success') icon = '<i class="fas fa-check-circle mr-2 text-green-600"></i>';
+            else icon = '<i class="fas fa-times-circle mr-2 text-red-600"></i>';
+
+            resultDiv.className = `p-4 rounded-xl border ${cssClass}`;
+            // Menggunakan innerHTML agar tombol/link saran bisa dirender
+            resultDiv.innerHTML = `
+                <div class="flex items-start">
+                    <div class="mt-0.5">${icon}</div>
+                    <div class="ml-2 w-full text-sm">${messageHtml}</div>
+                </div>`;
+            resultDiv.classList.remove('hidden');
+        }
+
+        function hideResult() {
+            resultDiv.classList.add('hidden');
+        }
+
+        // Fungsi Global untuk Klik tombol saran (Harus di luar DOMContentLoaded scope agar bisa diakses onclick HTML)
+        window.setStartDate = function(newDate) {
             const startInput = document.getElementById('tanggal_mulai');
             const endInput = document.getElementById('tanggal_selesai');
-            const resultDiv = document.getElementById('availability-result');
-            const submitBtn = document.getElementById('submitBtn');
-            const fileInput = document.getElementById('surat');
-            const fileNameDisplay = document.getElementById('file-name');
             
-            const positionId = "{{ $position->id }}"; 
+            // Set tanggal mulai baru
+            startInput.value = newDate;
+            
+            // Reset tanggal selesai (agar user memilih durasi baru)
+            endInput.value = '';
+            endInput.min = newDate;
+            
+            // Fokus ke tanggal selesai
+            endInput.focus();
+            
+            // Sembunyikan alert sementara
+            document.getElementById('availability-result').classList.add('hidden');
+        };
 
-            // File Upload Preview Name
-            fileInput.addEventListener('change', function(){
-                if(this.files && this.files.length > 0){
-                    fileNameDisplay.textContent = 'File terpilih: ' + this.files[0].name;
-                    fileNameDisplay.classList.remove('hidden');
-                }
-            });
-
-            // Logic Cek Tanggal
-            function validateDates() {
-                const startDate = startInput.value;
-                const endDate = endInput.value;
-
-                if(startDate) {
-                    endInput.min = startDate;
-                }
-
-                if (startDate && endDate) {
-                    if (new Date(endDate) < new Date(startDate)) {
-                        showResult('error', 'Tanggal selesai tidak boleh lebih awal dari tanggal mulai.', 'bg-red-50 border-red-200 text-red-700');
-                        submitBtn.disabled = true;
-                        return;
-                    }
-                    checkAvailability(startDate, endDate);
-                } else {
-                    hideResult();
-                }
-            }
-
-            function checkAvailability(start, end) {
-                showResult('loading', 'Sedang memeriksa ketersediaan kuota...', 'bg-gray-50 border-gray-200 text-gray-600');
-                submitBtn.disabled = true;
-
-                fetch(`/magang/check-availability/${positionId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({ start: start, end: end })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'available') {
-                        showResult('success', data.message, data.class); // data.class biasanya bg-green...
-                        submitBtn.disabled = false;
-                    } else {
-                        showResult('error', data.message, data.class); // data.class biasanya bg-red...
-                        submitBtn.disabled = true;
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showResult('error', 'Terjadi kesalahan sistem. Coba lagi nanti.', 'bg-red-50 border-red-200 text-red-700');
-                });
-            }
-
-            function showResult(type, message, cssClass) {
-                let icon = '';
-                if(type === 'loading') icon = '<i class="fas fa-spinner fa-spin mr-2"></i>';
-                else if(type === 'success') icon = '<i class="fas fa-check-circle mr-2 text-green-600"></i>';
-                else icon = '<i class="fas fa-times-circle mr-2 text-red-600"></i>';
-
-                resultDiv.className = `p-4 rounded-xl border flex items-center ${cssClass}`;
-                resultDiv.innerHTML = `<div class="font-bold text-sm flex items-center">${icon} ${message}</div>`;
-                resultDiv.classList.remove('hidden');
-            }
-
-            function hideResult() {
-                resultDiv.classList.add('hidden');
-            }
-
-            startInput.addEventListener('change', validateDates);
-            endInput.addEventListener('change', validateDates);
-        });
-    </script>
+        startInput.addEventListener('change', validateDates);
+        endInput.addEventListener('change', validateDates);
+    });
+</script>
 </x-app-layout>

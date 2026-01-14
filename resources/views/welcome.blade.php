@@ -272,12 +272,8 @@
                                     {{ $loker->status }}
                                 </span>
                             </div>
-                            <h3 class="text-xl font-bold text-slate-800 mb-1 group-hover:text-teal-600 transition line-clamp-1" title="{{ $loker->judul ?? 'Posisi Magang' }}">
-                                {{ $loker->position->judul_posisi ?? 'Posisi Magang' }}
+                            <h3 class="text-xl font-bold text-slate-800 mb-1 group-hover:text-teal-600 transition line-clamp-1" title="{{ $loker->judul ?? 'Posisi Magang' }}">{{ $loker->skpd->nama_dinas }}
                             </h3>
-                            <p class="text-sm text-slate-500 font-medium flex items-center">
-                                <i class="far fa-building mr-1.5"></i> {{ $loker->skpd->nama_dinas }}
-                            </p>
                         </div>
 
                         <div class="p-6 pt-4 flex-grow flex flex-col">
@@ -297,9 +293,25 @@
 
                             <div class="mt-auto pt-4 border-t border-slate-50 flex items-center justify-between text-sm">
                                 <div class="flex items-center text-slate-500">
-                                    <i class="fas fa-users w-5 text-center mr-1 text-teal-500"></i>
-                                    <span>Sisa Kuota: <b class="text-slate-800">{{ $loker->kuota }}</b></span>
+                                    <div class="relative mr-2">
+                                        <i class="fas fa-chart-pie text-teal-500 text-lg"></i>
+                                        <span class="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                                        </span>
+                                    </div>
+                                    
+                                    <span class="text-xs font-medium">
+                                        Kuota {{ \Carbon\Carbon::now()->translatedFormat('F') }}: 
+                                        <b class="text-slate-800 text-sm ml-1">{{ $loker->kuota }}</b>
+                                    </span>
                                 </div>
+
+                                @if($loker->kuota < 5)
+                                    <span class="text-[10px] text-red-600 bg-red-50 px-2 py-0.5 rounded-full font-bold border border-red-100">
+                                        Segera Habis!
+                                    </span>
+                                @endif
                             </div>
                         </div>
 
@@ -348,6 +360,7 @@
                 </div>
             @endforelse
         </div>
+        
 
         <div class="mt-12">
             {{ $lowongans->links() }}
