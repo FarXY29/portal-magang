@@ -92,7 +92,7 @@ class LogbookController extends Controller
         // Set ukuran kertas F4 atau A4 Landscape agar muat banyak
         $pdf->setPaper('a4', 'portrait');
 
-        return $pdf->download('Rekap-Kegiatan-'.$user->name.'.pdf');
+        return $pdf->stream('Rekap-Kegiatan-'.$user->name.'.pdf');
     }
 
     // Fungsi Matematika Haversine (Menghitung Jarak 2 Titik Koordinat)

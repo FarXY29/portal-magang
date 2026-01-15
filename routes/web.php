@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/logbook-print', [LogbookController::class, 'print'])->name('logbook.print');
         Route::get('/sertifikat', [MagangController::class, 'downloadCertificate'])->name('sertifikat');
         Route::get('/download-nilai/{id}', [MagangController::class, 'downloadTranskrip'])->name('download.nilai');
+        Route::get('/loa/{id}', [MagangController::class, 'downloadLoA'])->name('loa.download');
 
 
         // ROUTE ABSENSI 
@@ -119,6 +120,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/laporan/rekap', [AdminSkpdController::class, 'laporanRekap'])->name('laporan.rekap');
         Route::get('/laporan/rekap/print', [AdminSkpdController::class, 'printRekap'])->name('laporan.rekap.print');
         Route::get('/laporan/grading', [AdminSkpdController::class, 'laporanGradingDinas'])->name('laporan.grading');
+        Route::get('/peserta/{id}/absensi/pdf', [AdminSkpdController::class, 'printAbsensi'])->name('peserta.absensi.pdf');
 
         // RUTE PENGATURAN PEJABAT
         Route::get('/pengaturan-pejabat', [AdminSkpdController::class, 'editPejabat'])->name('pejabat.edit');

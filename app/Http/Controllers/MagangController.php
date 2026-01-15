@@ -222,6 +222,26 @@ class MagangController extends Controller
         return $pdf->stream('Sertifikat-Magang-'.$user->name.'.pdf');
     }
 
+    public function downloadLoA($id)
+    {
+        // 1. Ambil data aplikasi milik user yang sedang login
+        $app = Application::with(['user', 'position.skpd', 'mentor'])
+                    ->where('id', $id)
+                    ->where('user_id', Auth::id()) // Keamanan: Hanya milik sendiri
+                    ->firstOrFail();
+
+        // 2. Validasi Status
+        if ($app->status != 'diterima' && $app->status != 'selesai') {
+            return back()->with('error', 'Surat hanya tersedia bagi peserta yang sudah DITERIMA.');
+        }
+
+        // 3. Generate PDF
+        $pdf = Pdf::loadView('pdf.loa', compact('app'));
+        $pdf->setPaper('a4', 'portrait');
+        
+        return $pdf->stream('LoA_' . $app->user->name . '.pdf');
+    }
+
     /**
      * AJAX CHECK AVAILABILITY
      * Dipanggil oleh JavaScript di form apply untuk cek kuota real-time.

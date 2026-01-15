@@ -81,10 +81,10 @@
                                     <i class="fas fa-file-medical"></i> Izin / Sakit
                                 </button>
 
-                            @elseif($attendanceToday->status == 'hadir' && $attendanceToday->clock_out == null)
+                            @elseif($attendanceToday->status == 'hadir' && empty($attendanceToday->clock_out))
                                 <div class="flex flex-col items-center gap-2">
                                     <div class="text-sm font-bold text-teal-700 bg-teal-50 px-4 py-2 rounded-lg border border-teal-100">
-                                        <i class="fas fa-check-circle mr-1"></i> Masuk: {{ $attendanceToday->clock_in }}
+                                        <i class="fas fa-check-circle mr-1"></i> Masuk: {{ \Carbon\Carbon::parse($attendanceToday->clock_in)->format('H:i') }}
                                     </div>
                                     <form action="{{ route('peserta.absen.pulang') }}" method="POST">
                                         @csrf
@@ -99,7 +99,10 @@
                                     @if($attendanceToday->status == 'hadir')
                                         <div class="px-6 py-3 bg-green-50 text-green-700 rounded-xl border border-green-200 font-bold flex flex-col items-center">
                                             <span><i class="fas fa-check-double mr-1"></i> Kehadiran Terekam</span>
-                                            <span class="text-xs font-normal mt-1 text-green-600">{{ $attendanceToday->clock_in }} - {{ $attendanceToday->clock_out }}</span>
+                                            <span class="text-xs font-normal mt-1 text-green-600">
+                                                {{ \Carbon\Carbon::parse($attendanceToday->clock_in)->format('H:i') }} - 
+                                                {{ $attendanceToday->clock_out ? \Carbon\Carbon::parse($attendanceToday->clock_out)->format('H:i') : '?' }}
+                                            </span>
                                         </div>
                                     @else
                                         <div class="px-6 py-3 bg-yellow-50 text-yellow-700 rounded-xl border border-yellow-200 font-bold flex items-center gap-2">
@@ -188,6 +191,10 @@
 
                             <div class="flex flex-wrap gap-2 justify-end w-full md:w-auto">
                                 @if($app->status == 'diterima')
+                                    <a href="{{ route('peserta.loa.download', $app->id) }}" target="_blank" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition shadow-sm flex items-center gap-2">
+                                        <i class="fas fa-file-contract"></i> Surat Balasan
+                                    </a>
+
                                     <a href="{{ route('peserta.logbook.index') }}" class="px-4 py-2 bg-teal-600 text-white rounded-lg text-sm font-bold hover:bg-teal-700 transition shadow-sm flex items-center gap-2">
                                         <i class="fas fa-book-open"></i> Logbook
                                     </a>
@@ -195,11 +202,18 @@
                                         <i class="fas fa-print"></i> Rekap
                                     </a>
                                 @elseif($app->status == 'selesai')
+                                    <a href="{{ route('peserta.loa.download', $app->id) }}" target="_blank" class="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-bold hover:bg-indigo-700 transition shadow-sm flex items-center gap-2">
+                                        <i class="fas fa-file-contract"></i> Surat Balasan
+                                    </a>
                                     <a href="{{ route('peserta.sertifikat') }}" target="_blank" class="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-bold hover:bg-blue-700 transition shadow-sm flex items-center gap-2">
                                         <i class="fas fa-certificate"></i> Sertifikat
                                     </a>
                                     <a href="{{ route('peserta.download.nilai', $app->id) }}" target="_blank" class="px-4 py-2 bg-green-600 text-white rounded-lg text-sm font-bold hover:bg-green-700 transition shadow-sm flex items-center gap-2">
                                         <i class="fas fa-file-alt"></i> Transkrip
+                                    </a>
+                                    
+                                    <a href="{{ route('peserta.logbook.print') }}" target="_blank" class="px-4 py-2 bg-gray-800 text-white rounded-lg text-sm font-bold hover:bg-gray-900 transition shadow-sm flex items-center gap-2">
+                                        <i class="fas fa-print"></i> Rekap
                                     </a>
                                 @endif
                             </div>

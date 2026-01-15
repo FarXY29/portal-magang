@@ -7,6 +7,8 @@ use App\Models\Application;
 use App\Models\DailyLog;
 use App\Models\InternshipPosition;
 use App\Models\User;
+use App\Models\Attendance;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
@@ -353,6 +355,83 @@ class AdminSkpdController extends Controller
             'komentar_mentor' => $request->komentar ?? null
         ]);
         return back()->with('success', 'Status logbook diperbarui.');
+    }
+
+    public function showAbsensi(Request $request, $id)
+    {
+        // Ambil data Aplikasi (Peserta) berdasarkan ID
+        $app = Application::with(['user', 'position'])->findOrFail($id);
+
+        // Keamanan: Pastikan peserta ini melamar di SKPD milik user yang sedang login
+        if ($app->position->skpd_id != Auth::user()->skpd_id) {
+            abort(403, 'Akses ditolak');
+        }
+
+        // Query Absensi (Gunakan model Attendance, bukan Absensi)
+        $query = Attendance::where('application_id', $id)->orderBy('date', 'desc');
+
+        // Filter Bulan (Jika ada input dropdown)
+        if ($request->has('bulan') && $request->bulan != '') {
+            $query->whereMonth('date', $request->bulan);
+        }
+
+        $absensi = $query->get();
+
+        // Hitung Statistik (Dari semua data tanpa filter bulan)
+        $allData = Attendance::where('application_id', $id)->get();
+
+        $stats = [
+            // Hitung Tepat Waktu (Hadir & Jam Masuk <= 08:00)
+            'tepat_waktu' => $allData->filter(function ($item) {
+                return $item->status == 'hadir' && $item->clock_in && $item->clock_in <= '08:00:00';
+            })->count(),
+
+            // Hitung Terlambat (Hadir & Jam Masuk > 08:00)
+            'terlambat' => $allData->filter(function ($item) {
+                return $item->status == 'hadir' && $item->clock_in && $item->clock_in > '08:00:00';
+            })->count(),
+
+            // Hitung Izin/Sakit
+            'izin' => $allData->whereIn('status', ['izin', 'sakit'])->count(),
+
+            // Hitung Alpha
+            'alpha' => $allData->where('status', 'alpa')->count(),
+        ];
+
+        // Arahkan ke view yang sesuai
+        return view('dinas.peserta.absensi', compact('app', 'absensi', 'stats'));
+    }
+
+    public function printAbsensi(Request $request, $id)
+    {
+        // 1. Ambil data Aplikasi dengan relasi bertingkat (position.skpd)
+        $app = Application::with(['user', 'position.skpd', 'mentor'])->findOrFail($id);
+
+        // Keamanan: Cek hak akses SKPD
+        // Akses data SKPD via position
+        if ($app->position->skpd_id != Auth::user()->skpd_id) {
+            abort(403);
+        }
+
+        // 2. Query Data Absensi
+        $query = Attendance::where('application_id', $id)->orderBy('date', 'asc');
+
+        if ($request->has('bulan') && $request->bulan != '') {
+            $query->whereMonth('date', $request->bulan);
+        }
+
+        $data = $query->get();
+
+        // 3. Generate PDF
+        $pdf = Pdf::loadView('dinas.pdf.rekap_absensi', [
+            'data'   => $data,
+            'app'    => $app,
+            'bulan'  => $request->bulan ? Carbon::create()->month($request->bulan)->translatedFormat('F') : 'Semua Periode'
+        ]);
+
+        $pdf->setPaper('a4', 'portrait');
+
+        return $pdf->stream('Laporan-Absensi-' . $app->user->name . '.pdf');
     }
 
     // --- LAPORAN REKAPITULASI ---
