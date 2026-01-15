@@ -1,104 +1,121 @@
 <x-guest-layout>
-    
-    <!-- Tombol Kembali (Di Paling Atas) -->
-    <div class="mb-8">
-        <a href="{{ route('home') }}" class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-gray-800 transition">
-            <i class="fas fa-arrow-left mr-2"></i> Kembali ke Beranda
-        </a>
-    </div>
+    <div class="flex flex-col md:flex-row gap-6 max-w-6xl mx-auto my-8 px-4 sm:px-6">
+        
+        <div class="w-full md:w-5/12 bg-teal-600 rounded-3xl shadow-xl overflow-hidden relative flex flex-col justify-between p-8 md:p-12 min-h-[400px]">
+            
+            <div class="absolute top-0 right-0 -mt-12 -mr-12 w-48 h-48 bg-white opacity-10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 -mb-12 -ml-12 w-64 h-64 bg-teal-800 opacity-20 rounded-full blur-3xl"></div>
 
-    <!-- Header (Teks Besar & Rata Kiri) -->
-    <div class="mb-8 text-left">
-        <h2 class="text-3xl font-extrabold text-gray-900 leading-tight">
-            Masuk ke Akun Anda
-        </h2>
-        <p class="mt-2 text-sm text-gray-600">
-            Atau 
-            <a href="{{ route('register') }}" class="font-bold text-teal-600 hover:text-teal-700 hover:underline transition">
-                daftar sebagai peserta magang baru
-            </a>
-        </p>
-    </div>
-
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
-
-    <form method="POST" action="{{ route('login') }}" class="space-y-6">
-        @csrf
-
-        <!-- Email / Username -->
-        <div>
-            <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
-                Email / Username
-            </label>
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="far fa-envelope text-gray-400 text-lg"></i>
-                </div>
-                <input id="email" name="email" type="text" required autofocus
-                       class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition placeholder-gray-400"
-                       placeholder="email@contoh.com atau username" :value="old('email')">
-            </div>
-            <x-input-error :messages="$errors->get('email')" class="mt-1" />
-        </div>
-
-        <!-- Password -->
-        <div>
-            <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">Password</label>
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <i class="fas fa-lock text-gray-400 text-lg"></i>
-                </div>
-                <input id="password" name="password" type="password" required autocomplete="current-password"
-                       class="block w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 sm:text-sm transition placeholder-gray-400"
-                       placeholder="••••••••">
-            </div>
-            <x-input-error :messages="$errors->get('password')" class="mt-1" />
-        </div>
-
-        <!-- Remember Me & Forgot Password -->
-        <div class="flex items-center justify-between">
-            <label for="remember_me" class="inline-flex items-center cursor-pointer">
-                <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-teal-600 shadow-sm focus:ring-teal-500 w-4 h-4" name="remember">
-                <span class="ml-2 text-sm text-gray-600">Ingat Saya</span>
-            </label>
-
-            @if (Route::has('password.request'))
-                <a href="{{ route('password.request') }}" class="text-sm font-bold text-teal-600 hover:text-teal-800">
-                    Lupa password?
+            <div class="relative z-10">
+                <a href="{{ route('home') }}" class="group inline-flex items-center text-sm font-bold text-teal-100 hover:text-white transition">
+                    <div class="w-10 h-10 rounded-full bg-teal-700/50 flex items-center justify-center mr-3 group-hover:bg-teal-500 transition shadow-sm border border-teal-500/30">
+                        <i class="fas fa-arrow-left text-sm"></i>
+                    </div>
+                    Kembali ke Beranda
                 </a>
-            @endif
+            </div>
+
+            <div class="relative z-10 mt-10 md:mt-0 text-center md:text-left">
+                <div class="w-20 h-20 bg-white/10 rounded-2xl flex items-center justify-center mb-6 backdrop-blur-md border border-white/20 shadow-inner mx-auto md:mx-0">
+                    <x-application-logo class="w-12 h-12 fill-current text-white" />
+                </div>
+                <h1 class="text-3xl md:text-4xl font-extrabold tracking-tight text-white mb-4 drop-shadow-md">
+                    Selamat Datang!
+                </h1>
+                <p class="text-teal-50 text-lg font-medium leading-relaxed opacity-90">
+                    Masuk untuk mengakses dashboard, memantau status lamaran, dan mengisi logbook harian.
+                </p>
+            </div>
+
+            <div class="relative z-10 mt-12 text-center md:text-left hidden md:block">
+                <p class="text-xs text-teal-200/60 font-medium">
+                    &copy; {{ date('Y') }} Diskominfotik Banjarmasin.
+                </p>
+            </div>
         </div>
 
-        <!-- Tombol Login (Tebal & Lebar) -->
-        <div>
-            <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-extrabold text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition transform hover:-translate-y-0.5 tracking-wide">
-                MASUK SEKARANG <i class="fas fa-arrow-right ml-2"></i>
-            </button>
-        </div>
-        <div class="mt-4">
-            <div class="relative">
+        <div class="w-full md:w-7/12 bg-white rounded-3xl shadow-xl overflow-hidden p-8 md:p-12 border border-gray-100 flex flex-col justify-center">
+            
+            <div class="mb-8">
+                <h2 class="text-3xl font-extrabold text-gray-900">Masuk ke Akun</h2>
+                <p class="mt-2 text-sm text-gray-500">
+                    Belum punya akun? 
+                    <a href="{{ route('register') }}" class="font-bold text-teal-600 hover:text-teal-700 hover:underline transition">
+                        Daftar di sini
+                    </a>
+                </p>
+            </div>
+
+            <x-auth-session-status class="mb-6" :status="session('status')" />
+
+            <form method="POST" action="{{ route('login') }}" class="space-y-6">
+                @csrf
+
+                <div>
+                    <label for="email" class="block text-xs font-bold text-gray-700 uppercase mb-1.5 ml-1">Email / Username</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="far fa-envelope text-gray-400"></i>
+                        </div>
+                        <input id="email" name="email" type="text" required autofocus
+                            class="block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm bg-gray-50 focus:bg-white transition placeholder-gray-400 shadow-sm"
+                            placeholder="email@contoh.com" :value="old('email')">
+                    </div>
+                    <x-input-error :messages="$errors->get('email')" class="mt-1" />
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1.5 ml-1">
+                        <label for="password" class="block text-xs font-bold text-gray-700 uppercase">Password</label>
+                        @if (Route::has('password.request'))
+                            <a href="{{ route('password.request') }}" class="text-xs font-bold text-teal-600 hover:text-teal-800 transition">
+                                Lupa Password?
+                            </a>
+                        @endif
+                    </div>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                            <i class="fas fa-lock text-gray-400"></i>
+                        </div>
+                        <input id="password" name="password" type="password" required autocomplete="current-password"
+                            class="block w-full pl-11 pr-4 py-3.5 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-sm bg-gray-50 focus:bg-white transition placeholder-gray-400 shadow-sm"
+                            placeholder="••••••••">
+                    </div>
+                    <x-input-error :messages="$errors->get('password')" class="mt-1" />
+                </div>
+
+                <div class="flex items-center">
+                    <label for="remember_me" class="inline-flex items-center cursor-pointer group">
+                        <input id="remember_me" type="checkbox" class="rounded border-gray-300 text-teal-600 shadow-sm focus:ring-teal-500 w-4 h-4 cursor-pointer" name="remember">
+                        <span class="ml-2 text-sm text-gray-600 group-hover:text-gray-900 transition">Ingat saya</span>
+                    </label>
+                </div>
+
+                <button type="submit" class="w-full flex justify-center items-center py-4 px-6 border border-transparent rounded-xl shadow-lg shadow-teal-200 text-sm font-extrabold text-white bg-teal-600 hover:bg-teal-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-teal-500 transition transform hover:-translate-y-0.5 tracking-wide">
+                    MASUK SEKARANG <i class="fas fa-sign-in-alt ml-2"></i>
+                </button>
+
+            </form>
+
+            <div class="relative mt-8 mb-6">
                 <div class="absolute inset-0 flex items-center">
-                    <div class="w-full border-t border-gray-300"></div>
+                    <div class="w-full border-t border-gray-200"></div>
                 </div>
                 <div class="relative flex justify-center text-sm">
-                    <span class="px-2 bg-white text-gray-500">Atau masuk dengan</span>
+                    <span class="px-3 bg-white text-gray-400 text-xs font-medium uppercase tracking-wider">Atau masuk dengan</span>
                 </div>
             </div>
 
-            <div class="mt-4">
-                <a href="{{ route('google.login') }}" class="w-full flex items-center justify-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 transition">
-                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="h-5 w-5 mr-2" alt="Google">
+            <div>
+                <a href="{{ route('google.login') }}" class="flex items-center justify-center w-full px-4 py-3.5 border border-gray-300 rounded-xl shadow-sm text-sm font-bold text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition transform hover:-translate-y-0.5">
+                    <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="h-5 w-5 mr-3" alt="Google">
                     Lanjutkan dengan Google
                 </a>
             </div>
-        </div>
-    </form>
 
-    <!-- Footer Login -->
-    <div class="mt-6 text-center border-t border-gray-100 pt-4">
-        <p class="text-sm text-gray-600">Belum punya akun?</p>
-        <div class="flex justify-center gap-4 mt-2">
+            <div class="mt-8 text-center border-t border-gray-100 pt-6">
+                <p class="text-sm text-gray-500 mb-2">Daftar:</p>
+                <div class="flex justify-center gap-4 mt-2">
             <a href="{{ route('register') }}" class="text-sm font-bold text-teal-600 hover:underline">
                 Daftar Mahasiswa
             </a>
@@ -106,6 +123,9 @@
             <a href="{{ route('pembimbing.register') }}" class="text-sm font-bold text-purple-600 hover:underline">
                 Daftar Dosen / Guru
             </a>
+        </div>
+            </div>
+
         </div>
     </div>
 </x-guest-layout>

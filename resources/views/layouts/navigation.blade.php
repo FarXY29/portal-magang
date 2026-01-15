@@ -1,6 +1,6 @@
 <nav class="flex flex-col h-full bg-white text-slate-600 border-r border-slate-200 shadow-xl shadow-slate-200/50 z-50">
     
-    <div class="h-20 flex items-center justify-between px-6 bg-gradient-to-r from-teal-600 to-teal-700 flex-shrink-0 relative overflow-hidden">
+    <!-- <div class="h-20 flex items-center justify-between px-6 bg-gradient-to-r from-teal-600 to-teal-700 flex-shrink-0 relative overflow-hidden">
         <div class="absolute top-0 right-0 w-16 h-16 bg-white opacity-10 rounded-full blur-xl -mr-8 -mt-8"></div>
         
         <a href="{{ route('home') }}" class="flex items-center gap-3 relative z-10 group">
@@ -15,7 +15,7 @@
         <button @click="sidebarOpen = false" class="text-white/70 hover:text-white lg:hidden transition transform hover:rotate-90">
             <i class="fas fa-times text-xl"></i>
         </button>
-    </div>
+    </div> -->
 
     <div class="flex-1 overflow-y-auto custom-scrollbar flex flex-col justify-between">
         

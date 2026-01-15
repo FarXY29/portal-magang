@@ -42,7 +42,7 @@
                                 <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-50">
+                        <tbody class="bg-white divide-y divide-gray-5">
                             @forelse($interns as $intern)
                             <tr class="hover:bg-gray-50 transition duration-150 {{ $intern->status == 'selesai' ? 'bg-gray-50/50' : '' }}">
                                 
@@ -145,6 +145,10 @@
                                     <div class="flex justify-end items-center gap-2">
                                         <a href="{{ route('dinas.peserta.logbook', $intern->id) }}" class="p-2 bg-white border border-gray-200 rounded-lg text-gray-600 hover:text-teal-600 hover:border-teal-300 transition shadow-sm" title="Pantau Logbook">
                                             <i class="fas fa-book-open"></i>
+                                        </a>
+
+                                        <a href="{{ route('dinas.peserta.absensi', $intern->id) }}" class="p-2 bg-white border border-gray-200 rounded-lg text-gray-600 hover:text-purple-600 hover:border-purple-300 transition shadow-sm" title="Pantau Absensi">
+                                            <i class="fas fa-calendar-check"></i>
                                         </a>
 
                                         @if($intern->status == 'diterima')

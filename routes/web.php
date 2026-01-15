@@ -111,6 +111,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/peserta-aktif', [AdminSkpdController::class, 'activeInterns'])->name('peserta.index');
         Route::post('/peserta/{id}/assign', [AdminSkpdController::class, 'assignMentor'])->name('peserta.assign');
         Route::get('/peserta/{id}/logbook', [AdminSkpdController::class, 'showLogbooks'])->name('peserta.logbook');
+        Route::get('/peserta/{id}/absensi', [AdminSkpdController::class, 'showAbsensi'])->name('peserta.absensi');
         Route::post('/peserta/{id}/selesai', [AdminSkpdController::class, 'finishIntern'])->name('peserta.selesai');
         Route::post('/logbook/validasi/{id}', [AdminSkpdController::class, 'validateLogbook'])->name('logbook.validasi');
         
