@@ -33,10 +33,6 @@
                     
                     <div class="space-y-4">
                         <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
-                            <p class="text-xs font-bold text-gray-400 uppercase mb-1">Posisi Magang</p>
-                            <p class="font-bold text-gray-800 text-sm">{{ $application->position->judul_posisi }}</p>
-                        </div>
-                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-100">
                             <p class="text-xs font-bold text-gray-400 uppercase mb-1">Periode</p>
                             <p class="font-bold text-gray-800 text-sm">
                                 {{ \Carbon\Carbon::parse($application->tanggal_mulai)->format('d M') }} - {{ \Carbon\Carbon::parse($application->tanggal_selesai)->format('d M Y') }}
