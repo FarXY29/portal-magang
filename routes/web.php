@@ -77,6 +77,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/absen/masuk', [App\Http\Controllers\AttendanceController::class, 'store'])->name('absen.masuk');
         Route::post('/absen/pulang', [App\Http\Controllers\AttendanceController::class, 'clockOut'])->name('absen.pulang');
         Route::post('/absen/izin', [App\Http\Controllers\AttendanceController::class, 'permission'])->name('absen.izin');
+
     });
 
     // === TAMBAHKAN ROUTE INI (AJAX CEK KUOTA) ===
@@ -88,6 +89,7 @@ Route::middleware('auth')->group(function () {
 
     // B. AREA ADMIN SKPD
     Route::middleware(['role:admin_skpd'])->prefix('dinas')->name('dinas.')->group(function () {
+        
         Route::get('/dashboard', [AdminSkpdController::class, 'index'])->name('dashboard');
         
         // Manajemen Mentor
@@ -108,7 +110,7 @@ Route::middleware('auth')->group(function () {
         Route::put('/lowongan/{id}', [AdminSkpdController::class, 'updateLowongan'])->name('lowongan.update');
         Route::delete('/lowongan/{id}', [AdminSkpdController::class, 'destroyLowongan'])->name('lowongan.destroy');
 
-        // Monitoring
+        // Monitoring & Validasi
         Route::get('/peserta-aktif', [AdminSkpdController::class, 'activeInterns'])->name('peserta.index');
         Route::post('/peserta/{id}/assign', [AdminSkpdController::class, 'assignMentor'])->name('peserta.assign');
         Route::get('/peserta/{id}/logbook', [AdminSkpdController::class, 'showLogbooks'])->name('peserta.logbook');
@@ -116,19 +118,22 @@ Route::middleware('auth')->group(function () {
         Route::post('/peserta/{id}/selesai', [AdminSkpdController::class, 'finishIntern'])->name('peserta.selesai');
         Route::post('/logbook/validasi/{id}', [AdminSkpdController::class, 'validateLogbook'])->name('logbook.validasi');
         
-        // Laporan Dinas
+        // Laporan & Cetak
         Route::get('/laporan/rekap', [AdminSkpdController::class, 'laporanRekap'])->name('laporan.rekap');
         Route::get('/laporan/rekap/print', [AdminSkpdController::class, 'printRekap'])->name('laporan.rekap.print');
         Route::get('/laporan/grading', [AdminSkpdController::class, 'laporanGradingDinas'])->name('laporan.grading');
         Route::get('/peserta/{id}/absensi/pdf', [AdminSkpdController::class, 'printAbsensi'])->name('peserta.absensi.pdf');
 
-        // RUTE PENGATURAN PEJABAT
+        // Pengaturan
         Route::get('/pengaturan-pejabat', [AdminSkpdController::class, 'editPejabat'])->name('pejabat.edit');
         Route::put('/pengaturan-pejabat', [AdminSkpdController::class, 'updatePejabat'])->name('pejabat.update');
-
-        // ROUTE PENGATURAN JAM (BARU)
         Route::get('/pengaturan', [AdminSkpdController::class, 'settings'])->name('settings');
         Route::put('/pengaturan', [AdminSkpdController::class, 'updateSettings'])->name('settings.update');
+
+        // === MANAJEMEN SERTIFIKAT ===
+        Route::get('/sertifikat/create/{applicationId}', [CertificateController::class, 'create'])->name('sertifikat.create');
+        Route::post('/sertifikat/store/{applicationId}', [CertificateController::class, 'store'])->name('sertifikat.store');
+
     });
 
     // C. AREA MENTOR
