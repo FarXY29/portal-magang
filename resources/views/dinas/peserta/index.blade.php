@@ -39,7 +39,7 @@
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Profil Peserta</th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-1/3">Assign Mentor</th>
                                 <th scope="col" class="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Periode Magang</th>
-                                <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aksi</th>
+                                <th scope="col" class="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Aksi & Sertifikat</th>
                             </tr>
                         </thead>
                         <tbody class="bg-white divide-y divide-gray-5">
@@ -50,7 +50,7 @@
                                     <div class="flex items-center gap-3">
                                         <div class="flex-shrink-0 h-10 w-10">
                                             @if($intern->status == 'selesai')
-                                                <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200">
+                                                <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold border border-blue-200" title="Alumni">
                                                     <i class="fas fa-graduation-cap"></i>
                                                 </div>
                                             @else
@@ -66,9 +66,16 @@
                                             <div class="text-xs text-gray-500">{{ $intern->user->email }}</div>
                                             
                                             @if($intern->status == 'selesai')
-                                                <span class="inline-flex items-center mt-1 px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100">
-                                                    LULUS / ALUMNI
-                                                </span>
+                                                <div class="mt-1 flex items-center gap-1">
+                                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-100">
+                                                        LULUS
+                                                    </span>
+                                                    @if($intern->nilai_rata_rata)
+                                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-yellow-50 text-yellow-700 border border-yellow-100">
+                                                            Nilai: {{ $intern->nilai_rata_rata }}
+                                                        </span>
+                                                    @endif
+                                                </div>
                                             @endif
                                         </div>
                                     </div>
@@ -93,7 +100,7 @@
                                             </div>
                                             @if($intern->mentor_id)
                                                 <div class="text-[10px] text-green-600 font-medium flex items-center">
-                                                    <i class="fas fa-check-circle mr-1"></i> Terhubung: {{ $intern->mentor->name }}
+                                                    <i class="fas fa-check-circle mr-1"></i> Mentor: {{ $intern->mentor->name }}
                                                 </div>
                                             @else
                                                 <div class="text-[10px] text-red-500 font-medium flex items-center animate-pulse">
@@ -143,22 +150,35 @@
 
                                 <td class="px-6 py-4 text-right">
                                     <div class="flex justify-end items-center gap-2">
-                                        <a href="{{ route('dinas.peserta.logbook', $intern->id) }}" class="p-2 bg-white border border-gray-200 rounded-lg text-gray-600 hover:text-teal-600 hover:border-teal-300 transition shadow-sm" title="Pantau Logbook">
-                                            <i class="fas fa-book-open"></i>
-                                        </a>
+                                        
+                                        <div class="flex bg-gray-50 rounded-lg border border-gray-200">
+                                            <a href="{{ route('dinas.peserta.logbook', $intern->id) }}" class="p-2 text-gray-600 hover:text-teal-600 transition" title="Logbook">
+                                                <i class="fas fa-book-open"></i>
+                                            </a>
+                                            <div class="w-px bg-gray-200 my-1"></div>
+                                            <a href="{{ route('dinas.peserta.absensi', $intern->id) }}" class="p-2 text-gray-600 hover:text-purple-600 transition" title="Absensi">
+                                                <i class="fas fa-calendar-check"></i>
+                                            </a>
+                                        </div>
 
-                                        <a href="{{ route('dinas.peserta.absensi', $intern->id) }}" class="p-2 bg-white border border-gray-200 rounded-lg text-gray-600 hover:text-purple-600 hover:border-purple-300 transition shadow-sm" title="Pantau Absensi">
-                                            <i class="fas fa-calendar-check"></i>
-                                        </a>
-
-                                        @if($intern->status == 'diterima')
-                                            <form action="{{ route('dinas.peserta.selesai', $intern->id) }}" method="POST" onsubmit="return confirm('PERINGATAN!\n\nMeluluskan peserta ini akan:\n1. Menerbitkan Sertifikat Otomatis\n2. Menutup akses edit logbook peserta\n\nLanjutkan?')">
+                                        @if($intern->nilai_rata_rata)
+                                            <a href="{{ route('dinas.sertifikat.create', $intern->id) }}" 
+                                               class="group flex items-center gap-2 px-3 py-2 bg-teal-50 text-teal-700 border border-teal-200 rounded-lg hover:bg-teal-600 hover:text-white hover:border-teal-600 transition shadow-sm"
+                                               title="Terbitkan Sertifikat Kelulusan">
+                                                <i class="fas fa-certificate text-teal-500 group-hover:text-white"></i>
+                                                <span class="text-xs font-bold hidden xl:inline">Sertifikat</span>
+                                            </a>
+                                        @elseif($intern->status == 'diterima')
+                                            <form action="{{ route('dinas.peserta.selesai', $intern->id) }}" method="POST" onsubmit="return confirm('PERINGATAN!\n\nPeserta ini BELUM DINILAI oleh mentor.\nJika Anda meluluskan sekarang, peserta TIDAK AKAN MENDAPAT NILAI di sertifikat.\n\nLanjutkan?')">
                                                 @csrf
-                                                <button type="submit" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition shadow-sm font-bold border border-blue-100" title="Luluskan Peserta">
-                                                    <i class="fas fa-graduation-cap"></i>
+                                                <button type="submit" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white transition shadow-sm font-bold border border-blue-100" title="Luluskan Peserta (Tanpa Sertifikat)">
+                                                    <i class="fas fa-check-double"></i>
                                                 </button>
                                             </form>
+                                        @else
+                                            <span class="text-[10px] text-gray-400 italic px-2">Menunggu Nilai</span>
                                         @endif
+
                                     </div>
                                 </td>
                             </tr>
