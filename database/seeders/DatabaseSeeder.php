@@ -20,15 +20,7 @@ class DatabaseSeeder extends Seeder
             'longitude' => 114.5908
         ]);
 
-        // 2. Buat Akun Super Admin (Admin Kota)
-        User::create([
-            'name' => 'Super Admin',
-            'email' => 'admin@banjarmasin.go.id',
-            'password' => Hash::make('password123'),
-            'role' => 'admin_kota',
-        ]);
-
-        // 3. Buat Akun Admin SKPD (Contoh untuk Kominfo)
+        // 2. Buat Akun Admin SKPD (Contoh untuk Kominfo)
         User::create([
             'name' => 'Admin Kominfo',
             'email' => 'kominfo@banjarmasin.go.id',
@@ -37,7 +29,7 @@ class DatabaseSeeder extends Seeder
             'skpd_id' => $kominfo->id,
         ]);
         
-        // 4. Buat Akun Peserta Dummy
+        // 3. Buat Akun Peserta Dummy
         User::create([
             'name' => 'Mahasiswa Test',
             'email' => 'mhs@test.com',

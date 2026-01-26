@@ -4,14 +4,10 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Http\Request; 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MagangController;
-use App\Http\Controllers\AdminKotaController;
 use App\Http\Controllers\AdminSkpdController;
 use App\Http\Controllers\LogbookController;
 use App\Http\Controllers\PembimbingController;
 use App\Http\Controllers\MentorController;
-use App\Http\Controllers\KepalaDinasController;
-use App\Http\Controllers\AdminUserController;
-use App\Http\Controllers\AdminSettingController;
 use App\Http\Controllers\Auth\RegisterPembimbingController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Models\InternshipPosition;
@@ -47,7 +43,6 @@ Route::get('/dashboard', function () {
     $role = auth()->user()->role;
     
     // Redirect user ke dashboard sesuai peran masing-masing
-    if ($role == 'admin_kota') return redirect()->route('admin.dashboard');
     if ($role == 'admin_skpd') return redirect()->route('dinas.dashboard');
     if ($role == 'mentor') return redirect()->route('mentor.dashboard');
     if ($role == 'peserta') return redirect()->route('peserta.dashboard');
@@ -159,40 +154,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/logbook/{id}', [PembimbingController::class, 'showLogbook'])->name('logbook');
     });
 
-
-    // E. AREA ADMIN KOTA (SUPER ADMIN)
-    Route::middleware(['role:admin_kota'])->prefix('admin')->name('admin.')->group(function () {
-        Route::get('/dashboard', [AdminKotaController::class, 'index'])->name('dashboard');
-        
-        // Master Data
-        Route::get('/skpd', [AdminKotaController::class, 'indexSkpd'])->name('skpd.index');
-        Route::get('/skpd/create', [AdminKotaController::class, 'create'])->name('skpd.create');
-        Route::post('/skpd', [AdminKotaController::class, 'store'])->name('skpd.store');
-        Route::get('/skpd/{id}/edit', [AdminKotaController::class, 'edit'])->name('skpd.edit');
-        Route::put('/skpd/{id}', [AdminKotaController::class, 'update'])->name('skpd.update');
-        Route::delete('/skpd/{id}', [AdminKotaController::class, 'destroy'])->name('skpd.destroy');
-        
-        // Laporan Global & Monitoring
-        Route::get('/laporan', [AdminKotaController::class, 'report'])->name('laporan');
-        Route::get('/laporan/excel', [AdminKotaController::class, 'exportExcel'])->name('laporan.excel');
-        Route::get('/laporan/peserta-global', [AdminKotaController::class, 'laporanPesertaGlobal'])->name('laporan.peserta_global');
-        Route::get('/laporan-skpd', [AdminKotaController::class, 'laporanSkpd'])->name('laporan.skpd');
-        // Laporan SKPD PDF
-        Route::get('/skpd/cetak-pdf', [AdminKotaController::class, 'printSkpd'])->name('skpd.print_pdf');
-        Route::get('/laporan/peserta-global/print', [AdminKotaController::class, 'printPesertaGlobal'])
-        ->name('laporan.peserta_global.print');
-        // Laporan Grading
-        Route::get('/laporan-grading', [AdminKotaController::class, 'laporanGrading'])->name('laporan.grading');
-        // User Management & Settings
-        Route::resource('users', AdminUserController::class);
-        Route::get('/monitoring-logbook', [AdminUserController::class, 'logbooks'])->name('users.logbooks');
-        Route::get('/monitoring-logbook/{id}', [AdminUserController::class, 'showLogbook'])->name('users.logbooks.show');
-        
-        Route::get('/settings', [AdminSettingController::class, 'index'])->name('settings.index');
-        Route::post('/settings', [AdminSettingController::class, 'update'])->name('settings.update');
-    });
-
-    // G. PROFILE
+    // E. PROFILE
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

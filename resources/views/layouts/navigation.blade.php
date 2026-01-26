@@ -38,44 +38,6 @@
                <span>Dashboard</span>
             </a>
 
-            @if(Auth::user()->role == 'admin_kota')
-            <div x-data="{ open: {{ request()->routeIs('admin.*') ? 'true' : 'false' }} }" class="space-y-1 pt-2">
-                <button @click="open = !open" class="flex items-center justify-between w-full px-4 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest hover:text-teal-600 transition-colors focus:outline-none group">
-                    <span>Super Admin</span>
-                    <i class="fas text-[9px] transition-transform duration-200" :class="open ? 'fa-chevron-down text-teal-500' : 'fa-chevron-right text-slate-300 group-hover:text-teal-500'"></i>
-                </button>
-                
-                <div x-show="open" 
-                     x-collapse 
-                     x-cloak
-                     class="space-y-1 pl-3 relative">
-                     <div class="absolute left-0 top-2 bottom-2 w-[1px] bg-slate-200"></div>
-
-                    <a href="{{ route('admin.skpd.index') }}" class="block px-4 py-2 text-sm font-medium rounded-r-lg border-l-2 border-transparent hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 transition {{ request()->routeIs('admin.skpd.*') ? 'text-teal-700 border-teal-500 bg-teal-50/50' : 'text-slate-500' }}">
-                        Kelola Data SKPD
-                    </a>
-                    <a href="{{ route('admin.users.index') }}" class="block px-4 py-2 text-sm font-medium rounded-r-lg border-l-2 border-transparent hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 transition {{ request()->routeIs('admin.users.index') ? 'text-teal-700 border-teal-500 bg-teal-50/50' : 'text-slate-500' }}">
-                        Manajemen Pengguna
-                    </a>
-                    <a href="{{ route('admin.laporan') }}" class="block px-4 py-2 text-sm font-medium rounded-r-lg border-l-2 border-transparent hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 transition {{ request()->routeIs('admin.laporan') ? 'text-teal-700 border-teal-500 bg-teal-50/50' : 'text-slate-500' }}">
-                        Laporan SKPD
-                    </a>
-                    <a href="{{ route('admin.laporan.peserta_global') }}" class="block px-4 py-2 text-sm font-medium rounded-r-lg border-l-2 border-transparent hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 transition {{ request()->routeIs('admin.laporan.peserta_global') ? 'text-teal-700 border-teal-500 bg-teal-50/50' : 'text-slate-500' }}">
-                        Data Peserta Global
-                    </a>
-                     <a href="{{ route('admin.laporan.grading') }}" class="block px-4 py-2 text-sm font-medium rounded-r-lg border-l-2 border-transparent hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 transition {{ request()->routeIs('admin.laporan.grading') ? 'text-teal-700 border-teal-500 bg-teal-50/50' : 'text-slate-500' }}">
-                        Analisis Kompetensi
-                    </a>
-                     <a href="{{ route('admin.users.logbooks') }}" class="block px-4 py-2 text-sm font-medium rounded-r-lg border-l-2 border-transparent hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 transition {{ request()->routeIs('admin.users.logbooks') ? 'text-teal-700 border-teal-500 bg-teal-50/50' : 'text-slate-500' }}">
-                        Monitoring Logbook
-                    </a>
-                    <a href="{{ route('admin.settings.index') }}" class="block px-4 py-2 text-sm font-medium rounded-r-lg border-l-2 border-transparent hover:border-teal-300 hover:bg-teal-50 hover:text-teal-700 transition {{ request()->routeIs('admin.settings.*') ? 'text-teal-700 border-teal-500 bg-teal-50/50' : 'text-slate-500' }}">
-                        Pengaturan Sistem
-                    </a>
-                </div>
-            </div>
-            @endif
-
             @if(Auth::user()->role == 'admin_skpd')
             <div x-data="{ open: {{ request()->routeIs('dinas.*') ? 'true' : 'false' }} }" class="space-y-1 pt-2">
                 <button @click="open = !open" class="flex items-center justify-between w-full px-4 py-2 text-[11px] font-bold text-slate-400 uppercase tracking-widest hover:text-teal-600 transition-colors focus:outline-none group">

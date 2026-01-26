@@ -8,9 +8,8 @@ return new class extends Migration
 {
     public function up(): void
     {
-
         // Tambah kolom signature di tabel users (untuk Mentor)
-        Schema::table('skpd', function (Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             $table->string('signature')->nullable()->after('password');
         });
     }
